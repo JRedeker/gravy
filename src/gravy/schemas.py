@@ -6,8 +6,66 @@ from dataclasses import dataclass
 from typing import Any, Literal, Mapping, TypeAlias
 
 
+FIELD_TYPES = ("text", "image", "option", "toggle", "free_text")
+
+
 class RequestValidationError(ValueError):
     """Raised when an untrusted create request is outside the closed union."""
+
+
+@dataclass(frozen=True, slots=True)
+class FormField:
+    """Typed descriptor for a single form field."""
+
+    name: str
+    type: Literal["text", "image", "option", "toggle", "free_text"] = "text"
+    label: str | None = None
+    options: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        value: dict[str, Any] = {"name": self.name, "type": self.type}
+        if self.label is not None:
+            value["label"] = self.label
+        if self.options:
+            value["options"] = list(self.options)
+        return value
+
+
+def _form_field(value: Any) -> str | FormField:
+    if isinstance(value, str) and value:
+        return value
+    if isinstance(value, Mapping):
+        name = value.get("name")
+        if not isinstance(name, str) or not name:
+            raise RequestValidationError("form field descriptor must have a non-empty name")
+        ftype = value.get("type", "text")
+        if ftype not in FIELD_TYPES:
+            raise RequestValidationError(
+                f"form field type must be one of: {', '.join(FIELD_TYPES)}"
+            )
+        label = value.get("label")
+        if label is not None and not isinstance(label, str):
+            raise RequestValidationError("form field label must be a string")
+        options = value.get("options", [])
+        if not isinstance(options, list) or any(
+            not isinstance(option, str) or not option for option in options
+        ):
+            raise RequestValidationError(
+                "form field options must be a list of non-empty strings"
+            )
+        if ftype == "option" and len(options) < 2:
+            raise RequestValidationError(
+                "option field requires at least two options"
+            )
+        return FormField(
+            name=name,
+            type=ftype,
+            label=label,
+            options=tuple(options),
+        )
+    raise RequestValidationError(
+        "form field must be a non-empty string or descriptor"
+    )
 
 
 def _string_list(request: Mapping[str, Any], name: str) -> tuple[str, ...]:
@@ -43,10 +101,16 @@ class PairwiseRequest:
 @dataclass(frozen=True, slots=True)
 class FormRequest:
     surface: Literal["form"]
-    fields: tuple[str, ...]
+    fields: tuple[str | FormField, ...]
 
     def to_dict(self) -> dict[str, Any]:
-        return {"surface": self.surface, "fields": list(self.fields)}
+        return {
+            "surface": self.surface,
+            "fields": [
+                field if isinstance(field, str) else field.to_dict()
+                for field in self.fields
+            ],
+        }
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,7 +139,10 @@ def validate_request(request: Mapping[str, Any]) -> ReviewRequest:
         return PairwiseRequest("pairwise", _string_list(request, "items"))
     if surface == "form":
         _require_exact_keys(request, "fields")
-        return FormRequest("form", _string_list(request, "fields"))
+        fields_raw = request.get("fields")
+        if not isinstance(fields_raw, list) or not fields_raw:
+            raise RequestValidationError("fields must be a non-empty list")
+        return FormRequest("form", tuple(_form_field(item) for item in fields_raw))
     if surface == "checklist":
         _require_exact_keys(request, "criteria")
         return ChecklistRequest("checklist", _string_list(request, "criteria"))

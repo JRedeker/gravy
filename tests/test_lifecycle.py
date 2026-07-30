@@ -48,7 +48,7 @@ def adapter(tmp_path: Path, tailnet: FakeTailnet):
     ports = PortPool(41000, 41001)
     pages: list[FakePage] = []
 
-    def build_page(_request):
+    def build_page(_review_id: str, _request):
         page = FakePage()
         pages.append(page)
         return page

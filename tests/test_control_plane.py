@@ -37,7 +37,7 @@ def plane(tmp_path: Path) -> GravyControlPlane:
         PortPool(41000, 41002),
         ArtifactStore(tmp_path / "artifacts"),
         FakeTailnet(),
-        lambda _request: FakePage(),
+        lambda _review_id, _request: FakePage(),
     )
     return GravyControlPlane(lifecycle)
 

@@ -43,7 +43,7 @@ class LifecycleAdapter:
         ports: PortPool,
         artifacts: ArtifactStore,
         tailnet: TailnetServe,
-        build_page: Callable[[ReviewRequest], GradioPage],
+        build_page: Callable[[str, ReviewRequest], GradioPage],
     ) -> None:
         self.registry = registry
         self.ports = ports
@@ -61,7 +61,7 @@ class LifecycleAdapter:
 
         def expose(review_id: str, port: int) -> str:
             nonlocal page, mapped
-            page = self._build_page(request)
+            page = self._build_page(review_id, request)
             page.launch(port)
             url = self._tailnet.expose(review_id, port)
             mapped = (review_id, port)
