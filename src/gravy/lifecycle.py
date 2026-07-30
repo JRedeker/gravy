@@ -96,18 +96,39 @@ class LifecycleAdapter:
         return self.registry.close(review_id, reason)
 
     def recover_after_recycle(self) -> tuple[LifecycleResult, ...]:
-        """Terminalize persisted active pages and remove only their owned mappings."""
+        """Terminalize persisted active pages and remove only their owned mappings.
+
+        Tailnet cleanup is best-effort: if `remove` or `reconcile_owned` throws,
+        the review record is still terminalized and a readable recovery artifact is
+        written to its artifact namespace so the submitted decisions remain
+        recoverable.  This intentionally never calls a global `tailscale serve reset`.
+        """
         results: list[LifecycleResult] = []
         for record in self.registry.active_records():
+            cleanup_error: str | None = None
             try:
                 self._tailnet.remove(record.review_id, record.port)
-            except Exception:
-                results.append(LifecycleResult(diagnostic=DiagnosticCode.EXPOSURE_FAILURE))
-                continue
-            self._pages.pop(record.review_id, None)
+            except Exception as exc:
+                cleanup_error = f"{exc}"
+            finally:
+                self._pages.pop(record.review_id, None)
+
+            # Preserve a readable recovery artifact even if Tailnet cleanup failed.
+            self._artifacts.write_recovery(
+                record.review_id,
+                {
+                    "review_id": record.review_id,
+                    "artifact_path": record.artifact_path,
+                    "terminal_reason": "service_recycled",
+                    **({"cleanup_error": cleanup_error} if cleanup_error else {}),
+                },
+            )
+
+            # Always terminalize the persisted record, regardless of cleanup failures.
             results.append(self.registry.close(record.review_id, "service_recycled"))
-        # Reconcile stale mappings for every port recorded as Gravy-owned.  This
-        # intentionally never calls a global tailscale serve reset.
+
+        # Reconcile stale mappings for every port still recorded as Gravy-owned.
+        # Ownership-only: never a global reset.
         owned_ports = {record.port for record in self.registry.all_records()}
         try:
             self._tailnet.reconcile_owned(owned_ports)

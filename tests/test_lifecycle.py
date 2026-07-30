@@ -331,3 +331,73 @@ def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifact
     assert second_page._blocks is None
     assert not _port_in_use("127.0.0.1", second.record.port)
     assert multiprocessing.active_children() == []
+
+
+def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_despite_cleanup_failure(
+    tmp_path: Path,
+):
+    """RED regression: even if Tailnet cleanup/reconciliation throws, every active
+    review becomes terminal and a readable recovery artifact is preserved.
+    """
+
+    class CleanupFailingTailnet(FakeTailnet):
+        def remove(self, review_id: str, port: int) -> None:
+            raise OSError(f"cleanup refused for {review_id}")
+
+        def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
+            raise RuntimeError("reconcile refused")
+
+    tailnet = CleanupFailingTailnet()
+    lifecycle, pages = adapter(tmp_path, tailnet)
+    first = lifecycle.create(request()).record
+    second = lifecycle.create(request()).record
+    assert first and second
+
+    # Seed a pre-existing decision artifact to prove it survives recycle.
+    decision_path = lifecycle._artifacts.append_decision(
+        first.review_id, {"note": "pre-recycle"}
+    )
+
+    recovered = lifecycle.recover_after_recycle()
+
+    # Every active review is terminal, regardless of cleanup failures.
+    assert lifecycle.registry.get(first.review_id).state is ReviewState.TERMINAL
+    assert lifecycle.registry.get(second.review_id).state is ReviewState.TERMINAL
+    assert lifecycle.registry.get(first.review_id).terminal_reason == "service_recycled"
+    assert lifecycle.registry.get(second.review_id).terminal_reason == "service_recycled"
+    # Ports are released so the pool can be reused.
+    assert lifecycle.ports.reserved == frozenset()
+
+    # A readable recovery artifact is preserved for each review.
+    for record in (first, second):
+        recovery_path = Path(record.artifact_path) / "recovery.json"
+        assert recovery_path.exists()
+        recovery = json.loads(recovery_path.read_text(encoding="utf-8"))
+        assert recovery["review_id"] == record.review_id
+        assert recovery["terminal_reason"] == "service_recycled"
+        assert Path(recovery["artifact_path"]) == Path(record.artifact_path)
+        assert "cleanup_error" in recovery
+
+    # Pre-existing decisions are not deleted.
+    assert decision_path.exists()
+    decisions = [
+        json.loads(line)
+        for line in decision_path.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    assert decisions == [{"note": "pre-recycle"}]
+
+    # Recovery results include terminal records for both active reviews and a
+    # diagnostic for the reconcile failure, but never leave an active record.
+    terminal_ids = {
+        result.record.review_id
+        for result in recovered
+        if result.record and result.record.state is ReviewState.TERMINAL
+    }
+    assert terminal_ids == {first.review_id, second.review_id}
+    diagnostics = [result.diagnostic for result in recovered if result.diagnostic]
+    assert DiagnosticCode.EXPOSURE_FAILURE in diagnostics
+    assert all(
+        result.record is None or result.record.state is ReviewState.TERMINAL
+        for result in recovered
+    )
