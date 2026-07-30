@@ -98,14 +98,15 @@ class ReviewRegistry:
                     artifact_path=str(namespace),
                 )
                 self._records[review_id] = record
-                self._persist()
+                try:
+                    self._persist()
+                except OSError:
+                    self._records.pop(review_id, None)
+                    ports.release(port)
+                    if namespace_created:
+                        artifacts.discard_namespace(review_id)
+                    return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
                 return LifecycleResult(record=record)
-            except OSError:
-                self._records.pop(review_id, None)
-                ports.release(port)
-                if namespace_created:
-                    artifacts.discard_namespace(review_id)
-                return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
             except Exception:
                 self._records.pop(review_id, None)
                 ports.release(port)

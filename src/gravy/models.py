@@ -13,6 +13,8 @@ class ReviewState(StrEnum):
 
 
 class DiagnosticCode(StrEnum):
+    INVALID_REQUEST = "invalid_request"
+    TAILNET_HTTPS_UNAVAILABLE = "tailnet_https_unavailable"
     CAPACITY_EXHAUSTED = "capacity_exhausted"
     PORT_UNAVAILABLE = "port_unavailable"
     EXPOSURE_FAILURE = "exposure_failure"
