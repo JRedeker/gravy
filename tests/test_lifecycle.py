@@ -1,4 +1,5 @@
 import concurrent.futures
+import json
 import multiprocessing
 import socket
 import time
@@ -198,6 +199,82 @@ def test_ten_concurrent_creates_use_distinct_ports_and_namespaces(tmp_path: Path
     assert launched_ports == {r.port for r in records}
 
 
+def gallery_request():
+    return validate_request(
+        {"surface": "gallery", "items": ["a.png", "b.png", "c.png"]}
+    )
+
+
+def test_ten_concurrent_active_reviews_record_durable_decisions_via_controller(
+    tmp_path: Path,
+):
+    """AC3: ten simultaneous creates each progress via the page controller.
+
+    Every active review records a durable decision through its real
+    GradioBlocksPage controller without queue starvation.
+    """
+    registry = ReviewRegistry(tmp_path / "registry.json")
+    ports = PortPool(41000, 41011)  # 12 ports, satisfies >=10 concurrent reviews
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    tailnet = FakeTailnet()
+
+    def build_page(review_id: str, request):
+        return GradioBlocksPage(review_id, request, artifacts)
+
+    lifecycle = LifecycleAdapter(registry, ports, artifacts, tailnet, build_page)
+
+    def create_one(_):
+        return lifecycle.create(gallery_request())
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        results = list(executor.map(create_one, range(10)))
+
+    records = [r.record for r in results if r.record]
+    assert len(records) == 10
+    assert len({r.review_id for r in records}) == 10
+    assert len({r.port for r in records}) == 10
+
+    for record in records:
+        _wait_for_server("127.0.0.1", record.port)
+
+    def submit_for(record):
+        page = lifecycle._pages[record.review_id]
+        assert isinstance(page, GradioBlocksPage)
+        # Real page/controller pathway: call the controller bound to the Blocks.
+        progress = page._controller.gallery_submit(
+            selection="b.png",
+            ranking=["b.png", "a.png", "c.png"],
+            notes="selected via controller",
+        )
+        return record.review_id, progress
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        progress_results = list(executor.map(submit_for, records))
+
+    assert len(progress_results) == 10
+    for review_id, progress in progress_results:
+        assert progress == {"complete": True, "remaining": 0}
+        decision_path = Path(artifacts.root) / review_id / "decisions.jsonl"
+        assert decision_path.exists()
+        decisions = [
+            json.loads(line)
+            for line in decision_path.read_text(encoding="utf-8").splitlines()
+            if line
+        ]
+        assert decisions == [
+            {
+                "notes": "selected via controller",
+                "ranking": ["b.png", "a.png", "c.png"],
+                "selection": "b.png",
+                "surface": "gallery",
+            }
+        ]
+
+    for record in records:
+        lifecycle.close(record.review_id)
+        assert registry.get(record.review_id).state is ReviewState.TERMINAL
+
+
 def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifacts(tmp_path: Path):
     """Real Gradio teardown after close/recycle leaves no listener or subprocess."""
     registry = ReviewRegistry(tmp_path / "registry.json")
@@ -219,12 +296,15 @@ def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifact
     assert isinstance(page, GradioBlocksPage)
     assert page._blocks is not None
     assert page._blocks.is_running
+    launch_thread = page._blocks.server.thread
+    assert launch_thread.is_alive()
 
     closed = lifecycle.close(record.review_id)
     assert closed.record is not None
     assert closed.record.state is ReviewState.TERMINAL
     assert not _port_in_use("127.0.0.1", record.port)
     assert page._blocks is None
+    assert not launch_thread.is_alive()
     assert multiprocessing.active_children() == []
 
     second = lifecycle.create(request())
