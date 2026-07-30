@@ -63,6 +63,10 @@ class ReviewRegistry:
         with self._lock:
             return tuple(record for record in self._records.values() if record.state is ReviewState.ACTIVE)
 
+    def all_records(self) -> tuple[ReviewRecord, ...]:
+        with self._lock:
+            return tuple(self._records.values())
+
     def get(self, review_id: str) -> ReviewRecord | None:
         with self._lock:
             return self._records.get(review_id)

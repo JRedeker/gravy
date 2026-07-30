@@ -30,6 +30,9 @@ class FakeTailnet:
     def remove(self, review_id: str, port: int) -> None:
         assert self.mappings.pop(review_id) == port
 
+    def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
+        return set()
+
 
 def plane(tmp_path: Path) -> GravyControlPlane:
     lifecycle = LifecycleAdapter(

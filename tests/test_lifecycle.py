@@ -25,6 +25,7 @@ class FakeTailnet:
         self.available = available
         self.mappings: dict[str, int] = {}
         self.removed: list[str] = []
+        self.reconciled: set[int] = set()
 
     def https_available(self) -> bool:
         return self.available
@@ -37,6 +38,16 @@ class FakeTailnet:
         assert self.mappings.get(review_id) == port
         self.mappings.pop(review_id)
         self.removed.append(review_id)
+
+    def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
+        removed: set[int] = set()
+        for review_id, port in list(self.mappings.items()):
+            if port in owned_ports:
+                self.mappings.pop(review_id)
+                self.removed.append(review_id)
+                self.reconciled.add(port)
+                removed.add(port)
+        return removed
 
 
 def request():
@@ -108,11 +119,19 @@ def test_recycle_marks_only_active_gravy_records_terminal_and_removes_their_mapp
     first = lifecycle.create(request()).record
     second = lifecycle.create(request()).record
     assert first and second
+
+    # Close the first review normally, then simulate a stale Serve mapping that
+    # was not removed (e.g. after an unclean shutdown).
+    lifecycle.close(first.review_id)
+    tailnet.mappings["stale-owned"] = first.port
     tailnet.mappings["foreign-review"] = 49999
 
     recovered = lifecycle.recover_after_recycle()
 
-    assert {result.record.review_id for result in recovered if result.record} == {first.review_id, second.review_id}
+    assert {result.record.review_id for result in recovered if result.record} == {second.review_id}
     assert lifecycle.registry.get(first.review_id).state is ReviewState.TERMINAL
     assert lifecycle.registry.get(second.review_id).state is ReviewState.TERMINAL
+    # Only Gravy-owned stale mappings are removed; foreign mappings are preserved.
     assert tailnet.mappings == {"foreign-review": 49999}
+    assert first.port in tailnet.reconciled
+    assert 49999 not in tailnet.reconciled

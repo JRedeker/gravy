@@ -33,6 +33,8 @@ class TailnetServe(Protocol):
 
     def remove(self, review_id: str, port: int) -> None: ...
 
+    def reconcile_owned(self, owned_ports: set[int]) -> set[int]: ...
+
 
 class LifecycleAdapter:
     """Atomically coordinate page, Serve mapping, registry, and port ownership."""
@@ -104,6 +106,13 @@ class LifecycleAdapter:
                 continue
             self._pages.pop(record.review_id, None)
             results.append(self.registry.close(record.review_id, "service_recycled"))
+        # Reconcile stale mappings for every port recorded as Gravy-owned.  This
+        # intentionally never calls a global tailscale serve reset.
+        owned_ports = {record.port for record in self.registry.all_records()}
+        try:
+            self._tailnet.reconcile_owned(owned_ports)
+        except Exception:
+            results.append(LifecycleResult(diagnostic=DiagnosticCode.EXPOSURE_FAILURE))
         return tuple(results)
 
     def _remove_mapping(self, review_id: str, port: int) -> None:
