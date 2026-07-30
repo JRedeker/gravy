@@ -1,6 +1,11 @@
+import concurrent.futures
+import multiprocessing
+import socket
+import time
 from pathlib import Path
 
 from gravy.artifacts import ArtifactStore
+from gravy.gradio_runtime import GradioBlocksPage
 from gravy.lifecycle import LifecycleAdapter
 from gravy.models import DiagnosticCode, ReviewState
 from gravy.ports import PortPool
@@ -135,3 +140,114 @@ def test_recycle_marks_only_active_gravy_records_terminal_and_removes_their_mapp
     assert tailnet.mappings == {"foreign-review": 49999}
     assert first.port in tailnet.reconciled
     assert 49999 not in tailnet.reconciled
+
+
+def _wait_for_server(host: str, port: int, timeout: float = 10.0) -> None:
+    deadline = time.monotonic() + timeout
+    last_error: Exception | None = None
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.5):
+                return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.05)
+    raise TimeoutError(f"server on {host}:{port} did not start") from last_error
+
+
+def _port_in_use(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(0.5)
+        return sock.connect_ex((host, port)) == 0
+
+
+def test_ten_concurrent_creates_use_distinct_ports_and_namespaces(tmp_path: Path):
+    """Ten simultaneous creates yield distinct IDs, ports, URLs, and namespaces."""
+    registry = ReviewRegistry(tmp_path / "registry.json")
+    ports = PortPool(41000, 41011)  # 12 ports, satisfies the >=10-port pool requirement
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    pages: list[FakePage] = []
+    tailnet = FakeTailnet()
+
+    def build_page(_review_id: str, _request):
+        page = FakePage()
+        pages.append(page)
+        return page
+
+    lifecycle = LifecycleAdapter(registry, ports, artifacts, tailnet, build_page)
+
+    def create_one(_):
+        return lifecycle.create(request())
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        results = list(executor.map(create_one, range(10)))
+
+    records = [r.record for r in results if r.record]
+    assert len(records) == 10
+    assert len({r.review_id for r in records}) == 10
+    assert len({r.port for r in records}) == 10
+    assert len({r.tailnet_url for r in records}) == 10
+    assert len({r.artifact_path for r in records}) == 10
+    assert all(r.state is ReviewState.ACTIVE for r in records)
+    assert len(lifecycle.registry.active_records()) == 10
+    assert len(lifecycle.ports.reserved) == 10
+    assert len(tailnet.mappings) == 10
+
+    launched_ports = {p.launched_port for p in pages}
+    assert len(launched_ports) == 10
+    assert launched_ports == {r.port for r in records}
+
+
+def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifacts(tmp_path: Path):
+    """Real Gradio teardown after close/recycle leaves no listener or subprocess."""
+    registry = ReviewRegistry(tmp_path / "registry.json")
+    ports = PortPool(41000, 41002)
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    tailnet = FakeTailnet()
+
+    def build_page(review_id: str, request):
+        return GradioBlocksPage(review_id, request, artifacts)
+
+    lifecycle = LifecycleAdapter(registry, ports, artifacts, tailnet, build_page)
+
+    created = lifecycle.create(request())
+    assert created.record is not None
+    record = created.record
+    _wait_for_server("127.0.0.1", record.port)
+    assert _port_in_use("127.0.0.1", record.port)
+    page = lifecycle._pages[record.review_id]
+    assert isinstance(page, GradioBlocksPage)
+    assert page._blocks is not None
+    assert page._blocks.is_running
+
+    closed = lifecycle.close(record.review_id)
+    assert closed.record is not None
+    assert closed.record.state is ReviewState.TERMINAL
+    assert not _port_in_use("127.0.0.1", record.port)
+    assert page._blocks is None
+    assert multiprocessing.active_children() == []
+
+    second = lifecycle.create(request())
+    assert second.record is not None
+    artifacts.append_decision(second.record.review_id, {"choice": "left"})
+    second_page = lifecycle._pages[second.record.review_id]
+    assert isinstance(second_page, GradioBlocksPage)
+
+    recovered = lifecycle.recover_after_recycle()
+    recovered_ids = {r.record.review_id for r in recovered if r.record}
+    assert second.record.review_id in recovered_ids
+
+    second_record = registry.get(second.record.review_id)
+    assert second_record is not None
+    assert second_record.state is ReviewState.TERMINAL
+    assert second_record.terminal_reason == "service_recycled"
+    assert (Path(second_record.artifact_path) / "decisions.jsonl").exists()
+    assert second.record.review_id not in tailnet.mappings
+
+    # The page is not closed by recycle (Vision recycle kills the process), so
+    # close it explicitly here to keep the test process clean and verify the
+    # listener is released.
+    second_page.close()
+    assert second_page._blocks is None
+    assert not _port_in_use("127.0.0.1", second.record.port)
+    assert multiprocessing.active_children() == []
