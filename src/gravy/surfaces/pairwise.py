@@ -1,4 +1,13 @@
-"""Resumable pairwise comparison surface."""
+"""Resumable pairwise comparison surface.
+
+Scope note (allowSurfaceDecisionRevision): pairwise is intentionally NOT revised
+to allow re-deciding past pairs. Unlike gallery/form/checklist, pairwise does not
+block resubmission with an immutability error — it advances through combinations
+via ``current_pair`` and only raises when all pairs are decided. Revisiting a past
+pair would require a new UI navigation feature (previous-pair control or pair
+selector), which is out of scope per the change's "no new product features"
+boundary. See design.md §D4 for rationale.
+"""
 
 from __future__ import annotations
 

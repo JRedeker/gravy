@@ -14,8 +14,6 @@ class GallerySurface(DecisionSurface):
         self.items = items
 
     def submit(self, *, selection: str, ranking: tuple[str, ...], notes: str) -> SurfaceProgress:
-        if self._surface_decisions():
-            raise SurfaceValidationError("gallery already has a decision")
         if selection not in self.items:
             raise SurfaceValidationError("selection must be a gallery item")
         if len(ranking) != len(self.items) or set(ranking) != set(self.items):

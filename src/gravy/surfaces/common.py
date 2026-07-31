@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -50,6 +51,28 @@ class DecisionSurface:
 
     def _surface_decisions(self) -> tuple[dict[str, Any], ...]:
         return tuple(row for row in self.decisions() if row.get("surface") == self.surface)
+
+    def latest_decision(self) -> dict[str, Any] | None:
+        """Effective decision for a whole-surface surface: the last appended row.
+
+        Revision appends; the latest row wins. Returns ``None`` when no decision
+        has been recorded yet, so reconstruction after recycle can distinguish
+        "not yet decided" from "decided".
+        """
+        rows = self._surface_decisions()
+        return rows[-1] if rows else None
+
+    def latest_per_key(self, key_fn: Callable[[dict[str, Any]], Any]) -> dict[Any, dict[str, Any]]:
+        """Effective decisions for a keyed surface (e.g. checklist by criterion).
+
+        Returns a mapping of key -> latest row. Earlier rows for a revised key are
+        preserved in the durable log (append-only) but only the latest per key is
+        effective. Returns an empty mapping when no decisions exist.
+        """
+        latest: dict[Any, dict[str, Any]] = {}
+        for row in self._surface_decisions():
+            latest[key_fn(row)] = row
+        return latest
 
     def _append(self, decision: dict[str, Any]) -> None:
         self._artifacts.append_decision(self.review_id, decision)

@@ -17,8 +17,6 @@ class ChecklistSurface(DecisionSurface):
         decided = {row.get("criterion") for row in self._surface_decisions()}
         if criterion not in self._criteria:
             raise SurfaceValidationError("criterion must be declared by the checklist")
-        if criterion in decided:
-            raise SurfaceValidationError("criterion already has a decision")
         if not isinstance(passed, bool) or not isinstance(comment, str):
             raise SurfaceValidationError("checklist decisions require a boolean status and text comment")
         self._append({"surface": self.surface, "criterion": criterion, "passed": passed, "comment": comment})
