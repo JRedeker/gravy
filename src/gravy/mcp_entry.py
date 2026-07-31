@@ -48,7 +48,9 @@ def create_control_plane(config: GravyRuntimeConfig, state_dir: Path) -> GravyCo
             ports=ports,
             artifacts=artifacts,
             tailnet=tailnet,
-            build_page=GradioBlocksPage.build_for,
+            build_page=lambda review_id, request: GradioBlocksPage.build_for(
+                review_id, request, artifacts
+            ),
         )
     )
 

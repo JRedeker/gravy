@@ -1,4 +1,7 @@
-from collections.abc import Mapping
+import asyncio
+import socket
+import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -6,12 +9,12 @@ import pytest
 
 from gravy.artifacts import ArtifactStore
 from gravy.control_plane import GravyControlPlane
+from gravy.gradio_runtime import GradioBlocksPage
 from gravy.lifecycle import LifecycleAdapter
 from gravy.mcp_boundary import GravyMcpBoundary
-from gravy.models import DiagnosticCode, LifecycleResult, ReviewRecord, ReviewState
+from gravy.models import DiagnosticCode
 from gravy.ports import PortPool
 from gravy.registry import ReviewRegistry
-from gravy.schemas import validate_request
 
 
 class FakePage:
@@ -64,7 +67,7 @@ def test_mcp_boundary_routes_catalog_create_update_close(tmp_path: Path):
 
     catalog = boundary.handle("catalog", {})
     assert catalog["ok"] is True
-    assert set(item["surface"] for item in catalog["result"]["surfaces"]) == {
+    assert {item["surface"] for item in catalog["result"]["surfaces"]} == {
         "gallery",
         "pairwise",
         "form",
@@ -187,6 +190,67 @@ def test_mcp_boundary_close_exposure_failure_includes_typed_stage_and_exception_
     assert result["exception_class"] == "OSError"
     assert "/path/to/key" not in str(result)
     assert "a.png" not in str(result)
+
+
+def _port_in_use(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(0.5)
+        return sock.connect_ex((host, port)) == 0
+
+
+@pytest.mark.asyncio
+async def test_mcp_boundary_create_launches_real_gradio_page_on_main_thread(
+    tmp_path: Path,
+):
+    """Regression: actual Gradio Blocks launch runs on the main thread through the MCP boundary.
+
+    Gradio ``Blocks.launch()`` must run on the main thread; prior offloading to a
+    worker thread moved the launch off the event-loop thread.  This test wires the
+    real production page builder and verifies the listener is actually reachable.
+    """
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    build_threads: list[threading.Thread] = []
+
+    def build_page(_review_id: str, _request: Any) -> GradioBlocksPage:
+        build_threads.append(threading.current_thread())
+        return GradioBlocksPage.build_for(_review_id, _request, artifacts)
+
+    lifecycle = LifecycleAdapter(
+        ReviewRegistry(tmp_path / "registry.json"),
+        PortPool(41000, 41010),
+        artifacts,
+        FakeTailnet(),
+        build_page,
+    )
+    boundary = GravyMcpBoundary(GravyControlPlane(lifecycle))
+
+    result = await boundary.handle_async(
+        "create",
+        {
+            "surface": "checklist",
+            "request": {"surface": "checklist", "criteria": ["Has title"]},
+        },
+    )
+
+    assert result["ok"] is True
+    record = result["record"]
+    port = record["port"]
+    assert record["review_id"]
+    assert record["tailnet_url"].startswith("https://")
+    assert build_threads, "build_page was never called"
+    assert build_threads[0] is threading.main_thread(), "lifecycle create ran off the main thread"
+    # The actual Gradio server must be listening.
+    deadline = time.monotonic() + 10.0
+    while time.monotonic() < deadline:
+        if _port_in_use("127.0.0.1", port):
+            break
+        await asyncio.sleep(0.05)
+    else:
+        raise TimeoutError(f"Gradio server on port {port} did not start")
+
+    closed = await boundary.handle_async("close", {"review_id": record["review_id"]})
+    assert closed["ok"] is True
+    assert not _port_in_use("127.0.0.1", port)
 
 
 def test_mcp_boundary_non_exposure_failure_omits_stage_and_exception_class(
