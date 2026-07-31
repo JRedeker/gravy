@@ -103,6 +103,34 @@ class ReviewPageController:
         progress = self._surface.submit(criterion, passed=passed, comment=comment)
         return {"complete": progress.complete, "remaining": progress.remaining}
 
+    def gallery_prior(self) -> dict[str, Any] | None:
+        """Latest gallery decision shaped for UI pre-population, or None."""
+        row = self._surface.latest_decision()  # type: ignore[attr-defined]
+        if row is None:
+            return None
+        return {
+            "selection": row.get("selection"),
+            "ranking": row.get("ranking"),
+            "notes": row.get("notes"),
+        }
+
+    def form_prior(self) -> dict[str, Any]:
+        """Latest form field values for UI pre-population, or {} when undecided."""
+        row = self._surface.latest_decision()  # type: ignore[attr-defined]
+        if row is None:
+            return {}
+        return dict(row.get("values") or {})
+
+    def checklist_prior(self, criterion: str) -> tuple[bool, str]:
+        """Latest (passed, comment) for a criterion, or (False, '') when undecided."""
+        effective = self._surface.latest_per_key(  # type: ignore[attr-defined]
+            lambda r: r.get("criterion")
+        )
+        row = effective.get(criterion)
+        if row is None:
+            return (False, "")
+        return (bool(row.get("passed")), str(row.get("comment") or ""))
+
     def _handle(self, fn, *args, **kwargs) -> dict[str, Any]:
         try:
             return fn(*args, **kwargs)
@@ -130,6 +158,12 @@ def _build_gallery(
         )
         notes = gr.Textbox(label="Notes")
         status = gr.Textbox(label="Status", interactive=False)
+
+        prior = controller.gallery_prior()
+        if prior is not None:
+            selection.value = prior["selection"]
+            ranking.value = prior["ranking"]
+            notes.value = prior["notes"]
 
         def submit(selection, ranking, notes):
             return controller._handle(
@@ -250,20 +284,22 @@ def _build_form(controller: ReviewPageController, request: FormRequest) -> gr.Bl
 
     with gr.Blocks(title="Gravy Form Review") as blocks:
         gr.Markdown("### Form review")
+        prior_values = controller.form_prior()
         for field in fields:
             label = field.label if field.label is not None else field.name
+            initial = prior_values.get(field.name)
             if field.type == "text":
-                comp = gr.Textbox(label=label)
+                comp = gr.Textbox(label=label, value=initial)
             elif field.type == "free_text":
-                comp = gr.Textbox(label=label, lines=4)
+                comp = gr.Textbox(label=label, lines=4, value=initial)
             elif field.type == "toggle":
-                comp = gr.Checkbox(label=label)
+                comp = gr.Checkbox(label=label, value=initial if initial is not None else False)
             elif field.type == "option":
-                comp = gr.Radio(choices=list(field.options), label=label)
+                comp = gr.Radio(choices=list(field.options), label=label, value=initial)
             elif field.type == "image":
-                comp = gr.Image(label=label, type="filepath")
+                comp = gr.Image(label=label, type="filepath", value=initial)
             else:
-                comp = gr.Textbox(label=label)
+                comp = gr.Textbox(label=label, value=initial)
             components.append(comp)
             component_names.append(field.name)
 
@@ -293,6 +329,12 @@ def _build_checklist(
             return controller._handle(
                 controller.checklist_submit, criterion, passed, comment
             )
+
+        def populate(criterion):
+            prior_passed, prior_comment = controller.checklist_prior(criterion)
+            return [prior_passed, prior_comment]
+
+        criterion.change(populate, inputs=[criterion], outputs=[passed, comment])
 
         gr.Button("Submit").click(
             submit, inputs=[criterion, passed, comment], outputs=[status]
