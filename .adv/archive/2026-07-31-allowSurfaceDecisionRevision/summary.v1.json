@@ -1,0 +1,20 @@
+{
+  "archived_at": "2026-07-31T21:54:43.812Z",
+  "capabilities": [],
+  "change_hash": "d362d4833e020129497c0380f17025469479f59ee58850928a4b5a042339e35a",
+  "change_id": "allowSurfaceDecisionRevision",
+  "completed_tasks": 3,
+  "created_at": "2026-07-31T21:14:34.758Z",
+  "current_gate": "release",
+  "fast_follow_of": {
+    "linked_at": "2026-07-31T21:14:34.708Z",
+    "parent_change_id": "addGravyReviewKit"
+  },
+  "last_activity_at": "2026-07-31T21:53:42.900Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "cc07ef53c37128e40d6eec775ddd91fa3f6ab6ef16f19284ffd9989cb4a6d4d7",
+  "task_count": 3,
+  "title": "Allow surface decision revision",
+  "version": "1"
+}

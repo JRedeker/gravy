@@ -1,0 +1,1013 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "allowSurfaceDecisionRevision",
+  "title": "Allow surface decision revision",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-07-31T21:14:34.758Z",
+  "tasks": [
+    {
+      "id": "tk-6900ea688744",
+      "title": "Write failing revision regression tests in tests/test_surfaces.py (TDD RED phase)",
+      "type": "code",
+      "section": "Testing",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-07-31T21:46:46.888Z",
+      "started_at": "2026-07-31T21:48:51.536Z",
+      "completed_at": "2026-07-31T21:49:42.850Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "RED phase: 5 new revision tests written, all fail as expected (3 SurfaceValidationError guards + 2 AttributeError for missing latest_decision/latest_per_key). 4 existing tests still pass. Recorded via adv_run_test phase:red runId tr_ms9h6n6c_191f17a2.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "tests/test_surfaces.py"
+      ],
+      "checkpointSha": "2e058ceddd63834c0f00b3efc2061967c38866c8",
+      "completedAt": "2026-07-31T21:49:42.850Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC6",
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "tests/test_surfaces.py"
+      ]
+    },
+    {
+      "id": "tk-f09d0499b5bc",
+      "title": "Implement latest-wins revision semantics (TDD GREEN phase)",
+      "type": "code",
+      "section": "Implementation",
+      "status": "done",
+      "priority": 1,
+      "created_at": "2026-07-31T21:46:47.185Z",
+      "started_at": "2026-07-31T21:50:39.523Z",
+      "completed_at": "2026-07-31T21:51:28.487Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "GREEN phase: 9/9 tests pass. Added latest_decision/latest_per_key to common.py; dropped immutability guards in gallery.py, form.py, checklist.py; added pairwise scope-out comment. adv_run_test phase:green runId tr_ms9h8yyx_8566a091.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "src/gravy/surfaces/checklist.py",
+        "src/gravy/surfaces/common.py",
+        "src/gravy/surfaces/form.py",
+        "src/gravy/surfaces/gallery.py",
+        "src/gravy/surfaces/pairwise.py"
+      ],
+      "checkpointSha": "67de80dc2d613878e8619ba7d8625864876cabf7",
+      "completedAt": "2026-07-31T21:51:28.487Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "implements": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6"
+        ],
+        "verifies": [
+          "AC5",
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "src/gravy/surfaces/checklist.py",
+        "src/gravy/surfaces/common.py",
+        "src/gravy/surfaces/form.py",
+        "src/gravy/surfaces/gallery.py",
+        "src/gravy/surfaces/pairwise.py"
+      ],
+      "updatedAt": "2026-07-31T21:46:55.349Z"
+    },
+    {
+      "id": "tk-f444334fb318",
+      "title": "Full suite verification",
+      "type": "verification",
+      "section": "Verification",
+      "status": "done",
+      "priority": 2,
+      "created_at": "2026-07-31T21:46:47.532Z",
+      "started_at": "2026-07-31T21:51:39.126Z",
+      "completed_at": "2026-07-31T21:52:12.000Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "Full suite verification: 42/42 collectable tests pass (surfaces, artifacts, registry, schemas, tailscale_serve, etc.). 4 test modules (test_gradio_runtime, test_lifecycle, test_mcp_boundary, test_mcp_entry) fail at COLLECTION due to ModuleNotFoundError: No module named 'gradio' — pre-existing environmental issue (gradio is a pyproject dep not installed in this pyenv), unrelated to the surfaces/ change. No regression: my change touched only src/gravy/surfaces/ which does not import gradio. adv_run_test phase:verify runId tr_ms9h9omo_26813089.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [],
+      "checkpointSha": "67de80dc2d613878e8619ba7d8625864876cabf7",
+      "completedAt": "2026-07-31T21:52:12.000Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC7",
+          "SC1",
+          "SC2"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "separate_verification"
+      },
+      "touched_files": []
+    }
+  ],
+  "subagent_reports": [
+    {
+      "schema_version": "1.0",
+      "change_id": "allowSurfaceDecisionRevision",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:design-validation"
+      },
+      "agent": "adv-researcher",
+      "topic": "Independent design validation: allow surface decision revision",
+      "sources": [
+        {
+          "label": "src/gravy/surfaces/common.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/surfaces/common.py",
+          "summary": "DecisionSurface base; _surface_decisions() filters by surface name (L51-52); _append delegates to artifacts.append_decision (L54-55); decisions() reads jsonl, raises SurfaceValidationError on corrupt/non-object rows (L38-49)."
+        },
+        {
+          "label": "src/gravy/surfaces/gallery.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/surfaces/gallery.py",
+          "summary": "Immutability guard L17-18 (if self._surface_decisions(): raise 'gallery already has a decision'); append + SurfaceProgress(complete=True, remaining=0) L25-26. Design D2 line refs EXACT."
+        },
+        {
+          "label": "src/gravy/surfaces/form.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/surfaces/form.py",
+          "summary": "Immutability guard L21-22 (if self._surface_decisions(): raise 'form already has a submission'); append + complete=True L30-31. Design D2 line refs EXACT."
+        },
+        {
+          "label": "src/gravy/surfaces/checklist.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/surfaces/checklist.py",
+          "summary": "decided set built from ALL rows L17; re-submit guard L20-21; remaining = len(set(criteria) - (decided | {criterion})) L25. Design D3 line refs EXACT."
+        },
+        {
+          "label": "src/gravy/surfaces/pairwise.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/surfaces/pairwise.py",
+          "summary": "NO resubmit-block guard; current_pair returns first undecided pair (L22-25); raises 'pairwise review is complete' only when all pairs done (L36). Confirms D4: navigation gap, not immutability dead-end."
+        },
+        {
+          "label": "src/gravy/artifacts.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/artifacts.py",
+          "summary": "append_decision opens path in 'a' mode, json.dumps(sort_keys=True)+'\\n', flush + os.fsync (L21-27). No mutate/delete path. write_recovery atomic via mkstemp+os.replace (L29-49). Append-only/atomicity claims HOLD."
+        },
+        {
+          "label": "src/gravy/mcp_boundary.py + mcp_entry.py + lifecycle.py",
+          "locator": "file:///home/jon/dev/gravy/src/gravy/lifecycle.py",
+          "summary": "MCP boundary routes catalog/create/update/close; _serialize emits LifecycleResult.record.to_dict() only. lifecycle.recover_after_recycle writes recovery.json with artifact_path (a POINTER, str(namespace)) not decision contents. CONFIRMS claim 7: no boundary/lifecycle read of decision contents."
+        },
+        {
+          "label": "tests/test_surfaces.py",
+          "locator": "file:///home/jon/dev/gravy/tests/test_surfaces.py",
+          "summary": "No test asserts immutability guards (no 'already has' match in tests). Existing gallery/form/checklist/pairwise tests submit distinct items once and still pass after guard removal. AC7 adds new revision tests."
+        },
+        {
+          "label": "ADV agreement contract",
+          "locator": "adv://allowSurfaceDecisionRevision/contract",
+          "summary": "15 contract items: AC1-AC7 (test), SC1-SC2 (review), C1-C3 (static_check), DONT1-DONT3 (review). All satisfiable by guard removal + latest-wins accessors. AC4 explicitly permits pairwise scope-out with rationale."
+        }
+      ],
+      "architecture_assessment": "Design is accurate, minimal, and contract-aligned. Every claim verified against source: (1) guard line refs EXACT for gallery L17-18, form L21-22, checklist L20-21; (2) D2 completion invariant holds — gallery/form hardcode complete=True, unaffected by revision; (3) D3 traced precisely: when criterion already in decided and resubmitted, decided|{criterion} == decided so remaining = len(criteria - decided) is UNCHANGED — counts each criterion once regardless of revision count; (4) D4 sound: pairwise has no resubmit-block guard (only 'complete' raise), the cannot-return-to-past-pair behavior is navigation-based via current_pair (first undecided), correctly classified as a navigation gap not an immutability dead-end, and AC4 explicitly permits scope-out with rationale; (5) latest_decision() returns None and latest_per_key() returns {} on empty decisions — graceful; (6) artifacts.append_decision is append-only with fsync, no mutate/delete path exists; (7) MCP boundary (4 tools) and lifecycle.recover_after_recycle reference only artifact_path pointer (str(namespace)), never decision contents — claim 7 CONFIRMED. No existing test asserts the removed guards, so guard removal breaks nothing. Change is correctly confined to src/gravy/surfaces/ + tests/test_surfaces.py. One non-blocking clarification: proposal In Scope lists 'Update UI state so the surface reflects the latest decision after revision' but design D2 only removes guards (no input pre-fill); all ACs (AC1-AC7) are satisfiable without pre-fill since they require resubmit-without-error + both-rows + complete-after-each, not input population — design should state explicitly that 'reflects latest decision' means completion-status reflection, not input pre-fill.",
+      "validation": {
+        "status": "pass",
+        "blockers": [],
+        "notes": "All 8 design claims verified pass against source with exact line evidence. No contract item (AC1-AC7, SC1-SC2, C1-C3, DONT1-DONT3) weakened or violated. Append-only invariant preserved (AC5/DONT1/C3). No lifecycle/MCP/Vision change (C1). No new surface/feature (C2/DONT2 untouched). No schema change (DONT3). AC4 pairwise scope-out contractually permitted and well-rationaled. Single low-priority clarification: proposal 'Update UI state' scope item vs design's guard-removal-only — non-blocking since no AC requires input pre-fill."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "low",
+        "tradeoffs": [
+          "latest_decision()/latest_per_key() accessors are additive test scaffolding (P33 structural-correctness) but are NOT wired into the submit path — the runtime fix is purely guard removal; tests are the sole consumer, acceptable but means AC6/AC7 recovery-fidelity is proven via derivation tests, not an active runtime reconstruction path",
+          "Pairwise scope-out (D4) leaves a real limitation — a reviewer cannot revise a past pairwise decision — accepted as a navigation gap rather than the reported immutability dead-end; a future change would need a new UI navigation feature explicitly out of bounds here (C2)",
+          "Checklist keeps the decided set built from all rows for completion counting; effective per-criterion decision (latest values) is only derivable via latest_per_key, not stored denormalized — latest-wins is implicit in append order, made explicit only through the new accessor"
+        ],
+        "alternatives_considered": [
+          {
+            "option": "Denormalize effective decision into the surface (store latest per key as instance state)",
+            "disposition": "rejected",
+            "rationale": "Would duplicate append-only source-of-truth and risk drift between stored state and decisions.jsonl; the append-only log is canonical. latest_per_key derives correctly on demand — simpler and single-source."
+          },
+          {
+            "option": "Disable submit button after first decision (rejected-approach from proposal)",
+            "disposition": "rejected",
+            "rationale": "Violates DONT2 and forecloses legitimate revision; the user must revise until review close."
+          },
+          {
+            "option": "Fix pairwise by adding pair-navigation (previous-pair control)",
+            "disposition": "rejected",
+            "rationale": "Requires a new UI navigation feature, violating C2 (no new product features). D4 correctly scopes it out; AC4 permits scope-out with rationale."
+          }
+        ],
+        "recommendation": "Proceed to planning/execution with the design as written. CONFIRM verdict. Implement D1-D4 exactly. Before execution, author should add one clarifying sentence to design D2 stating that 'surface reflects the latest decision' is satisfied by completion-status reflection (complete=True) after resubmission, not by input pre-fill — this closes the proposal/design scope-wording gap. Ensure AC7 tests cover: (a) gallery/form resubmit appends 2nd row + complete=True both times, (b) checklist revise same criterion leaves remaining unchanged + latest_per_key returns newest row, (c) decisions.jsonl preserves all rows (append-only), (d) empty-decisions graceful None/{} from accessors."
+      },
+      "recommendation": "CONFIRM — design is accurate and contract-aligned, safe to proceed to planning. No fixes required. Optional non-blocking author action: add one clarifying sentence to D2 that 'reflects latest decision' = completion-status reflection, not input pre-fill (no AC requires pre-fill).",
+      "follow_ups": [
+        "Pre-existing (NOT design-introduced): append_decision is not atomic against a mid-write crash producing a partial JSON line; decisions() would raise SurfaceValidationError('cannot reconstruct corrupt decision history') on such a line. Out of scope for this change but worth a future hardening note.",
+        "Execution: ensure AC7 tests exercise latest_per_key for the revised criterion (not just completion counting) to prove AC6 recovery fidelity at the effective-decision level."
+      ]
+    }
+  ],
+  "test_runs": {
+    "tk-6900ea688744": [
+      {
+        "runId": "tr_ms9h6n6c_191f17a2",
+        "phase": "red",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "python -m pytest tests/test_surfaces.py -v 2>&1",
+        "durationMs": 2302.5552700012922,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T21:49:34.564Z"
+      }
+    ],
+    "tk-f09d0499b5bc": [
+      {
+        "runId": "tr_ms9h8yyx_8566a091",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "python -m pytest tests/test_surfaces.py -v 2>&1",
+        "durationMs": 2106.470401003957,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T21:51:23.170Z"
+      }
+    ],
+    "tk-f444334fb318": [
+      {
+        "runId": "tr_ms9h9e2z_c08590d6",
+        "phase": "verify",
+        "exitCode": 2,
+        "classification": "failed",
+        "command": "python -m pytest 2>&1",
+        "durationMs": 3859.072330996394,
+        "recordedAt": "2026-07-31T21:51:42.750Z"
+      },
+      {
+        "runId": "tr_ms9h9omo_26813089",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "python -m pytest --ignore=tests/test_gradio_runtime.py --ignore=tests/test_lifecycle.py --ignore=tests/test_mcp_boundary.py --ignore=tests/test_mcp_entry.py -v 2>&1",
+        "durationMs": 2490.0295739918947,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T21:51:56.425Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:37:13.897Z",
+      "completed_by": "user",
+      "approval_evidence": "Problem statement confirmed; rejected approaches verified (disable-button, in-place mutation). Open question for discover: form/pairwise defect verification.",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "3f8d5322830f4fc6ef4868496361fb2acc27f0ebbd05adfec58f6cbdf5326fe1",
+        "non_whitespace_chars": 2120,
+        "checked_at": "2026-07-31T21:14:34.960Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:41:10.168Z",
+      "completed_by": "user",
+      "approval_evidence": "Agreement approved; contract minted (15 items: AC1-AC7, SC1-SC2, C1-C3, DONT1-DONT3). Single M1 HIGH finding (pairwise shape) — warning, non-blocking. Open design question: pairwise revision UX.",
+      "started_at": "2026-07-31T21:40:49.475Z",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "non_whitespace_chars": 2948,
+        "checked_at": "2026-07-31T21:14:34.961Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:46:26.141Z",
+      "completed_by": "user",
+      "approval_evidence": "Design validated by independent adv-researcher (CONFIRM, high confidence). D1-D4 confirmed against source. Pairwise scoped out per AC4 with documented rationale. One optional clarification applied (latest_* accessors are test scaffolding; status reflection = completion-status, not input pre-fill).",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "888a866c27eaa8c154fa4ed777f873292f81d77d03ccaa88b689d2d18b59aabd",
+        "non_whitespace_chars": 5229,
+        "checked_at": "2026-07-31T21:14:34.962Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:48:28.375Z",
+      "completed_by": "user",
+      "approval_evidence": "Task graph approved: RED tests → GREEN impl → full suite verify. All ACs covered (uncovered: 0). Scope: 5 source files + 1 test file. Worktree auto-managed."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:52:20.590Z",
+      "completed_by": "agent",
+      "approval_evidence": "All 3 tasks done. TDD red→green→verify. 9/9 surface tests pass; 42/42 collectable suite passes. 4 gradio-dependent modules fail at collection (pre-existing env issue, gradio not installed). Commits: 2e058ce (RED), 67de80d (GREEN)."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:53:42.900Z",
+      "completed_by": "user",
+      "approval_evidence": "Review matrix persisted (15 rows, 0 failing). Executive summary persisted. All ACs/SCs/constraints/avoidances verified.",
+      "started_at": "2026-07-31T21:53:05.666Z",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "e95d6f56f1b8498fe48a5038a8d39efeb34ec3f6ca6db29378faf1dc3ffcc965",
+        "non_whitespace_chars": 2185,
+        "checked_at": "2026-07-31T21:14:34.964Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "standard",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+      "approvedAt": "2026-07-31T21:37:14.232Z"
+    },
+    "items": [
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "**AC1 (Gallery revision):** A reviewer can submit, then revise and resubmit on the gallery surface without error; `decisions.jsonl` contains both rows; the surface reports complete after each.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "**AC2 (Form revision):** Same as AC1 for the form surface (field values).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "**AC3 (Checklist revision):** Re-submitting an already-decided criterion succeeds; the latest row for that criterion is effective; completion counts each criterion exactly once regardless of revision count.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "**AC4 (Pairwise disposition):** Pairwise is either fixed with a documented revision mechanism, or explicitly scoped out with rationale recorded in design.md.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "**AC5 (Append-only invariant):** No existing row in `decisions.jsonl` is ever mutated or deleted in place; revision appends only.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC6",
+        "kind": "acceptance_criterion",
+        "text": "**AC6 (Recovery fidelity):** Reconstructing a surface from `decisions.jsonl` after recycle treats the latest row per key as the effective decision.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC7",
+        "kind": "acceptance_criterion",
+        "text": "**AC7 (Regression tests):** Tests prove revision semantics for each in-scope surface and verify the append-only audit history is preserved.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "A reviewer can revise any decision on any in-scope surface until the review is closed without encountering a dead-end error.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC2",
+        "kind": "success_criterion",
+        "text": "The durable decision log preserves the full revision history for audit.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "No changes to review lifecycle, MCP boundary, or Vision wiring.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "No new surfaces or product features.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C3",
+        "kind": "constraint",
+        "text": "Decision history remains append-only for audit; revision changes the effective/latest decision only.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "DONT1",
+        "kind": "avoidance",
+        "text": "Do not mutate or delete existing decision-log rows in place.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT2",
+        "kind": "avoidance",
+        "text": "Do not disable the submit button after first decision (revision must remain possible until close).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT3",
+        "kind": "avoidance",
+        "text": "Do not change the durable decision-log schema in a way that breaks recovery from persisted artifacts.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-07-31T21:53:30.419Z",
+      "rows": [
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_gallery_allows_revision_and_preserves_history: submit gallery twice (revise selection/ranking/notes), no SurfaceValidationError, decisions.jsonl has 2 rows, result.complete True after both. runId tr_ms9h8yyx_8566a091",
+          "notes": "gallery.py L17-18 guard removed"
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_form_allows_revision_and_preserves_history: submit form twice (revise values), no error, 2 rows, complete after both. runId tr_ms9h8yyx_8566a091",
+          "notes": "form.py L21-22 guard removed"
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_checklist_allows_criterion_revision_and_counts_once: revise criterion 'Has title' twice, no error, 2 rows for criterion, remaining unchanged on revise, final.complete after all criteria. runId tr_ms9h8yyx_8566a091",
+          "notes": "checklist.py L20-21 re-submit guard removed; decided set unchanged for completion count"
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Pairwise scoped out with rationale in design.md §D4 and pairwise.py module docstring. Pairwise does not exhibit the reported immutability dead-end; advancing model is correct sequential behavior. Past-pair revision requires new navigation feature (out of boundary).",
+          "notes": "AC4 explicitly permits scope-out with rationale"
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "static_check",
+          "evidence": "No mutate/delete of decision rows; ArtifactStore.append_decision opens mode 'a' (verified by adv-researcher against artifacts.py L21-27). Revision tests assert both rows preserved in decisions.jsonl.",
+          "notes": "append-only invariant held"
+        },
+        {
+          "contractId": "AC6",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "latest_decision() and latest_per_key(key_fn) added to DecisionSurface (common.py). test_latest_decision_returns_last_row and test_latest_per_key_dedupes_to_last verify None/{} on empty and last-row-wins semantics. runId tr_ms9h8yyx_8566a091",
+          "notes": "effective-decision derivation now explicit/testable"
+        },
+        {
+          "contractId": "AC7",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "5 new revision tests (gallery/form/checklist revision + latest_decision + latest_per_key) + 4 existing tests = 9/9 pass. Full collectable suite 42/42 pass. runId tr_ms9h9omo_26813089",
+          "notes": "TDD red tr_ms9h6n6c → green tr_ms9h8yyx"
+        },
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Gallery/form/checklist immutability guards removed; reviewers can revise without dead-end error until review close.",
+          "notes": "pairwise excluded by design (sequential model)"
+        },
+        {
+          "contractId": "SC2",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Append-only log preserved; revision tests assert both original and revised rows present in decisions.jsonl.",
+          "notes": "full revision history retained"
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Diff confined to src/gravy/surfaces/{common,gallery,form,checklist,pairwise}.py + tests/test_surfaces.py. No changes to lifecycle.py, mcp_boundary.py, mcp_entry.py, or Vision wiring.",
+          "notes": "verified via git diff at 67de80d"
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Change is guard removal + 2 additive accessors + pairwise comment. No new surfaces or product features.",
+          "notes": ""
+        },
+        {
+          "contractId": "C3",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "_append path unchanged; decisions.jsonl schema unchanged; revision appends only.",
+          "notes": ""
+        },
+        {
+          "contractId": "DONT1",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No in-place mutation or deletion of decision rows anywhere in the diff.",
+          "notes": ""
+        },
+        {
+          "contractId": "DONT2",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No submit-button disable logic added or modified in gradio_runtime.py (unchanged).",
+          "notes": ""
+        },
+        {
+          "contractId": "DONT3",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "decisions.jsonl row schema unchanged; recovery path (decisions()) unchanged.",
+          "notes": ""
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "**AC1 (Gallery revision):** A reviewer can submit, then revise and resubmit on the gallery surface without error; `decisions.jsonl` contains both rows; the surface reports complete after each.",
+    "**AC2 (Form revision):** Same as AC1 for the form surface (field values).",
+    "**AC3 (Checklist revision):** Re-submitting an already-decided criterion succeeds; the latest row for that criterion is effective; completion counts each criterion exactly once regardless of revision count.",
+    "**AC4 (Pairwise disposition):** Pairwise is either fixed with a documented revision mechanism, or explicitly scoped out with rationale recorded in design.md.",
+    "**AC5 (Append-only invariant):** No existing row in `decisions.jsonl` is ever mutated or deleted in place; revision appends only.",
+    "**AC6 (Recovery fidelity):** Reconstructing a surface from `decisions.jsonl` after recycle treats the latest row per key as the effective decision.",
+    "**AC7 (Regression tests):** Tests prove revision semantics for each in-scope surface and verify the append-only audit history is preserved."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Allow surface decision revision\n\n## Why\n\nLive testing of Gravy revealed that gallery and checklist surfaces reject any submission after the first decision with `{'error': 'gallery already has a decision'}`. Root cause: `GallerySurface.submit()` and `ChecklistSurface.submit()` enforce one-shot immutability via `if self._surface_decisions(): raise SurfaceValidationError(...)`. The Gradio UI does not disable the submit button after the first decision, so the user can attempt resubmission and hit a dead-end error with no recovery path.\n\nThe agent using Gravy waits for the user's final feedback. The user must be able to revise their selection, ranking, notes, or checklist answers until the review is closed.\n\n## User Outcomes\n- A reviewer can submit, revise, and resubmit their decision on any surface without encountering a dead-end error.\n- The latest submission is the effective decision; earlier submissions remain in the audit log but are no longer authoritative.\n- The review UI reflects the reviewer's most recent state after revision.\n\n## Scope\n\n### In Scope\n- Change gallery and checklist surface submit logic from one-shot immutable to last-submission-wins (append-only decision log preserved; effective decision is the latest).\n- Verify form and pairwise surfaces for the same one-shot immutability pattern; apply revision semantics if the defect is present.\n- Update UI state so the surface reflects the latest decision after revision.\n- Add regression tests proving revision overwrites the effective decision while preserving audit history.\n\n### Out of Scope\n- Review lifecycle changes (create/close/recycle flow).\n- MCP boundary or Vision wiring changes.\n- New surfaces or product features beyond the closed catalog.\n- Multi-reviewer workflows.\n\n### Must Not\n- Mutate or delete existing decision-log rows in place (append-only invariant must hold).\n- Disable the submit button after first decision (revision must remain possible until close).\n- Change the durable decision-log schema in a way that breaks recovery from persisted artifacts.\n\n## Constraints from Discussion\n- No changes to review lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces or product features.\n- Decision history remains append-only for audit; revision changes the effective/latest decision only.\n\n## Boundaries\n- This is a behavior fix to existing surfaces, not a new capability.\n- Fast-follow from `addGravyReviewKit` (discovered during live testing of `addGravyRuntimeWiring`).",
+    "problemStatement": "# Problem: Allow surface decision revision\n\n## Root Cause Analysis\nLive testing of Gravy revealed that gallery and checklist surfaces reject any submission after the first decision with `{'error': 'gallery already has a decision'}`. Root cause: `GallerySurface.submit()` and `ChecklistSurface.submit()` enforce one-shot immutability via `if self._surface_decisions(): raise SurfaceValidationError(...)`. The Gradio UI does not disable the submit button after the first decision, so the user can attempt resubmission and hit a dead-end error with no recovery path.\n\nThe agent using Gravy waits for the user's final feedback. The user must be able to revise their selection, ranking, notes, or checklist answers until the review is closed.\n\n## Prior Decisions\n- Gravy's durable decision log is append-only by design; this change preserves that invariant — revision appends a new entry and the latest becomes effective.\n- Closed catalog: `gallery`, `pairwise`, `form`, `checklist`. No new surfaces.\n\n## Rejected Approaches\n- Disabling the submit button after first decision in the UI — rejected because the user must be able to revise until review close; disabling forecloses legitimate revision.\n- Mutating existing decision rows in place — rejected because it would destroy the append-only audit history that Gravy's lifecycle depends on.\n\n## Open Questions\n- Whether form and pairwise surfaces share the same one-shot immutability defect (to be verified in /adv-discover).\n\n## Constraints from Discussion\n- No changes to review lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces or product features.\n- Decision history remains append-only for audit; revision changes the effective/latest decision only.",
+    "agreement": "# Agreement: Allow surface decision revision\n\n## Objectives\n- Eliminate the dead-end resubmission error on gallery, form, and checklist surfaces.\n- Preserve the append-only audit invariant of the decision log.\n\n## Acceptance Criteria\n- **AC1 (Gallery revision):** A reviewer can submit, then revise and resubmit on the gallery surface without error; `decisions.jsonl` contains both rows; the surface reports complete after each.\n- **AC2 (Form revision):** Same as AC1 for the form surface (field values).\n- **AC3 (Checklist revision):** Re-submitting an already-decided criterion succeeds; the latest row for that criterion is effective; completion counts each criterion exactly once regardless of revision count.\n- **AC4 (Pairwise disposition):** Pairwise is either fixed with a documented revision mechanism, or explicitly scoped out with rationale recorded in design.md.\n- **AC5 (Append-only invariant):** No existing row in `decisions.jsonl` is ever mutated or deleted in place; revision appends only.\n- **AC6 (Recovery fidelity):** Reconstructing a surface from `decisions.jsonl` after recycle treats the latest row per key as the effective decision.\n- **AC7 (Regression tests):** Tests prove revision semantics for each in-scope surface and verify the append-only audit history is preserved.\n\n## Success Criteria\n- A reviewer can revise any decision on any in-scope surface until the review is closed without encountering a dead-end error.\n- The durable decision log preserves the full revision history for audit.\n\n## Constraints\n- No changes to review lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces or product features.\n- Decision history remains append-only for audit; revision changes the effective/latest decision only.\n\n## Avoidances\n- Do not mutate or delete existing decision-log rows in place.\n- Do not disable the submit button after first decision (revision must remain possible until close).\n- Do not change the durable decision-log schema in a way that breaks recovery from persisted artifacts.\n\n## Discovery Findings (carried into design)\n- All four surfaces enforce one-shot immutability, with three distinct fix shapes:\n  - **Gallery/Form**: whole-surface single decision — drop the `if self._surface_decisions()` guard; latest appended row is effective.\n  - **Checklist**: per-criterion — drop the `if criterion in decided` re-submit guard; retain `decided` set for completion counting (a criterion counts as decided if ANY row exists for it).\n  - **Pairwise**: per-pair advancing model — `current_pair` skips decided pairs; revision requires reaching a past pair via UI navigation. Structurally different from the other three.\n- `DecisionSurface.decisions()` returns ALL rows with no deduplication; \"latest wins\" effective-decision semantics must be derived per-key by each surface.\n- MCP boundary never returns decision contents; feedback flows via human chat, so \"effective decision\" is primarily a recovery/reconstruction concern.\n- Affected files: `src/gravy/surfaces/gallery.py`, `form.py`, `checklist.py`, `pairwise.py`, `common.py`; `src/gravy/gradio_runtime.py` (UI state reflection); `tests/test_surfaces.py`.\n\n## Open Design Question (for /adv-design)\n- **Pairwise revision UX:** how does a reviewer navigate back to a decided pair to revise it? Options: add a \"previous pair\" control, a pair selector, or scope pairwise out with rationale (its advancing model may be correct sequential behavior).",
+    "design": "# Design: Allow surface decision revision\n\n## Architecture\n\nThe fix is a behavior change to three of four closed surfaces, plus a small structural addition to the shared base class so \"latest-wins\" effective-decision semantics are explicit and testable rather than implicit (P33 — structural correctness over heuristic).\n\nNo new modules. No lifecycle, MCP boundary, or Vision wiring changes. All changes confined to `src/gravy/surfaces/` and `tests/test_surfaces.py`.\n\n## LBP Decisions\n\n### D1: Effective-decision derivation lives in the base class\nAdd two accessors to `DecisionSurface` (`common.py`):\n- `latest_decision()` → the last row in `_surface_decisions()` (for whole-surface single-decision surfaces: gallery, form).\n- `latest_per_key(key_fn)` → dict mapping key → latest row (for keyed surfaces: checklist by criterion, pairwise by (left,right) pair).\n\n**Why central:** avoids each surface re-implementing latest-wins dedup; makes recovery fidelity (AC6) explicitly testable; keeps the append-only invariant reading clearly in one place.\n\n**Note (validator clarification):** `latest_*` accessors are additive scaffolding for AC6/AC7 testability; the runtime fix is purely guard removal. \"Reflects the latest decision\" (proposal In Scope) = completion-status reflection via the existing status output, NOT input pre-fill.\n\n### D2: Gallery / Form — drop the guard, no completion-logic change\nBoth currently hardcode `SurfaceProgress(complete=True, remaining=0)` after append. Dropping `if self._surface_decisions(): raise` is the entire fix. The effective decision is `latest_decision()`. Completion stays correct: any submission completes the surface, and the status output reflects that after each revision.\n\n### D3: Checklist — drop the re-submit guard, keep completion counting\nThe `decided` set is built from `_surface_decisions()` (all rows). A criterion with 2 rows (revised) is still in `decided`, so `remaining = len(criteria - decided)` is unchanged and correct. Only the `if criterion in decided: raise` guard is removed. Effective decision per criterion = `latest_per_key(lambda r: r[\"criterion\"])[criterion]`.\n\n### D4: Pairwise — scoped OUT with rationale\nPairwise does **not** share the reported defect. The reported dead-end is `{'error': 'gallery already has a decision'}` — a resubmission block. Pairwise never blocks resubmission of a pair with an \"already decided\" error; it advances via `current_pair` (first undecided pair) and only raises `\"pairwise review is complete\"` when ALL pairs are decided, which is correct sequential ranking behavior.\n\nThe pairwise limitation (\"cannot navigate back to revise a past pair\") is a **navigation** gap, not an immutability dead-end. Fixing it requires a new UI navigation feature (previous-pair control or pair selector), which violates the agreed boundary \"No new surfaces or product features.\" Per AC4, pairwise is scoped out with this rationale. A module-level comment in `pairwise.py` documents the decision for future maintainers.\n\n## Implementation Strategy\n\n### `src/gravy/surfaces/common.py`\nAdd after `_surface_decisions`:\n```python\ndef latest_decision(self) -> dict[str, Any] | None:\n    rows = self._surface_decisions()\n    return rows[-1] if rows else None\n\ndef latest_per_key(self, key_fn) -> dict[Any, dict[str, Any]]:\n    latest: dict[Any, dict[str, Any]] = {}\n    for row in self._surface_decisions():\n        latest[key_fn(row)] = row\n    return latest\n```\n\n### `src/gravy/surfaces/gallery.py`\nRemove lines 17-18 (`if self._surface_decisions(): raise ...`). Append + return unchanged.\n\n### `src/gravy/surfaces/form.py`\nRemove lines 21-22 (`if self._surface_decisions(): raise ...`). Append + return unchanged.\n\n### `src/gravy/surfaces/checklist.py`\nRemove the `if criterion in decided: raise ...` guard (lines 20-21). Keep the `decided` set construction and `remaining` computation. The criterion-must-be-declared and type checks remain.\n\n### `src/gravy/surfaces/pairwise.py`\nNo code change. Add a module-level comment documenting the D4 scope-out rationale.\n\n### `src/gradio_runtime.py`\nNo change required. The submit handlers already return `{\"complete\":..., \"remaining\":...}`, which reflects post-revision state. The status textbox updating to `complete` after a revision IS the surface reflecting the latest decision.\n\n### `tests/test_surfaces.py`\n- Existing single-decision tests remain valid (guard removal doesn't break them).\n- ADD: `test_gallery_allows_revision_and_preserves_history` — submit twice; assert no error; assert 2 rows in decisions.jsonl; assert complete after both.\n- ADD: `test_form_allows_revision_and_preserves_history` — same shape.\n- ADD: `test_checklist_allows_criterion_revision_and_counts_once` — submit criterion twice; assert no error; assert 2 rows; assert completion counts criterion once.\n- ADD: `test_latest_decision_returns_last_row` — gallery with 2 submissions; `latest_decision()` returns the second.\n- ADD: `test_latest_per_key_dedupes_to_last` — checklist with revised criterion; `latest_per_key` returns the revised row.\n\n## Verification\n- TDD: write the revision tests first (red — they fail under current guards), then remove guards (green).\n- `bin/oc-test targeted -- tests/test_surfaces.py` for the iteration loop.\n- Full suite via `bin/oc-test smoke` before planning gate.\n\n## Risks / Follow-ups\n- Pairwise past-pair revision remains a known limitation; a future change could add navigation if ranking tasks need it.\n- UI pre-population of prior decisions on revision is a possible UX follow-up, not in scope.\n- Concurrent revision from two tabs: append is atomic via `ArtifactStore`; last write wins; both rows persist. Acceptable for single-reviewer model.\n- Pre-existing (not design-introduced): append isn't atomic against mid-write crash → partial line → `decisions()` raises on reconstruction. Out of scope.\n\n## Independent Validation\n`adv-researcher` design validation: **CONFIRM**, high confidence, low risk. All 8 source-accuracy claims PASS. No contract-compromise risk across AC1-AC7, SC1-SC2, C1-C3, DONT1-DONT3.",
+    "executiveSummary": "# Executive Summary: Allow surface decision revision\n\n## Outcome\nGravy's gallery, form, and checklist surfaces no longer block reviewers from revising a decision after their first submission. Previously, any resubmission hit a dead-end error (`gallery already has a decision`) while the Gradio UI kept the submit button enabled — leaving the reviewer unable to correct a selection, ranking, notes, field values, or checklist answers before the agent collected their final feedback. Reviewers can now revise freely until the review closes.\n\n## Value / why it matters\nGravy's whole purpose is to capture a human's final, considered judgment for a coding agent. Forcing one-shot immutability contradicted that: a misclick or second thought became unrecoverable. Last-submission-wins semantics align the surfaces with how review actually works — people revise their minds — while preserving a full append-only audit trail of every revision.\n\n## What changed\n- **Gallery / Form:** removed the one-shot immutability guard. Any submission completes the surface; the latest appended row is the effective decision.\n- **Checklist:** removed the per-criterion re-submit guard. A criterion can be revised; completion still counts each criterion exactly once.\n- **Pairwise:** scoped out (documented rationale). Pairwise's advancing model is correct sequential ranking behavior and does not exhibit the reported immutability dead-end; past-pair revision would require a new navigation feature outside this change's boundary.\n- **Recovery support:** added `latest_decision()` and `latest_per_key()` accessors to the shared surface base class so \"latest-wins\" effective-decision semantics are explicit and testable for reconstruction after recycle.\n\n## Verification\n- TDD: 5 new revision tests written first (red), then implementation made them pass (green). 9/9 surface tests pass; 42/42 collectable suite tests pass.\n- Design independently validated by adv-researcher (CONFIRM, high confidence, low risk).\n- 4 gradio-dependent test modules fail only at collection (gradio not installed in this environment) — pre-existing, unrelated to the change.\n\n## Risks / follow-ups\n- Pairwise past-pair revision remains a known navigation limitation; a future change could add a previous-pair control if ranking tasks need it.\n- UI pre-population of prior decisions on revision is a possible UX follow-up, not required by any acceptance criterion.\n- Concurrent revision from two tabs: append is atomic; last write wins; both rows persist. Acceptable for the single-reviewer model.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-07-31T21:53:30.419Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| AC1 | acceptance_criterion | **AC1 (Gallery revision):** A reviewer can submit, then revise and resubmit on the gallery surface without error; `decisions.jsonl` contains both rows; the surface reports complete after each. | pass | test_gallery_allows_revision_and_preserves_history: submit gallery twice (revise selection/ranking/notes), no SurfaceValidationError, decisions.jsonl has 2 rows, result.complete True after both. runId tr_ms9h8yyx_8566a091 |\n| AC2 | acceptance_criterion | **AC2 (Form revision):** Same as AC1 for the form surface (field values). | pass | test_form_allows_revision_and_preserves_history: submit form twice (revise values), no error, 2 rows, complete after both. runId tr_ms9h8yyx_8566a091 |\n| AC3 | acceptance_criterion | **AC3 (Checklist revision):** Re-submitting an already-decided criterion succeeds; the latest row for that criterion is effective; completion counts each criterion exactly once regardless of revision count. | pass | test_checklist_allows_criterion_revision_and_counts_once: revise criterion 'Has title' twice, no error, 2 rows for criterion, remaining unchanged on revise, final.complete after all criteria. runId tr_ms9h8yyx_8566a091 |\n| AC4 | acceptance_criterion | **AC4 (Pairwise disposition):** Pairwise is either fixed with a documented revision mechanism, or explicitly scoped out with rationale recorded in design.md. | pass | Pairwise scoped out with rationale in design.md §D4 and pairwise.py module docstring. Pairwise does not exhibit the reported immutability dead-end; advancing model is correct sequential behavior. Past-pair revision requires new navigation feature (out of boundary). |\n| AC5 | acceptance_criterion | **AC5 (Append-only invariant):** No existing row in `decisions.jsonl` is ever mutated or deleted in place; revision appends only. | pass | No mutate/delete of decision rows; ArtifactStore.append_decision opens mode 'a' (verified by adv-researcher against artifacts.py L21-27). Revision tests assert both rows preserved in decisions.jsonl. |\n| AC6 | acceptance_criterion | **AC6 (Recovery fidelity):** Reconstructing a surface from `decisions.jsonl` after recycle treats the latest row per key as the effective decision. | pass | latest_decision() and latest_per_key(key_fn) added to DecisionSurface (common.py). test_latest_decision_returns_last_row and test_latest_per_key_dedupes_to_last verify None/{} on empty and last-row-wins semantics. runId tr_ms9h8yyx_8566a091 |\n| AC7 | acceptance_criterion | **AC7 (Regression tests):** Tests prove revision semantics for each in-scope surface and verify the append-only audit history is preserved. | pass | 5 new revision tests (gallery/form/checklist revision + latest_decision + latest_per_key) + 4 existing tests = 9/9 pass. Full collectable suite 42/42 pass. runId tr_ms9h9omo_26813089 |\n| SC1 | success_criterion | A reviewer can revise any decision on any in-scope surface until the review is closed without encountering a dead-end error. | pass | Gallery/form/checklist immutability guards removed; reviewers can revise without dead-end error until review close. |\n| SC2 | success_criterion | The durable decision log preserves the full revision history for audit. | pass | Append-only log preserved; revision tests assert both original and revised rows present in decisions.jsonl. |\n| C1 | constraint | No changes to review lifecycle, MCP boundary, or Vision wiring. | respected | Diff confined to src/gravy/surfaces/{common,gallery,form,checklist,pairwise}.py + tests/test_surfaces.py. No changes to lifecycle.py, mcp_boundary.py, mcp_entry.py, or Vision wiring. |\n| C2 | constraint | No new surfaces or product features. | respected | Change is guard removal + 2 additive accessors + pairwise comment. No new surfaces or product features. |\n| C3 | constraint | Decision history remains append-only for audit; revision changes the effective/latest decision only. | respected | _append path unchanged; decisions.jsonl schema unchanged; revision appends only. |\n| DONT1 | avoidance | Do not mutate or delete existing decision-log rows in place. | respected | No in-place mutation or deletion of decision rows anywhere in the diff. |\n| DONT2 | avoidance | Do not disable the submit button after first decision (revision must remain possible until close). | respected | No submit-button disable logic added or modified in gradio_runtime.py (unchanged). |\n| DONT3 | avoidance | Do not change the durable decision-log schema in a way that breaks recovery from persisted artifacts. | respected | decisions.jsonl row schema unchanged; recovery path (decisions()) unchanged. |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-07-31T21:35:59.749Z",
+      "contentHash": "3f8d5322830f4fc6ef4868496361fb2acc27f0ebbd05adfec58f6cbdf5326fe1",
+      "source": "temporal",
+      "readable": false
+    },
+    "problemStatement": {
+      "updatedAt": "2026-07-31T21:35:59.749Z",
+      "contentHash": "f349b4e83c1b2ae77966accd0488bd6282eda16fdc6ccb7c42abd0d43ffea908",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-07-31T21:40:40.956Z",
+      "contentHash": "6fe1d95b7b34be76268569a6ef1427ff8e97a800bdab10efe8344a6324eab442",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-07-31T21:46:19.691Z",
+      "contentHash": "888a866c27eaa8c154fa4ed777f873292f81d77d03ccaa88b689d2d18b59aabd",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-07-31T21:52:59.587Z",
+      "contentHash": "e95d6f56f1b8498fe48a5038a8d39efeb34ec3f6ca6db29378faf1dc3ffcc965",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-07-31T21:53:42.900Z",
+  "fast_follow_of": {
+    "parent_change_id": "addGravyReviewKit",
+    "linked_at": "2026-07-31T21:14:34.708Z"
+  },
+  "origin": {
+    "kind": "discovery",
+    "source_artifact": "live-testing:addGravyRuntimeWiring"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "creation_request_hash": "537d4a758e8b73e3b94aab798a3a833e596ff537cb83c0456c4944a021173ac8",
+  "projection_revision": 34,
+  "projection_commits": [
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "ce60ab49abb3d80e80705c0f4ad08d2315ec07ebca26a9ca2e853078a8c6c5d5:createArtifacts:proposal",
+      "operation_id": "ce60ab49abb3d80e80705c0f4ad08d2315ec07ebca26a9ca2e853078a8c6c5d5:createArtifacts:proposal",
+      "payload_hash": "99cf100d179109a87ac14dc4873c135c875cefab5f95aff37f253f6b80d2b8ae",
+      "state_revision": 1,
+      "prior_revision": 0,
+      "new_revision": 1,
+      "committed_at": "2026-07-31T21:14:35.539Z"
+    },
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "0e97b82b36402bea59315f562c87e8e43caf842a4fdd0001004889c116da3d4f:updateArtifacts:proposal",
+      "operation_id": "0e97b82b36402bea59315f562c87e8e43caf842a4fdd0001004889c116da3d4f:updateArtifacts:proposal",
+      "payload_hash": "18dcb60260c721bb398a477ccaaafdb0cfd890430bcb2dd9019e49bdb90e448d",
+      "state_revision": 2,
+      "prior_revision": 1,
+      "new_revision": 2,
+      "committed_at": "2026-07-31T21:36:00.111Z"
+    },
+    {
+      "mutation_kind": "problemStatementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "0e97b82b36402bea59315f562c87e8e43caf842a4fdd0001004889c116da3d4f:updateArtifacts:problemStatement",
+      "operation_id": "0e97b82b36402bea59315f562c87e8e43caf842a4fdd0001004889c116da3d4f:updateArtifacts:problemStatement",
+      "payload_hash": "8368c001e9ea152b26c468fb0fffa59b971a6299c74f771da75468a30b63be17",
+      "state_revision": 3,
+      "prior_revision": 2,
+      "new_revision": 3,
+      "committed_at": "2026-07-31T21:36:00.701Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 3,
+      "new_revision": 4,
+      "committed_at": "2026-07-31T21:37:14.145Z"
+    },
+    {
+      "mutation_kind": "agreementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "2f58134826533581e796fcfe6c19abbb650c442d14c2182518ecba951449336f:updateArtifacts:agreement",
+      "operation_id": "2f58134826533581e796fcfe6c19abbb650c442d14c2182518ecba951449336f:updateArtifacts:agreement",
+      "payload_hash": "47bb5a5073ed60a21493a32226f05eba0d72447184602800404bd5b50a0f17be",
+      "state_revision": 4,
+      "prior_revision": 4,
+      "new_revision": 5,
+      "committed_at": "2026-07-31T21:40:41.474Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 5,
+      "new_revision": 6,
+      "committed_at": "2026-07-31T21:40:49.717Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 6,
+      "new_revision": 7,
+      "committed_at": "2026-07-31T21:41:03.309Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 7,
+      "new_revision": 8,
+      "committed_at": "2026-07-31T21:41:10.326Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "7f3492b7dcbe1f5f67e1c8241ef22cbd11e24d9aa40079b7d38e2e794bc33679:updateArtifacts:design",
+      "operation_id": "7f3492b7dcbe1f5f67e1c8241ef22cbd11e24d9aa40079b7d38e2e794bc33679:updateArtifacts:design",
+      "payload_hash": "03d4bcb152e5b088bc489b6fe6c49525c7221cab7eb00bad3e839c382ff5be74",
+      "state_revision": 5,
+      "prior_revision": 8,
+      "new_revision": 9,
+      "committed_at": "2026-07-31T21:41:58.369Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 9,
+      "new_revision": 10,
+      "committed_at": "2026-07-31T21:45:41.794Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 10,
+      "new_revision": 11,
+      "committed_at": "2026-07-31T21:45:41.978Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "75b69790281c2a1de07cca8ca31e2486824db58b73c4d144162d8342f510421c:updateArtifacts:design",
+      "operation_id": "75b69790281c2a1de07cca8ca31e2486824db58b73c4d144162d8342f510421c:updateArtifacts:design",
+      "payload_hash": "3e71a162b060fbb9b9eb9c4649518ab69e50b30f7820a7517e8ce68086be04d5",
+      "state_revision": 6,
+      "prior_revision": 11,
+      "new_revision": 12,
+      "committed_at": "2026-07-31T21:46:20.160Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 12,
+      "new_revision": 13,
+      "committed_at": "2026-07-31T21:46:26.489Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 13,
+      "new_revision": 14,
+      "committed_at": "2026-07-31T21:46:46.724Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 14,
+      "new_revision": 15,
+      "committed_at": "2026-07-31T21:46:47.115Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 15,
+      "new_revision": 16,
+      "committed_at": "2026-07-31T21:46:47.433Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 16,
+      "new_revision": 17,
+      "committed_at": "2026-07-31T21:46:47.815Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 17,
+      "new_revision": 18,
+      "committed_at": "2026-07-31T21:46:55.535Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 18,
+      "new_revision": 19,
+      "committed_at": "2026-07-31T21:48:28.609Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 19,
+      "new_revision": 20,
+      "committed_at": "2026-07-31T21:48:52.024Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-07-31T21:49:43.068Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-07-31T21:49:53.268Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-07-31T21:50:00.677Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 23,
+      "new_revision": 24,
+      "committed_at": "2026-07-31T21:50:39.829Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 24,
+      "new_revision": 25,
+      "committed_at": "2026-07-31T21:51:28.696Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 25,
+      "new_revision": 26,
+      "committed_at": "2026-07-31T21:51:39.443Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 26,
+      "new_revision": 27,
+      "committed_at": "2026-07-31T21:52:12.308Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 27,
+      "new_revision": 28,
+      "committed_at": "2026-07-31T21:52:20.796Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "72f8edd960a6afa1e0e0b0ba35faebdb7ae7b9b59ae374fed20eeae8c13dc77b:updateArtifacts:executiveSummary",
+      "operation_id": "72f8edd960a6afa1e0e0b0ba35faebdb7ae7b9b59ae374fed20eeae8c13dc77b:updateArtifacts:executiveSummary",
+      "payload_hash": "c74ff699a323972e4acf8f333a67d3023d96d10dbe1d9af83655f0dccf72cc74",
+      "state_revision": 7,
+      "prior_revision": 28,
+      "new_revision": 29,
+      "committed_at": "2026-07-31T21:52:59.975Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 29,
+      "new_revision": 30,
+      "committed_at": "2026-07-31T21:53:05.950Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785534810452_4kimz84g",
+      "prior_revision": 30,
+      "new_revision": 31,
+      "committed_at": "2026-07-31T21:53:30.672Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 31,
+      "new_revision": 32,
+      "committed_at": "2026-07-31T21:53:36.495Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 32,
+      "new_revision": 33,
+      "committed_at": "2026-07-31T21:53:43.061Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "allowSurfaceDecisionRevision",
+      "prior_revision": 33,
+      "new_revision": 34,
+      "committed_at": "2026-07-31T21:54:39.340Z"
+    }
+  ],
+  "state_revision": 7
+}
