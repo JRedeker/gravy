@@ -6,6 +6,7 @@ state machine is deterministic and testable without starting listeners.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from threading import RLock
 from typing import Protocol
@@ -15,6 +16,19 @@ from .models import DiagnosticCode, LifecycleResult
 from .ports import PortPool
 from .registry import ReviewRegistry
 from .schemas import ReviewRequest
+
+
+_LOGGER = logging.getLogger("gravy.lifecycle")
+
+
+def _log_exposure_failure(stage: str, exc: BaseException) -> None:
+    """Secret-safe observability: record only stable stage and exception class."""
+    _LOGGER.warning(
+        "lifecycle exposure failure at stage=%s exc_class=%s",
+        stage,
+        exc.__class__.__name__,
+        extra={"stage": stage, "exc_class": exc.__class__.__name__},
+    )
 
 
 class GradioPage(Protocol):
@@ -103,19 +117,25 @@ class LifecycleAdapter:
 
         record = result.record
         assert record is not None
-        cleanup_errors: list[str] = []
+        cleanup_errors: list[dict[str, str]] = []
 
         try:
             self._tailnet.remove(record.review_id, record.port)
         except Exception as exc:
-            cleanup_errors.append(f"tailnet.remove failed: {exc}")
+            _log_exposure_failure("tailnet.remove", exc)
+            cleanup_errors.append(
+                {"stage": "tailnet.remove", "exc_class": exc.__class__.__name__}
+            )
 
         page = self._pages.pop(record.review_id, None)
         if page is not None:
             try:
                 page.close()
             except Exception as exc:
-                cleanup_errors.append(f"page.close failed: {exc}")
+                _log_exposure_failure("page.close", exc)
+                cleanup_errors.append(
+                    {"stage": "page.close", "exc_class": exc.__class__.__name__}
+                )
 
         # Retain the reservation if cleanup failed: the old mapping or listener
         # can still own this port, so another review must not reuse it.
@@ -151,18 +171,24 @@ class LifecycleAdapter:
                 continue
             assert terminal.record is not None
 
-            cleanup_errors: list[str] = []
+            cleanup_errors: list[dict[str, str]] = []
             try:
                 self._tailnet.remove(terminal.record.review_id, terminal.record.port)
             except Exception as exc:
-                cleanup_errors.append(f"tailnet.remove failed: {exc}")
+                _log_exposure_failure("tailnet.remove", exc)
+                cleanup_errors.append(
+                    {"stage": "tailnet.remove", "exc_class": exc.__class__.__name__}
+                )
 
             page = self._pages.pop(terminal.record.review_id, None)
             if page is not None:
                 try:
                     page.close()
                 except Exception as exc:
-                    cleanup_errors.append(f"page.close failed: {exc}")
+                    _log_exposure_failure("page.close", exc)
+                    cleanup_errors.append(
+                        {"stage": "page.close", "exc_class": exc.__class__.__name__}
+                    )
 
             if not cleanup_errors:
                 self.ports.release(terminal.record.port)
@@ -174,7 +200,7 @@ class LifecycleAdapter:
                     "review_id": terminal.record.review_id,
                     "artifact_path": terminal.record.artifact_path,
                     "terminal_reason": "service_recycled",
-                    **({"cleanup_error": "; ".join(cleanup_errors)} if cleanup_errors else {}),
+                    **({"cleanup_errors": cleanup_errors} if cleanup_errors else {}),
                 },
             )
 
@@ -192,19 +218,20 @@ class LifecycleAdapter:
         owned_ports = {record.port for record in self.registry.all_records()}
         try:
             self._tailnet.reconcile_owned(owned_ports)
-        except Exception:
+        except Exception as exc:
+            _log_exposure_failure("tailnet.reconcile_owned", exc)
             results.append(LifecycleResult(diagnostic=DiagnosticCode.EXPOSURE_FAILURE))
         return tuple(results)
 
     def _remove_mapping(self, review_id: str, port: int) -> None:
         try:
             self._tailnet.remove(review_id, port)
-        except Exception:
-            pass
+        except Exception as exc:
+            _log_exposure_failure("tailnet.remove", exc)
 
     @staticmethod
     def _close_page(page: GradioPage) -> None:
         try:
             page.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            _log_exposure_failure("page.close", exc)
