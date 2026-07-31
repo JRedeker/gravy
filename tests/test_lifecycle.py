@@ -219,6 +219,27 @@ def test_close_persistence_failure_leaves_external_resources_active(tmp_path: Pa
     assert lifecycle.ports.reserved == frozenset()
 
 
+def test_close_cleanup_failure_keeps_the_port_reserved(tmp_path: Path):
+    """A failed teardown must not make a still-owned port reusable."""
+
+    class CleanupFailingTailnet(FakeTailnet):
+        def remove(self, review_id: str, port: int) -> None:
+            raise OSError(f"cleanup refused for {review_id}")
+
+    tailnet = CleanupFailingTailnet()
+    lifecycle, pages = adapter(tmp_path, tailnet)
+    created = lifecycle.create(request()).record
+    assert created is not None
+
+    closed = lifecycle.close(created.review_id)
+
+    assert closed.record is not None
+    assert closed.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
+    assert lifecycle.registry.get(created.review_id).state is ReviewState.TERMINAL
+    assert pages[0].closed
+    assert lifecycle.ports.reserved == frozenset({created.port})
+
+
 def _wait_for_server(host: str, port: int, timeout: float = 10.0) -> None:
     deadline = time.monotonic() + timeout
     last_error: Exception | None = None
@@ -400,10 +421,6 @@ def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifact
     assert (Path(second_record.artifact_path) / "decisions.jsonl").exists()
     assert second.record.review_id not in tailnet.mappings
 
-    # The page is not closed by recycle (Vision recycle kills the process), so
-    # close it explicitly here to keep the test process clean and verify the
-    # listener is released.
-    second_page.close()
     assert second_page._blocks is None
     assert not _port_in_use("127.0.0.1", second.record.port)
     assert multiprocessing.active_children() == []
@@ -441,8 +458,9 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
     assert lifecycle.registry.get(second.review_id).state is ReviewState.TERMINAL
     assert lifecycle.registry.get(first.review_id).terminal_reason == "service_recycled"
     assert lifecycle.registry.get(second.review_id).terminal_reason == "service_recycled"
-    # Ports are released so the pool can be reused.
-    assert lifecycle.ports.reserved == frozenset()
+    # Failed cleanup retains the ports so a later create cannot reuse a port
+    # still owned by a stale Tailnet mapping.
+    assert lifecycle.ports.reserved == frozenset({first.port, second.port})
 
     # A readable recovery artifact is preserved for each review.
     for record in (first, second):
@@ -477,3 +495,4 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
         result.record is None or result.record.state is ReviewState.TERMINAL
         for result in recovered
     )
+    assert all(page.closed for page in pages)

@@ -103,24 +103,25 @@ class LifecycleAdapter:
 
         record = result.record
         assert record is not None
-        cleanup_error: str | None = None
+        cleanup_errors: list[str] = []
 
         try:
             self._tailnet.remove(record.review_id, record.port)
         except Exception as exc:
-            cleanup_error = f"tailnet.remove failed: {exc}"
+            cleanup_errors.append(f"tailnet.remove failed: {exc}")
 
         page = self._pages.pop(record.review_id, None)
         if page is not None:
             try:
                 page.close()
             except Exception as exc:
-                cleanup_error = f"{cleanup_error or ''}; page.close failed: {exc}".lstrip("; ")
+                cleanup_errors.append(f"page.close failed: {exc}")
 
-        self.ports.release(record.port)
-
-        if cleanup_error:
+        # Retain the reservation if cleanup failed: the old mapping or listener
+        # can still own this port, so another review must not reuse it.
+        if cleanup_errors:
             return LifecycleResult(record=record, diagnostic=DiagnosticCode.EXPOSURE_FAILURE)
+        self.ports.release(record.port)
         return result
 
     def recover_after_recycle(self) -> tuple[LifecycleResult, ...]:
@@ -150,13 +151,20 @@ class LifecycleAdapter:
                 continue
             assert terminal.record is not None
 
-            cleanup_error: str | None = None
+            cleanup_errors: list[str] = []
             try:
                 self._tailnet.remove(terminal.record.review_id, terminal.record.port)
             except Exception as exc:
-                cleanup_error = f"{exc}"
-            finally:
-                self._pages.pop(terminal.record.review_id, None)
+                cleanup_errors.append(f"tailnet.remove failed: {exc}")
+
+            page = self._pages.pop(terminal.record.review_id, None)
+            if page is not None:
+                try:
+                    page.close()
+                except Exception as exc:
+                    cleanup_errors.append(f"page.close failed: {exc}")
+
+            if not cleanup_errors:
                 self.ports.release(terminal.record.port)
 
             # Preserve a readable recovery artifact even if Tailnet cleanup failed.
@@ -166,11 +174,11 @@ class LifecycleAdapter:
                     "review_id": terminal.record.review_id,
                     "artifact_path": terminal.record.artifact_path,
                     "terminal_reason": "service_recycled",
-                    **({"cleanup_error": cleanup_error} if cleanup_error else {}),
+                    **({"cleanup_error": "; ".join(cleanup_errors)} if cleanup_errors else {}),
                 },
             )
 
-            if cleanup_error:
+            if cleanup_errors:
                 results.append(
                     LifecycleResult(
                         record=terminal.record, diagnostic=DiagnosticCode.EXPOSURE_FAILURE
