@@ -122,7 +122,7 @@ def main() -> None:
     config = GravyRuntimeConfig(
         internal_host=os.environ.get("GRAVY_INTERNAL_HOST", "127.0.0.1"),
         internal_port=int(os.environ.get("GRAVY_INTERNAL_PORT", "7654")),
-        external_port=int(os.environ.get("GRAVY_EXTERNAL_PORT", "6277")),
+        external_port=int(os.environ.get("GRAVY_EXTERNAL_PORT", "6281")),
         path=os.environ.get("GRAVY_PATH", "/mcp"),
     )
     state_dir = Path(
