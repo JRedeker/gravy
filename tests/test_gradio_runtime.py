@@ -79,6 +79,30 @@ def test_pairwise_controller_resumes_without_duplicates(tmp_path: Path):
     ]
 
 
+def test_pairwise_choose_pair_controller_route(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "pairwise", "items": ["a", "b", "c"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.pairwise_choose_pair("a", "b", "left") == {
+        "complete": False,
+        "remaining": 2,
+        "pair": ("a", "c"),
+    }
+    assert controller.pairwise_choose_pair("a", "b", "right") == {
+        "complete": False,
+        "remaining": 2,
+        "pair": ("a", "c"),
+    }
+
+    assert decisions(tmp_path) == [
+        {"choice": "left", "left": "a", "right": "b", "surface": "pairwise"},
+        {"choice": "right", "left": "a", "right": "b", "surface": "pairwise"},
+    ]
+
+
+
 def test_form_controller_persists_typed_field_values(tmp_path: Path):
     artifacts = ArtifactStore(tmp_path / "artifacts")
     artifacts.create_namespace("review-one")

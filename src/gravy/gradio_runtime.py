@@ -84,6 +84,15 @@ class ReviewPageController:
             "pair": pair,
         }
 
+    def pairwise_choose_pair(self, left: str, right: str, choice: str) -> dict[str, Any]:
+        progress = self._surface.choose_pair(left, right, choice)  # type: ignore[arg-type]
+        pair = self._surface.current_pair
+        return {
+            "complete": progress.complete,
+            "remaining": progress.remaining,
+            "pair": pair,
+        }
+
     def form_submit(self, values: Mapping[str, Any]) -> dict[str, Any]:
         progress = self._surface.submit(values)
         return {"complete": progress.complete, "remaining": progress.remaining}
@@ -139,26 +148,96 @@ def _build_pairwise(
     with gr.Blocks(title="Gravy Pairwise Review") as blocks:
         gr.Markdown("### Pairwise review")
         pair_md = gr.Markdown()
+        status = gr.Textbox(label="Status", interactive=False)
 
-        def refresh() -> str:
+        def _build_choices() -> list[tuple[str, str]]:
+            effective = controller._surface.latest_per_key(
+                lambda r: (r["left"], r["right"])
+            )
+            choices: list[tuple[str, str]] = []
+            for left, right in controller._surface._pairs:
+                row = effective.get((left, right))
+                label = f"{left} vs {right} — {row['choice'] if row else 'pending'}"
+                choices.append((label, f"{left}|{right}"))
+            return choices
+
+        def _current_value() -> str | None:
             pair = controller._surface.current_pair
-            if pair is None:
+            return f"{pair[0]}|{pair[1]}" if pair else None
+
+        def _render(value: str | None) -> str:
+            if not value:
                 return "**All comparisons complete.**"
-            return f"**Compare:** {pair[0]} vs {pair[1]}"
+            left, right = value.split("|", 1)
+            return f"**Compare:** {left} vs {right}"
 
-        pair_md.value = refresh()
+        dropdown = gr.Dropdown(
+            choices=_build_choices(),
+            value=_current_value(),
+            label="Active pair",
+        )
+        pair_md.value = _render(_current_value())
 
-        def choose(choice: str) -> str:
-            result = controller._handle(controller.pairwise_choose, choice)
+        def choose(active_value: str | None, choice: str) -> list[Any]:
+            if not active_value:
+                return [
+                    gr.update(value=_render(active_value)),
+                    gr.update(),
+                    gr.update(value="No active pair"),
+                ]
+            left, right = active_value.split("|", 1)
+            result = controller._handle(
+                controller.pairwise_choose_pair, left, right, choice
+            )
             if "error" in result:
-                return f"Error: {result['error']}"
-            return refresh()
+                return [
+                    gr.update(value=_render(active_value)),
+                    gr.update(),
+                    gr.update(value=f"Error: {result['error']}"),
+                ]
+            pair = result.get("pair")
+            new_value = f"{pair[0]}|{pair[1]}" if pair else None
+            status_text = (
+                "Review complete — all comparisons decided."
+                if result["complete"]
+                else f"Remaining: {result['remaining']}"
+            )
+            return [
+                gr.update(value=_render(new_value)),
+                gr.update(choices=_build_choices(), value=new_value),
+                gr.update(value=status_text),
+            ]
+
+        dropdown.change(
+            lambda value: _render(value), inputs=[dropdown], outputs=[pair_md]
+        )
+
+        def make_choose(choice: str):
+            def handler(active_value: str | None) -> list[Any]:
+                return choose(active_value, choice)
+            return handler
 
         with gr.Row():
-            gr.Button("Left").click(lambda: choose("left"), outputs=[pair_md])
-            gr.Button("Right").click(lambda: choose("right"), outputs=[pair_md])
-            gr.Button("Tie").click(lambda: choose("tie"), outputs=[pair_md])
-            gr.Button("Skip").click(lambda: choose("skip"), outputs=[pair_md])
+            gr.Button("Left").click(
+                make_choose("left"),
+                inputs=[dropdown],
+                outputs=[pair_md, dropdown, status],
+            )
+            gr.Button("Right").click(
+                make_choose("right"),
+                inputs=[dropdown],
+                outputs=[pair_md, dropdown, status],
+            )
+            gr.Button("Tie").click(
+                make_choose("tie"),
+                inputs=[dropdown],
+                outputs=[pair_md, dropdown, status],
+            )
+            gr.Button("Skip").click(
+                make_choose("skip"),
+                inputs=[dropdown],
+                outputs=[pair_md, dropdown, status],
+            )
     return blocks
 
 

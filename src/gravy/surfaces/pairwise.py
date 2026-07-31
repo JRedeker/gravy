@@ -1,12 +1,9 @@
 """Resumable pairwise comparison surface.
 
-Scope note (allowSurfaceDecisionRevision): pairwise is intentionally NOT revised
-to allow re-deciding past pairs. Unlike gallery/form/checklist, pairwise does not
-block resubmission with an immutability error — it advances through combinations
-via ``current_pair`` and only raises when all pairs are decided. Revisiting a past
-pair would require a new UI navigation feature (previous-pair control or pair
-selector), which is out of scope per the change's "no new product features"
-boundary. See design.md §D4 for rationale.
+Pairwise supports revision of past pairs via ``choose_pair`` while ``choose``
+continues forward flow on ``current_pair``. Both paths append new decision rows
+rather than mutating history, so reconstruction from the durable log always yields
+the latest effective choice per canonical pair.
 """
 
 from __future__ import annotations
@@ -45,4 +42,15 @@ class PairwiseSurface(DecisionSurface):
             raise SurfaceValidationError("pairwise review is complete")
         self._append({"surface": self.surface, "left": pair[0], "right": pair[1], "choice": choice})
         remaining = sum(1 for candidate in self._pairs if candidate not in {(row.get("left"), row.get("right")) for row in self._surface_decisions()})
+        return SurfaceProgress(complete=remaining == 0, remaining=remaining)
+
+    def choose_pair(self, left: str, right: str, choice: PairwiseChoice) -> SurfaceProgress:
+        if choice not in self._choices:
+            raise SurfaceValidationError("choice must be left, right, tie, or skip")
+        pair = (left, right)
+        if pair not in self._pairs:
+            raise SurfaceValidationError("pair is not part of this review")
+        self._append({"surface": self.surface, "left": left, "right": right, "choice": choice})
+        decided = {(row.get("left"), row.get("right")) for row in self._surface_decisions()}
+        remaining = sum(1 for c in self._pairs if c not in decided)
         return SurfaceProgress(complete=remaining == 0, remaining=remaining)
