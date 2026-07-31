@@ -4,9 +4,25 @@
 
 1. Vision starts the loopback Gravy MCP backend.
 2. Gravy validates Tailnet HTTPS Serve availability.
-3. Gravy atomically loads its registry and reconciles only mappings recorded as
-   Gravy-owned stale mappings.
+3. Gravy atomically loads its registry, terminalizes records that were active
+   before the recycle with their artifact recovery pointers, and reconciles only
+   mappings recorded as Gravy-owned stale mappings.
 4. Gravy begins accepting bounded review creation requests.
+
+Startup never runs `tailscale serve reset`. That command could clear mappings
+outside Gravy's ownership; Gravy may remove only a mapping named by its own
+persisted review record.
+
+## Supported catalog and control operations
+
+The control plane exposes only `catalog`, `create`, `update`, and `close`.
+`create` also serves the review page, so there is no separate serve operation.
+
+`catalog` contains exactly `gallery`, `pairwise`, `form`, and `checklist`.
+Checklist decisions include an explicit boolean status and comment for each
+declared criterion. `annotation`, `queue`, `document`, and `preview` remain
+deferred and unimplemented. Do not add a custom surface, generic renderer, or
+agent-provided executable UI path.
 
 ## Create and close
 
@@ -24,6 +40,9 @@ a typed terminal result without touching another review.
 If Vision recycles or Gravy fails, active pages may end. Decision artifacts stay
 available. The terminal review record supplies the artifact recovery pointer so
 an agent can create a replacement review without duplicating recorded decisions.
+The failed lifecycle mutation is not replayed automatically. Unknown or already
+terminal review IDs return a typed terminal result and cannot alter another
+review.
 
 ## Observability
 

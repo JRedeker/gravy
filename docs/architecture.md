@@ -22,6 +22,22 @@ close(review_id) -> terminal lifecycle state
 
 `create` also serves the page. There is no separate serve operation.
 
+## Closed review catalog
+
+`catalog()` describes exactly four discriminated review surfaces, each with a
+schema and example request:
+
+- `gallery` for selecting or ranking visual variants with notes;
+- `pairwise` for left/right/tie/skip decisions that resume from persisted
+  decisions;
+- `form` for images or text, options, toggles, fields, and free text; and
+- `checklist` for explicit pass/fail criteria and per-criterion comments.
+
+`checklist` is independently discriminated and serialized even where it shares
+field primitives with a form. `annotation`, `queue`, `document`, and `preview`
+are catalog roadmap metadata only: they are deferred and unimplemented. There
+is no `custom` surface, generic renderer, or agent-supplied executable UI path.
+
 ## Correctness boundaries
 
 - Review identity is independent of MCP session identity.
@@ -29,6 +45,9 @@ close(review_id) -> terminal lifecycle state
 - Review metadata is atomically replaced; decisions are append-only.
 - A service recycle turns active reviews terminal and preserves a recovery
   pointer. No operation is replayed after uncertain execution.
+- Startup/recycle reconciliation removes only mappings explicitly recorded as
+  Gravy-owned. It never runs global `tailscale serve reset` or changes unrelated
+  Serve configuration.
 - Tailnet HTTPS capability is checked before a port or registry entry is
   allocated.
 

@@ -11,6 +11,9 @@ temporary Tailnet-reachable Gradio pages for structured human review.
   process manager, daemonization, or double-forking.
 - Gravy owns review IDs, active-review capacity, review ports, Tailnet Serve
   mappings, and review artifacts.
+- The supported catalog is closed: `gallery`, `pairwise`, `form`, and
+  `checklist`. Treat `annotation`, `queue`, `document`, and `preview` as
+  deferred and unimplemented.
 - Human feedback returns to the agent through normal chat. Do not add polling,
   notifications, or automatic agent-resume behavior.
 
@@ -22,12 +25,14 @@ temporary Tailnet-reachable Gradio pages for structured human review.
 - Persist review metadata atomically and append decisions before UI advance.
 - Never replay a lifecycle mutation after uncertain execution. Return a typed
   terminal result with the artifact recovery pointer instead.
-- Reconcile only Gravy-owned stale Serve mappings during startup.
+- Reconcile only Gravy-owned stale Serve mappings during startup. Never run a
+  global `tailscale serve reset`; unrelated mappings are outside Gravy's
+  authority.
 
 ## Scope
 
-Initial surfaces are `gallery`, `pairwise`, and `form`. Do not implement
-arbitrary generated applications, SaaS hosting, accounts, multi-reviewer
+Do not implement a `custom` surface, arbitrary/generated renderer,
+agent-provided executable UI code, SaaS hosting, accounts, multi-reviewer
 workflows, browser automation, or automatic agent resume without a new
 approved change.
 
