@@ -13,6 +13,46 @@ Startup never runs `tailscale serve reset`. That command could clear mappings
 outside Gravy's ownership; Gravy may remove only a mapping named by its own
 persisted review record.
 
+## Vision runtime wiring
+
+Vision runs the foreground MCP entry point with `python -m gravy.mcp_entry`.
+The entry point never daemonizes or forks. Its defaults are intentionally
+separate: Gravy binds `127.0.0.1:7654/mcp`, while Vision's `managed-http` entry
+publishes external port `6281` and forwards it to
+`http://127.0.0.1:7654/mcp`. Vision must health-check `GET /ready`, which
+returns `{"status":"ready"}` only after the MCP server is accepting requests.
+
+The runtime accepts these non-secret environment variables:
+
+- `GRAVY_INTERNAL_HOST` — must remain `127.0.0.1` (default).
+- `GRAVY_INTERNAL_PORT` — loopback MCP listener port (default `7654`); it must
+  be outside Vision's external `6276–6325` range.
+- `GRAVY_EXTERNAL_PORT` — Vision `managed-http` port (default `6281`); it must
+  be within `6276–6325` and differ from the internal port.
+- `GRAVY_PATH` — must remain `/mcp` (default).
+- `GRAVY_STATE_DIR` — durable local lifecycle/artifact directory (default
+  `~/.local/share/gravy`).
+
+Invalid runtime settings fail validation before the server binds. Keep Vision
+configuration and these values synchronized; do not place secrets in Gravy
+environment configuration or copy Vision's private environment file.
+
+## Vision configuration rollout and rollback
+
+1. Snapshot the known-good non-secret Vision server configuration.
+2. Update the `managed-http` entry to run the foreground entry point, expose
+   external port `6281`, target `http://127.0.0.1:7654/mcp`, and check
+   `http://127.0.0.1:7654/ready`.
+3. Run `vision config validate`, then restart only with
+   `systemctl --user restart vision.service`.
+4. Confirm Vision reports the Gravy backend ready and perform one
+   `catalog`/`create`/`close` MCP round-trip.
+
+If validation, startup, or readiness fails, restore the prior non-secret
+configuration snapshot, run `vision config validate`, restart Vision with the
+same command, and retain only secret-safe diagnostics. Do not hot-reload the
+shared daemon.
+
 ## Supported catalog and control operations
 
 The control plane exposes only `catalog`, `create`, `update`, and `close`.
