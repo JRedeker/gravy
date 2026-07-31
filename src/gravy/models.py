@@ -62,8 +62,17 @@ class ReviewRecord:
 
 @dataclass(frozen=True, slots=True)
 class LifecycleResult:
+    """Result of a lifecycle/control-plane operation.
+
+    ``failure_stage`` and ``exception_class`` are populated only for
+    :attr:`DiagnosticCode.EXPOSURE_FAILURE` and carry only stable, bounded
+    metadata (no messages, args, paths, or secrets).
+    """
+
     record: ReviewRecord | None = None
     diagnostic: DiagnosticCode | None = None
+    failure_stage: str | None = None
+    exception_class: str | None = None
 
     @property
     def ok(self) -> bool:

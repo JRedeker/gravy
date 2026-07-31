@@ -121,6 +121,8 @@ def test_exposure_failure_closes_the_started_page_and_releases_its_port(
         result = lifecycle.create(request())
 
     assert result.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
+    assert result.failure_stage == "create.expose"
+    assert result.exception_class == "OSError"
     assert pages[0].closed
     assert lifecycle.registry.active_records() == ()
     assert lifecycle.ports.reserved == frozenset()
@@ -248,6 +250,8 @@ def test_close_cleanup_failure_keeps_the_port_reserved(
 
     assert closed.record is not None
     assert closed.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
+    assert closed.failure_stage == "tailnet.remove"
+    assert closed.exception_class == "OSError"
     assert lifecycle.registry.get(created.review_id).state is ReviewState.TERMINAL
     assert pages[0].closed
     assert lifecycle.ports.reserved == frozenset({created.port})
@@ -513,6 +517,18 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
     assert terminal_ids == {first.review_id, second.review_id}
     diagnostics = [result.diagnostic for result in recovered if result.diagnostic]
     assert DiagnosticCode.EXPOSURE_FAILURE in diagnostics
+    exposure_results = [
+        result for result in recovered if result.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
+    ]
+    assert any(
+        result.failure_stage == "tailnet.remove" and result.exception_class == "OSError"
+        for result in exposure_results
+    )
+    assert any(
+        result.failure_stage == "tailnet.reconcile_owned"
+        and result.exception_class == "RuntimeError"
+        for result in exposure_results
+    )
     assert all(
         result.record is None or result.record.state is ReviewState.TERMINAL
         for result in recovered

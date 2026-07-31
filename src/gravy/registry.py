@@ -21,14 +21,16 @@ from .schemas import ReviewRequest
 _LOGGER = logging.getLogger("gravy.registry")
 
 
-def _log_exposure_failure(stage: str, exc: BaseException) -> None:
+def _log_exposure_failure(stage: str, exc: BaseException) -> tuple[str, str]:
     """Secret-safe observability: record only stable stage and exception class."""
+    exc_class = exc.__class__.__name__
     _LOGGER.warning(
         "lifecycle exposure failure at stage=%s exc_class=%s",
         stage,
-        exc.__class__.__name__,
-        extra={"stage": stage, "exc_class": exc.__class__.__name__},
+        exc_class,
+        extra={"stage": stage, "exc_class": exc_class},
     )
+    return stage, exc_class
 
 
 class AtomicJsonStore:
@@ -126,12 +128,16 @@ class ReviewRegistry:
                     return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
                 return LifecycleResult(record=record)
             except Exception as exc:
-                _log_exposure_failure("create.expose", exc)
+                stage, exc_class = _log_exposure_failure("create.expose", exc)
                 self._records.pop(review_id, None)
                 ports.release(port)
                 if namespace_created:
                     artifacts.discard_namespace(review_id)
-                return LifecycleResult(diagnostic=DiagnosticCode.EXPOSURE_FAILURE)
+                return LifecycleResult(
+                    diagnostic=DiagnosticCode.EXPOSURE_FAILURE,
+                    failure_stage=stage,
+                    exception_class=exc_class,
+                )
 
     def update(self, review_id: str, patch: Mapping[str, object]) -> LifecycleResult:
         with self._lock:

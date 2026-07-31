@@ -112,3 +112,94 @@ def test_mcp_boundary_rejects_invalid_create_without_allocation(tmp_path: Path):
     assert result["diagnostic"] == str(DiagnosticCode.INVALID_REQUEST)
     assert plane.lifecycle.registry.active_records() == ()
     assert plane.lifecycle.ports.reserved == frozenset()
+
+
+def test_mcp_boundary_exposure_failure_includes_typed_stage_and_exception_class(
+    tmp_path: Path,
+):
+    """Exposure failures expose bounded diagnostic metadata without leaking secrets."""
+
+    class FailingExposeTailnet(FakeTailnet):
+        def expose(self, review_id: str, port: int) -> str:
+            raise OSError("serve refused with sensitive /path/to/key")
+
+    lifecycle = LifecycleAdapter(
+        ReviewRegistry(tmp_path / "registry.json"),
+        PortPool(41000, 41010),
+        ArtifactStore(tmp_path / "artifacts"),
+        FailingExposeTailnet(),
+        lambda _review_id, _request: FakePage(),
+    )
+    boundary = GravyMcpBoundary(GravyControlPlane(lifecycle))
+
+    result = boundary.handle(
+        "create",
+        {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+    )
+
+    assert result["ok"] is False
+    assert result["diagnostic"] == str(DiagnosticCode.EXPOSURE_FAILURE)
+    assert result["failure_stage"] == "create.expose"
+    assert result["exception_class"] == "OSError"
+    # Never leak messages, args, payloads, paths, stdout/stderr, or secrets.
+    for forbidden in ("message", "args", "stdout", "stderr", "payload", "path", "secret"):
+        assert forbidden not in result
+    assert "/path/to/key" not in str(result)
+    assert "a.png" not in str(result)
+    assert lifecycle.registry.active_records() == ()
+    assert lifecycle.ports.reserved == frozenset()
+
+
+def test_mcp_boundary_close_exposure_failure_includes_typed_stage_and_exception_class(
+    tmp_path: Path,
+):
+    """Close exposure failures also surface bounded stage and exception class."""
+
+    class FailingRemoveTailnet(FakeTailnet):
+        def expose(self, review_id: str, port: int) -> str:
+            self.mappings[review_id] = port
+            return f"https://{review_id}.tailnet.test"
+
+        def remove(self, review_id: str, port: int) -> None:
+            raise OSError("remove failed with sensitive /path/to/key")
+
+    lifecycle = LifecycleAdapter(
+        ReviewRegistry(tmp_path / "registry.json"),
+        PortPool(41000, 41010),
+        ArtifactStore(tmp_path / "artifacts"),
+        FailingRemoveTailnet(),
+        lambda _review_id, _request: FakePage(),
+    )
+    boundary = GravyMcpBoundary(GravyControlPlane(lifecycle))
+
+    created = boundary.handle(
+        "create",
+        {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+    )
+    assert created["ok"] is True
+    record = created["record"]
+
+    result = boundary.handle("close", {"review_id": record["review_id"]})
+
+    assert result["ok"] is False
+    assert result["diagnostic"] == str(DiagnosticCode.EXPOSURE_FAILURE)
+    assert result["failure_stage"] == "tailnet.remove"
+    assert result["exception_class"] == "OSError"
+    assert "/path/to/key" not in str(result)
+    assert "a.png" not in str(result)
+
+
+def test_mcp_boundary_non_exposure_failure_omits_stage_and_exception_class(
+    tmp_path: Path,
+):
+    """Only exposure failures carry failure_stage/exception_class; other diagnostics stay minimal."""
+    boundary = GravyMcpBoundary(make_plane(tmp_path))
+
+    result = boundary.handle(
+        "create", {"surface": "gallery", "request": {"surface": "form", "fields": ["x"]}}
+    )
+
+    assert result["ok"] is False
+    assert result["diagnostic"] == str(DiagnosticCode.INVALID_REQUEST)
+    assert "failure_stage" not in result
+    assert "exception_class" not in result
