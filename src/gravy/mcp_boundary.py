@@ -7,7 +7,6 @@ review page, so there is no separate serve operation.
 
 from __future__ import annotations
 
-import asyncio
 from collections.abc import Mapping
 from typing import Any
 
@@ -29,13 +28,13 @@ class GravyMcpBoundary:
         return self._TOOL_NAMES
 
     async def handle_async(self, name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:
-        """Async boundary that offloads blocking create/close work to a thread.
+        """Async boundary that runs the synchronous lifecycle on the main thread.
 
-        Catalog and update remain fast, synchronous calls so their behavior is
-        unchanged; create and close run outside FastMCP/Uvicorn's event loop.
+        Catalog and update remain fast, synchronous calls.  Create and close
+        run in the event-loop thread (the main thread in the foreground MCP
+        process) because Gradio ``Blocks.launch()`` must execute there; they do
+        not offload to a worker thread.
         """
-        if name in ("create", "close"):
-            return await asyncio.to_thread(self.handle, name, arguments)
         return self.handle(name, arguments)
 
     def handle(self, name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:

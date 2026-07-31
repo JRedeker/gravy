@@ -10,7 +10,7 @@ import runpy
 import socket
 import subprocess
 import threading
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
 
@@ -19,11 +19,11 @@ import pytest
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
+import gravy.mcp_entry
 from gravy.artifacts import ArtifactStore
 from gravy.config import ConfigurationError, GravyRuntimeConfig
 from gravy.control_plane import GravyControlPlane
 from gravy.lifecycle import LifecycleAdapter
-import gravy.mcp_entry
 from gravy.mcp_entry import GravyMcpServer, main
 from gravy.ports import PortPool
 from gravy.registry import ReviewRegistry
@@ -59,8 +59,8 @@ class FakeTailnet:
         return set()
 
 
-class ThreadCheckingFakePage:
-    """Fake page that asserts it never runs on the async event-loop thread."""
+class EventLoopThreadFakePage:
+    """Fake page that asserts it runs on the async event-loop (main) thread."""
 
     def __init__(self, loop_thread_id: int) -> None:
         self.loop_thread_id = loop_thread_id
@@ -68,20 +68,20 @@ class ThreadCheckingFakePage:
         self.closed = False
 
     def launch(self, port: int) -> None:
-        assert threading.current_thread().ident != self.loop_thread_id, (
-            "launch must not run on the event-loop thread"
+        assert threading.current_thread().ident == self.loop_thread_id, (
+            "launch must run on the event-loop thread"
         )
         self.launched_port = port
 
     def close(self) -> None:
-        assert threading.current_thread().ident != self.loop_thread_id, (
-            "close must not run on the event-loop thread"
+        assert threading.current_thread().ident == self.loop_thread_id, (
+            "close must run on the event-loop thread"
         )
         self.closed = True
 
 
-class ThreadCheckingFakeTailnet:
-    """Fake tailnet that asserts Serve mutations never run on the event-loop thread."""
+class EventLoopThreadFakeTailnet:
+    """Fake tailnet that asserts Serve mutations run on the event-loop (main) thread."""
 
     def __init__(self, loop_thread_id: int) -> None:
         self.loop_thread_id = loop_thread_id
@@ -91,15 +91,15 @@ class ThreadCheckingFakeTailnet:
         return True
 
     def expose(self, review_id: str, port: int) -> str:
-        assert threading.current_thread().ident != self.loop_thread_id, (
-            "expose must not run on the event-loop thread"
+        assert threading.current_thread().ident == self.loop_thread_id, (
+            "expose must run on the event-loop thread"
         )
         self.mappings[review_id] = port
         return f"https://{review_id}.tailnet.test"
 
     def remove(self, review_id: str, port: int) -> None:
-        assert threading.current_thread().ident != self.loop_thread_id, (
-            "remove must not run on the event-loop thread"
+        assert threading.current_thread().ident == self.loop_thread_id, (
+            "remove must run on the event-loop thread"
         )
         self.mappings.pop(review_id, None)
 
@@ -296,15 +296,15 @@ def test_main_default_external_port_is_6281(monkeypatch: pytest.MonkeyPatch) -> 
     assert captured_config.external_port == 6281
 
 
-async def test_create_and_close_offload_blocking_work_to_thread(
+async def test_create_and_close_run_on_event_loop_thread(
     tmp_path: Path,
 ) -> None:
-    """Blocking create/close handlers run off the async event loop and preserve results.
+    """Create/close handlers run on the async event-loop (main) thread and preserve results.
 
-    Regression for the managed endpoint behavior where real ``create`` returned
-    ``exposure_failure`` because Gradio launch and Tailscale Serve blocked
-    uvicorn's event loop.  The fakes here raise if they are invoked synchronously
-    from the loop thread, proving the tool handlers use a thread boundary.
+    Gradio ``Blocks.launch()`` must execute on the main thread, so the lifecycle
+    is no longer offloaded to a worker thread.  The fakes here raise if they are
+    invoked from any other thread, proving the tool handlers keep the work on the
+    event-loop thread.
     """
     loop_thread_id = threading.current_thread().ident
 
@@ -312,8 +312,8 @@ async def test_create_and_close_offload_blocking_work_to_thread(
         ReviewRegistry(tmp_path / "registry.json"),
         PortPool(41000, 41010),
         ArtifactStore(tmp_path / "artifacts"),
-        ThreadCheckingFakeTailnet(loop_thread_id),
-        lambda _review_id, _request: ThreadCheckingFakePage(loop_thread_id),
+        EventLoopThreadFakeTailnet(loop_thread_id),
+        lambda _review_id, _request: EventLoopThreadFakePage(loop_thread_id),
     )
     plane = GravyControlPlane(lifecycle)
     config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
