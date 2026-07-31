@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "change_id": "addGravyRuntimeWiring",
+  "title": "Add Gravy runtime wiring",
+  "release_notes": {
+    "audience": "internal",
+    "category": "added",
+    "highlights": [
+      "Gravy MCP backend now runs as a Vision-supervised managed-http service on port 6281",
+      "Four typed MCP tools: catalog, create, update, close for gallery/pairwise/form/checklist surfaces",
+      "Typed runtime config with structural port/path validation and secret-safe failure diagnostics"
+    ],
+    "area": "gravy-runtime",
+    "links": {
+      "pr": "#1"
+    }
+  }
+}

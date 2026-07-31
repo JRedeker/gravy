@@ -1,0 +1,3064 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "addGravyRuntimeWiring",
+  "title": "Add Gravy runtime wiring",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-07-31T02:29:55.790Z",
+  "tasks": [
+    {
+      "id": "tk-ce7679584f97",
+      "title": "Build typed Gravy MCP runtime entry point",
+      "type": "code",
+      "section": "Runtime",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-07-31T02:49:56.845Z",
+      "started_at": "2026-07-31T05:47:56.159Z",
+      "completed_at": "2026-07-31T20:44:46.269Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "Runpy module-entrypoint warning cleanup passed focused verification (tr_ms9ev4nu_daa17856).",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "tests/test_mcp_entry.py"
+      ],
+      "checkpointSha": "e19be113b1750eee6f93f325a017b7a749237da5",
+      "completedAt": "2026-07-31T20:44:46.269Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "implements": [
+          "SC1",
+          "SC3"
+        ],
+        "verifies": [
+          "AC1",
+          "AC2"
+        ],
+        "respects": [
+          "C1",
+          "C3"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline",
+        "delegation_hint": "delegate_preferred"
+      },
+      "touched_files": [
+        "tests/test_mcp_entry.py"
+      ],
+      "subagent_reports": [
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 1,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "pyproject.toml",
+            "uv.lock",
+            "src/gravy/config.py",
+            "src/gravy/mcp_entry.py",
+            "tests/test_runtime_config.py",
+            "tests/test_mcp_entry.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms8j6jle_c90fc6eb",
+              "command": "uv run --group test pytest tests/test_runtime_config.py -q",
+              "exit_code": 0,
+              "summary": "7/7 config validation tests pass (loopback, /mcp, port guards)"
+            },
+            {
+              "test_run_id": "tr_ms8jji3v_5f66dbc6",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+              "exit_code": 0,
+              "summary": "5/5 MCP entry point tests pass (ready, tool set, catalog/create/close round-trip, no fork)"
+            },
+            {
+              "test_run_id": "tr_ms8jkc4u_ca5859b3",
+              "command": "uv run --group test pytest -q",
+              "exit_code": 0,
+              "summary": "64/64 full suite pass including parent review-runtime tests"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Brought parent change addGravyReviewKit runtime into worktree via git checkout instead of duplicating it",
+              "why": "The current branch only had docs/project files; the review runtime exists on the parent branch and is a prerequisite for the MCP boundary. Checking it out keeps the runtime code unchanged while the new entry point imports from it."
+            },
+            {
+              "what": "Used FastMCP from mcp>=1.12 with streamable_http_app() + uvicorn.Server rather than mcp.run()",
+              "why": "This gives a foreground, same-process server and lets tests hold a server reference for clean shutdown, avoiding daemon/fork behavior."
+            },
+            {
+              "what": "Added /ready custom route alongside /mcp",
+              "why": "Vision managed-http needs a health probe; the route is part of the same Starlette app and matches the agreed endpoint shape."
+            },
+            {
+              "what": "Typed runtime config validates host, path, internal/external ports, and equality before binding",
+              "why": "Fulfills SC1/SC3 and AC1; failing fast before uvicorn starts prevents silent misconfiguration."
+            },
+            {
+              "what": "Used pytest-asyncio and httpx for integration tests",
+              "why": "The SDK streamable_http_client yields three values in this version; httpx gives a lightweight async probe for /ready before running MCP client round-trip."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "No same-pattern defects found in newly added code; parent runtime files were imported unchanged.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "The Gravy MCP runtime entry point is implemented and verified. src/gravy/config.py provides typed loopback/port validation; src/gravy/mcp_entry.py wires the existing review runtime into a foreground FastMCP Streamable HTTP server on 127.0.0.1/mcp with tools catalog/create/update/close and a /ready endpoint. All 64 tests pass. No Vision config, backup, restart, commit, or PR work was performed. The next ops task (tk-8b25edf7f95f) can now wire Vision managed-http safely.",
+            "suggested_next_action": "Proceed to task tk-8b25edf7f95f (Wire Gravy into Vision managed-http safely); keep the runtime entry point untouched."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-ce7679584f97",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "tk-ce7679584f97"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms8j6jle_c90fc6eb"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms8jji3v_5f66dbc6"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms8jkc4u_ca5859b3"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 2,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/mcp_entry.py",
+            "tests/test_mcp_entry.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms96yvtz_6543455e",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+              "exit_code": 1,
+              "summary": "Red phase: new regression test failed before fix, asserting 6281 != default 6277"
+            },
+            {
+              "test_run_id": "tr_ms96zl7w_7333413a",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+              "exit_code": 0,
+              "summary": "Green phase: regression test passes after default changed to 6281"
+            },
+            {
+              "test_run_id": "tr_ms96zoj3_151d8f3d",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py tests/test_runtime_config.py -v",
+              "exit_code": 0,
+              "summary": "Focused verification: 13/13 tests pass (6 entry point + 7 config)"
+            },
+            {
+              "test_run_id": "tr_ms971fns_d78eb113",
+              "command": "uv run --group test pytest tests/ -v",
+              "exit_code": 0,
+              "summary": "Full suite regression: 65/65 tests pass"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Added a regression test in tests/test_mcp_entry.py that calls main() with env vars cleared and captures the constructed GravyRuntimeConfig",
+              "why": "TDD requires durable red/green evidence for the entrypoint default without starting a real server."
+            },
+            {
+              "what": "Changed the fallback string for GRAVY_EXTERNAL_PORT in src/gravy/mcp_entry.py main() from 6277 to 6281",
+              "why": "6277 is used by Vision's time MCP; 6281 is verified free for Gravy's external port."
+            },
+            {
+              "what": "Closed the unawaited FakeServer.serve() coroutine in the test's fake asyncio.run",
+              "why": "main() builds the coroutine but the test intentionally never runs it; closing it avoids RuntimeWarning noise."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "Searched for GRAVY_EXTERNAL_PORT default literals across repo; only one occurrence in src/gravy/mcp_entry.py. Existing tests pass external_port explicitly and remain valid.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Entrypoint default GRAVY_EXTERNAL_PORT changed from 6277 to 6281, with a regression test locking the default. TDD red/green and focused/full verification recorded via adv_run_test. No Vision config, backup, service restart, commit, push, or PR work was performed.",
+            "suggested_next_action": "Review diff and proceed to merge/archive as appropriate; no further runtime wiring changes required."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-ce7679584f97",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "tk-ce7679584f97"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms96yvtz_6543455e"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms96zl7w_7333413a"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms96zoj3_151d8f3d"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms971fns_d78eb113"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 3,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/mcp_entry.py",
+            "tests/test_mcp_entry.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "pytest-tk-ce7679584f97-attempt3",
+              "command": ".venv/bin/python -m pytest tests/test_mcp_entry.py -v",
+              "exit_code": 0,
+              "summary": "7 passed, 1 warning (runpy sys.modules warning); focused MCP entry tests green"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Intercepted asyncio.run in the entrypoint regression test instead of patching main directly",
+              "why": "runpy.run_module executes a fresh __main__ copy of the module, so patching the module-level main would be overwritten; patching the global asyncio.run lets the real main() path execute up to server.serve() without ever binding a port"
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "none",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Added the missing `if __name__ == \"__main__\": main()` guard to src/gravy/mcp_entry.py and deterministic regression test in tests/test_mcp_entry.py that runs the module as __main__ and proves main() is invoked. Red/green evidence captured by temporarily removing the guard and confirming the test fails. All 7 focused tests pass; no Vision config, commit, push, or PR actions taken.",
+            "suggested_next_action": "Review the diff and proceed to the next task or gate for addGravyRuntimeWiring"
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: pytest-tk-ce7679584f97-attempt3"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 4,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/mcp_boundary.py",
+            "src/gravy/mcp_entry.py",
+            "tests/test_mcp_entry.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms99u604_c120f9bc",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+              "exit_code": 1,
+              "summary": "Red phase: new regression test fails before thread-boundary fix; create/close fakes invoked on uvicorn event loop, causing lifecycle to return exposure_failure"
+            },
+            {
+              "test_run_id": "tr_ms99un2k_b2b27d67",
+              "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+              "exit_code": 0,
+              "summary": "Green phase: regression test passes after fix; create/close run off event loop and catalog/update still correct"
+            },
+            {
+              "test_run_id": "tr_ms99vc5d_34128dbe",
+              "command": "uv run --group test pytest -v",
+              "exit_code": 0,
+              "summary": "Full suite regression: 67/67 tests pass"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Added async handle_async to GravyMcpBoundary that offloads create/close to asyncio.to_thread while keeping catalog/update synchronous",
+              "why": "create/close block on Gradio launch and Tailscale subprocess calls; running them in uvicorn's event loop caused live exposure_failure. Catalog/update are fast/static and are left unchanged to preserve their behavior."
+            },
+            {
+              "what": "Updated mcp_entry tool handlers to await handle_async for all four tools",
+              "why": "Provides a single async boundary so FastMCP/Uvicorn never executes blocking create/close work on the request loop."
+            },
+            {
+              "what": "Added thread-asserting Gradio/Tailscale fakes in test_mcp_entry.py",
+              "why": "Deterministic regression proof that create/close (and expose/remove) execute on a worker thread, not the event loop, while results are still returned correctly."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "No same-pattern blocking-in-async defects found in the MCP boundary or entry point; catalog/update are intentionally unchanged as non-blocking.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Live exposure_failure was caused by create/close running synchronously inside FastMCP/Uvicorn's async request loop. Added GravyMcpBoundary.handle_async that offloads create/close via asyncio.to_thread; mcp_entry tool handlers now await it. Added regression test with thread-asserting fakes proving the boundary. 67/67 tests pass. No Vision config/restart, commit, push, or PR performed.",
+            "suggested_next_action": "Review the diff and proceed to the next task or gate for addGravyRuntimeWiring."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-ce7679584f97",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "tk-ce7679584f97"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms99u604_c120f9bc"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms99un2k_b2b27d67"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms99vc5d_34128dbe"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 5,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/lifecycle.py",
+            "src/gravy/registry.py",
+            "tests/test_lifecycle.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms9ae4k7_2bc8372b",
+              "command": "uv run --group test pytest -q",
+              "exit_code": 0,
+              "summary": "67 passed, 1 warning (runpy); full suite green after adding secret-safe exposure-failure observability"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Logged only stable stage and exception class on lifecycle exposure failures",
+              "why": "Fulfills secret-safe requirement: never request payload, command args, stdout/stderr, or user data"
+            },
+            {
+              "what": "Changed recovery artifact cleanup_error from free-text string to structured cleanup_errors list of {stage, exc_class}",
+              "why": "Persisted diagnostic record stays secret-safe and machine-readable while retaining the same recovery behavior"
+            },
+            {
+              "what": "Added caplog-based tests asserting stage/class logs and absence of exception messages/user data",
+              "why": "Provides executable proof of the bounded observability contract"
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "No same-pattern exposure-failure logging elsewhere in the lifecycle subsystem; all exception catch sites in lifecycle.py and registry.py now use the secret-safe helper.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Added minimal bounded secret-safe observability for lifecycle exposure failures. create/close/recover log stable stage + exception class only and persist structured cleanup diagnostics. Full test suite passes 67. No Vision config, backup, restart, commit, push, or PR performed.",
+            "suggested_next_action": "Review diff and proceed to merge/archive as appropriate."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-ce7679584f97",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "tk-ce7679584f97"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms9ae4k7_2bc8372b"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 2,
+          "workdir_used": "/home/jon/dev/gravy",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-reviewer",
+          "phase": "review",
+          "verdict": "READY",
+          "blocking_findings": [],
+          "nonblocking_findings": [],
+          "changes_made": [
+            {
+              "file": "tests/test_mcp_entry.py",
+              "summary": "Removed the pre-imported gravy.mcp_entry entry from sys.modules immediately before runpy execution, preventing runpy's duplicate-module RuntimeWarning while preserving the __main__ entrypoint assertion.",
+              "verification": "Focused entrypoint test passed without warnings; related scan found the only runpy.run_module use; full suite passed."
+            }
+          ],
+          "wisdom_candidates": [],
+          "verification": {
+            "tests_run": [
+              "uv run pytest tests/test_mcp_entry.py::test_main_guard_invokes_main_when_run_as_module",
+              "uv run pytest"
+            ],
+            "results": "pass",
+            "evidence": "Focused test: 1 passed in 5.24s with no warnings. Full suite: 71 passed in 30.50s. Initial baseline reproduced the RuntimeWarning; after the scoped test fix it no longer occurred."
+          },
+          "scope_drift": null,
+          "risks": [],
+          "required_main_agent_actions": [],
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run pytest tests/test_mcp_entry.py::test_main_guard_invokes_main_when_run_as_module"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run pytest"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 6,
+          "workdir_used": "/home/jon/dev/gravy",
+          "task_id": "tk-ce7679584f97",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ce7679584f97"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "pyproject.toml",
+            "uv.lock",
+            "src/gravy/config.py",
+            "src/gravy/mcp_boundary.py",
+            "src/gravy/mcp_entry.py",
+            "src/gravy/lifecycle.py",
+            "src/gravy/registry.py",
+            "tests/test_runtime_config.py",
+            "tests/test_mcp_entry.py",
+            "tests/test_lifecycle.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms9g7ytf_4b782407",
+              "command": "uv run --group test pytest -q",
+              "exit_code": 0,
+              "summary": "71/71 tests passed on merged trunk"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Retained only the latest durable passing adv_run_test run and dropped all prior non-durable run identifiers",
+              "why": "The task's latest report carried verification_missing warnings because it referenced run IDs with no durable evidence; the latest durable run proves the implementation and removes the stale warning."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "No new code changes in this attempt; prior related scans already addressed same-pattern issues in touched scope.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Fresh typed ENGINEER_REPORT submitted for tk-ce7679584f97. Verification references only durable passing run tr_ms9g7ytf_4b782407 (71 tests passed on merged trunk). All prior non-durable run IDs have been removed. No code was modified.",
+            "suggested_next_action": "Re-evaluate acceptance gate for addGravyRuntimeWiring; the VERIFICATION_EVIDENCE_MISSING blocker should now clear."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-ce7679584f97",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "tk-ce7679584f97"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tk-8b25edf7f95f",
+      "title": "Wire Gravy into Vision managed-http safely",
+      "type": "ops",
+      "section": "Operations",
+      "status": "done",
+      "priority": 1,
+      "deps": [
+        {
+          "type": "blocked_by",
+          "target": "tk-ce7679584f97"
+        }
+      ],
+      "created_at": "2026-07-31T02:50:12.047Z",
+      "started_at": "2026-07-31T06:14:25.966Z",
+      "completed_at": "2026-07-31T18:05:06.281Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "Vision configuration validates; Gravy managed-http service runs on external port 6281 with internal loopback endpoint 127.0.0.1:7654/mcp; `backend_state` is ready. Non-secret servers.yaml backup merged in Toolbox PR #123.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [],
+      "checkpointSha": "31fed75f8ca72f7c849eaa6236a52d71b45491b3",
+      "completedAt": "2026-07-31T18:05:06.281Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "implements": [
+          "SC2",
+          "SC5",
+          "SC6"
+        ],
+        "verifies": [
+          "AC3",
+          "AC4",
+          "AC5"
+        ],
+        "respects": [
+          "C2",
+          "C4"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "static_check",
+        "proof_target": "Static analysis or check output",
+        "rationale": "This task changes the shared Vision configuration and requires command-backed validation plus explicit operational proof rather than isolated unit behavior alone.",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "static_check",
+      "metadata": {
+        "delegation_hint": "inline",
+        "tdd_intent": "not_applicable"
+      },
+      "touched_files": []
+    },
+    {
+      "id": "tk-cefd8dc542a5",
+      "title": "Verify managed Gravy runtime and rollback",
+      "type": "verification",
+      "section": "Verification",
+      "status": "done",
+      "priority": 2,
+      "deps": [
+        {
+          "type": "blocked_by",
+          "target": "tk-ce7679584f97"
+        },
+        {
+          "type": "blocked_by",
+          "target": "tk-8b25edf7f95f"
+        }
+      ],
+      "created_at": "2026-07-31T02:50:20.356Z",
+      "started_at": "2026-07-31T18:05:22.932Z",
+      "completed_at": "2026-07-31T19:53:32.661Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "All 71 tests pass; new regression confirms real Gradio launch runs on main thread through MCP boundary; production create_control_plane path verified with live script.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "src/gravy/mcp_boundary.py",
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "checkpointSha": "5f926b7c2f58cb772b906024e220b64752c891d0",
+      "completedAt": "2026-07-31T19:53:32.661Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5"
+        ],
+        "respects": [
+          "C1",
+          "C2",
+          "C3",
+          "C4"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "delegation_hint": "inline",
+        "tdd_intent": "separate_verification"
+      },
+      "touched_files": [
+        "src/gravy/mcp_boundary.py",
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "subagent_reports": [
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 4,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-cefd8dc542a5",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-cefd8dc542a5"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/models.py",
+            "src/gravy/lifecycle.py",
+            "src/gravy/registry.py",
+            "src/gravy/mcp_boundary.py",
+            "tests/test_lifecycle.py",
+            "tests/test_mcp_boundary.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "uv-run-pytest-tk-cefd8dc542a5-attempt4",
+              "command": "uv run pytest -q",
+              "exit_code": 0,
+              "summary": "70 passed, 1 warning in 31.58s"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Use LifecycleResult.ok to determine success in MCP boundary serialization",
+              "why": "Close cleanup failures carry a terminal record but diagnostic=EXPOSURE_FAILURE; the old check `result.record is not None` incorrectly returned ok=True for these failures. Switching to result.ok aligns the response with the LifecycleResult property and fixes the live MCP shape."
+            },
+            {
+              "what": "Report the first cleanup failure stage/class for compound cleanup errors",
+              "why": "Close and recycle can encounter both tailnet.remove and page.close failures. The response is bounded to a single failure_stage/exception_class pair; the recovery artifact already preserves the full list in cleanup_errors."
+            },
+            {
+              "what": "Limit failure metadata to hardcoded stage strings and exception class names",
+              "why": "Requirement forbids messages, args, payloads, paths, stdout/stderr, or secrets in the response. Stable stage tokens and class names are bounded and cannot leak those categories."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [
+            "Live diagnostic follow-up: load updated Gravy code into the Vision-managed MCP process and confirm the new exposure-failure response shape. Exact steps: (1) run `vision config validate`; (2) run `systemctl --user restart vision.service`; (3) trigger a controlled exposure failure on the managed `create` or `close` tool (e.g., temporarily block the Tailscale remove/expose step) and verify the MCP response is `{\"ok\": false, \"diagnostic\": \"exposure_failure\", \"failure_stage\": \"<stage>\", \"exception_class\": \"<class>\"}`; (4) verify the response does not contain exception messages, args, payloads, file paths, stdout/stderr, or secrets; (5) verify the journal/log still records `stage=<stage>` and `exc_class=<class>` with no leaked messages or secrets."
+          ],
+          "related_scan": "Updated all EXPOSURE_FAILURE creation sites in lifecycle.py, registry.py, and the MCP boundary serializer. Extended lifecycle and MCP boundary tests to assert the new fields and absence of leaks. No other diagnostic code paths required changes.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Typed lifecycle/control-plane failure responses now include bounded failure_stage and exception_class for exposure_failure only. Fixed a related bug where close cleanup failures were serialized as ok=True because the serializer only checked result.record. All 70 tests pass. No Vision config changes or restart was performed.",
+            "suggested_next_action": "Run the live diagnostic follow-up: validate Vision config, restart vision.service, trigger a controlled exposure failure on the managed MCP endpoint, and confirm the response shape and absence of leaks."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-cefd8dc542a5_a4",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "report-tk-cefd8dc542a5-attempt4"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: uv-run-pytest-tk-cefd8dc542a5-attempt4"
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0",
+          "change_id": "addGravyRuntimeWiring",
+          "attempt": 5,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+          "task_id": "tk-cefd8dc542a5",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-cefd8dc542a5"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/mcp_boundary.py",
+            "src/gravy/mcp_entry.py",
+            "tests/test_mcp_boundary.py",
+            "tests/test_mcp_entry.py"
+          ],
+          "verification": [
+            {
+              "test_run_id": "tr_ms9d3qup_0cdf9f1f",
+              "command": "uv run pytest -q",
+              "exit_code": 0,
+              "summary": "71 passed, 1 warning in 51.06s"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Removed asyncio.to_thread offloading for create/close in the MCP boundary",
+              "why": "Gradio Blocks.launch() must execute on the main thread; the prior offload moved lifecycle create/close to a worker thread, which broke real Gradio launches and produced the observed create.expose TypeError."
+            },
+            {
+              "what": "Wrapped GradioBlocksPage.build_for in create_control_plane to supply artifacts",
+              "why": "LifecycleAdapter's build_page interface passes only review_id and request; GradioBlocksPage.build_for requires artifacts. The direct reference caused a TypeError before any launch, so a closure now supplies the store."
+            },
+            {
+              "what": "Updated the thread-offloading test to assert main-thread execution instead",
+              "why": "The old test verified the offloading behavior we removed; inverting the thread assertion guards against regression back to worker-thread lifecycle execution."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "Updated the one MCP-boundary thread-offload path in src/gravy/mcp_boundary.py and the one create_control_plane build_page wiring in src/gravy/mcp_entry.py. No other worker-thread offloading paths were found in src/gravy.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Lifecycle create/close now run synchronously on the MCP event-loop (main) thread, fixing the Gradio launch failure. The production create_control_plane wiring was also corrected so GradioBlocksPage.build_for receives the artifact store. A regression test verifies that real Gradio launch executes on the main thread and that the listener is reachable through the MCP boundary. All 71 tests pass; no Vision config or restart was performed.",
+            "suggested_next_action": "Load the updated Gravy code into the Vision-managed MCP process and re-run the live create/close diagnostic to confirm the create.expose TypeError is resolved."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic_tk-cefd8dc542a5_a5",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "report-tk-cefd8dc542a5-attempt5"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_ms9d3qup_0cdf9f1f"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "subagent_reports": [
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:runtime-wiring-discovery"
+      },
+      "agent": "adv-researcher",
+      "topic": "Gravy service entry point + Vision managed-http loopback backend wiring contract",
+      "sources": [
+        {
+          "label": "Gravy architecture.md",
+          "locator": "file:///home/jon/dev/gravy/docs/architecture.md",
+          "summary": "Vision supervises one loopback Gravy MCP backend through managed-http; Gravy owns review lifecycle; each review gets its own in-process Gradio Blocks listener + persistent Tailnet Serve mapping. Avoids runtime Gradio mounting, shared-origin proxy, subprocess-per-review, daemonization."
+        },
+        {
+          "label": "Gravy operations.md",
+          "locator": "file:///home/jon/dev/gravy/docs/operations.md",
+          "summary": "Startup: Vision starts loopback backend; Gravy validates Tailnet HTTPS; atomically loads registry; reconciles only Gravy-owned stale mappings; begins bounded review creation. Recovery: recycle leaves active pages terminal with artifact recovery pointer; no replay after uncertain execution."
+        },
+        {
+          "label": "Parent agreement SC1/SC8/C4/OOS1",
+          "locator": "adv_change_show:addGravyReviewKit include.agreement",
+          "summary": "SC1: Gravy supervised as one Vision loopback managed-http MCP backend. SC8: pin Gradio 6.x w/ PR#12460; Vision/Tailscale config changes wait until implementation+verification justify them. C4: before any Vision config change -> validate config, restart ONLY via systemctl --user restart vision.service, sync non-secret changes into Toolbox backups. OOS1 (parent): deferred deploy/config of Vision/Tailscale during implementation. THIS change is the SC1 fast-follow that lifts OOS1."
+        },
+        {
+          "label": "Vision MCP_TRANSPORTS.md - managed-http",
+          "locator": "file:///home/jon/dev/vision/docs/MCP_TRANSPORTS.md",
+          "summary": "transport: managed-http = loopback native HTTP MCP server whose process AND public gateway are both Vision-owned. Vision launches/restarts command via Suture. Internal URL must be http, loopback-only, exactly /mcp. Readiness = at-most-once initialize/delete probe (not PID). Backend Mcp-Session-Id passes through. Ambiguous results never replayed -> drain/recycle. LeaseManager owns app-idle expiry/capacity/in-flight/diagnostics. Two-port model: external Vision port + internal loopback backend port."
+        },
+        {
+          "label": "Vision CONFIGURATION.md",
+          "locator": "file:///home/jon/dev/vision/docs/CONFIGURATION.md",
+          "summary": "Schema: port (6276-6325, required), transport, command, args, env, autostart, restart_policy, max_restarts, session_timeout, max_sessions. managed-http always explicit (owns command + url). After editing: vision config validate -> vision daemon reload -> vision daemon status. Hot reload = SIGHUP (re-reads servers.yaml, starts new/stops removed/updates changed). Validation checks YAML syntax, required fields, port range, no conflicts, transport consistency."
+        },
+        {
+          "label": "Vision internal/config/schema.go",
+          "locator": "file:///home/jon/dev/vision/internal/config/schema.go",
+          "summary": "TransportManagedHTTP='managed-http' requires command + loopback URL ending exactly /mcp. Port range 6276-6325 (MinPort/MaxPort). ApplyDefaults/Validate enforce schema. Confirms validate does NOT check internal backend ports outside 6276-6325."
+        },
+        {
+          "label": "Vision cmd/vision/main.go",
+          "locator": "file:///home/jon/dev/vision/cmd/vision/main.go",
+          "summary": "CLI surface (cobra): config validate (Load+Validate, exit 1 on failure, 'Configuration is valid' on success), daemon reload (sends SIGHUP to PID), daemon status (PID + /health), daemon start (foreground), daemon stop (SIGTERM). Confirms exact validate/reload/status commands exist."
+        },
+        {
+          "label": "Vision ADR 0001 managed-native-http-playwright",
+          "locator": "file:///home/jon/dev/vision/docs/adr/0001-managed-native-http-playwright.md",
+          "summary": "Canonical managed-http example: external 6287, internal loopback 16287. Rollback: restore pre-change entry -> vision config validate -> vision daemon reload -> confirm daemon status + one session; retain failed config+diagnostics; target <10min. Tradeoff: native HTTP host protection requires exact loopback host+port."
+        },
+        {
+          "label": "MCP Python SDK - Running your server",
+          "locator": "https://py.sdk.modelcontextprotocol.io/run/",
+          "summary": "mcp.run(transport='streamable-http', host='127.0.0.1', port=<p>) builds Starlette+uvicorn app; clients connect http://127.0.0.1:<p>/mcp. host/port default 127.0.0.1/8000; streamable_http_path default /mcp. Transport opts go to run() not constructor; run() blocks; keep under if __name__=='__main__'. Exactly matches Vision managed-http loopback /mcp contract."
+        },
+        {
+          "label": "Vision servers.yaml (active)",
+          "locator": "file:///home/jon/.config/vision/servers.yaml",
+          "summary": "Active config. managed-http precedent = playwright (port 6287, transport managed-http, url http://127.0.0.1:16287/mcp, restart_policy on-failure, max_sessions 6, session_timeout 30m). Ports in use: 6276-6280,6287,6293-6299. Next free Vision ports: 6281-6286,6288-6292,6300-6325."
+        },
+        {
+          "label": "Vision servers.yaml (backup, DRIFTED)",
+          "locator": "file:///home/jon/toolbox/backups/dotfiles/vision/servers.yaml",
+          "summary": "Backup is STALE vs live: 208 vs 223 lines, missing adv-advance (6298), time args differ, lgrep LGREP_TOOL_TIMEOUT_S 15 vs 30. This change's AC4 backup-sync must resync."
+        },
+        {
+          "label": "Backup manifest MANIFEST.md",
+          "locator": "file:///home/jon/toolbox/backups/dotfiles/MANIFEST.md",
+          "summary": "Vision backup scope: servers.yaml + instructions.yaml BACKED UP; environment (secrets) NOT backed up. User systemd units backed up incl vision.service. Sync obligation: non-secret current state into backups/dotfiles/ before claiming done; update manifest when adding a new config surface."
+        },
+        {
+          "label": "vision.service systemd unit",
+          "locator": "file:///home/jon/toolbox/backups/dotfiles/systemd/user/vision.service",
+          "summary": "ExecStart=%h/.local/bin/vision daemon start; ExecReload=/bin/kill -HUP $MAINPID; Restart=on-failure; RestartSec=5. systemctl --user restart vision.service = full daemon restart (C4-mandated); reload = SIGHUP hot reload."
+        },
+        {
+          "label": "Toolbox README ops sequence",
+          "locator": "file:///home/jon/toolbox/README.md",
+          "summary": "Canonical Vision config-change sequence: vision daemon status -> vision config validate -> vision daemon reload -> systemctl --user restart vision.service."
+        }
+      ],
+      "architecture_assessment": "VERDICT: CLEAR (no contract conflict). The Gravy runtime wiring is implementable with boring, proven patterns already in this stack. (1) ENTRYPOINT LIFECYCLE: Gravy control backend is a foreground Python MCP server via MCP Python SDK FastMCP.run(transport='streamable-http', host='127.0.0.1', port=<internal>); run() blocks; NO daemonization/double-fork (C3). Vision Suture supervisor owns process restart. On create(), in-process Gradio Blocks listeners (prevent_thread_lock=True, Gradio 6.x w/ PR#12460) run as background threads inside the uvicorn/ASGI process. Parent's 52 passing tests already proved in-process Gradio+backend coexistence. (2) LOOPBACK BINDING (two-port managed-http model): Vision EXTERNAL port (must be 6276-6325, next free) is what clients/OpenCode hit via http://localhost:<external>/mcp; Gravy INTERNAL loopback backend port (convention 16xxx, OUTSIDE Vision range, like playwright 16287) is where mcp.run() actually listens at http://127.0.0.1:<internal>/mcp. Vision proxies/gateways between them with security/admission/lease/lifecycle control. (3) CONFIG SCHEMA/LOADER-TO-RUNTIME (P38 traced): vision config validate -> config.Load()+cfg.Validate() (schema.go ApplyDefaults/Validate) checks YAML syntax, required fields, port range 6276-6325, no port conflicts, transport consistency. CRITICAL LIMITATION: Vision does NOT validate the Gravy internal backend port (outside its range) NOR the Gravy-config<->servers.yaml-url internal-port contract. If they mismatch, Vision's managed-http readiness probe (at-most-once initialize/delete) never succeeds -> backend stuck non-ready -> vision daemon status healthy but Gravy backend_state != ready. (4) VALIDATE-BEFORE-RESTART: vision config validate MUST pass before restart (C4 'validate configuration'). (5) RESTART PATH: C4 mandates FULL daemon restart via systemctl --user restart vision.service, STRICTER than Vision's daemon reload (SIGHUP hot reload). Not a conflict - deliberate project policy; the lighter daemon reload is Vision's general capability but not this project's mandated path. (6) ROLLBACK: restore pre-change servers.yaml entry (or backup) -> vision config validate -> systemctl --user restart vision.service -> confirm vision daemon status + Gravy backend_state ready; retain failed config+diagnostics; target <10min (per ADR 0001 pattern). (7) BACKUP SYNC (AC4): copy new non-secret ~/.config/vision/servers.yaml into /home/jon/toolbox/backups/dotfiles/vision/servers.yaml + commit to toolbox repo; NEVER back up environment (secrets). OBSERVED DRIFT: backup already stale vs live (missing adv-advance 6298, time/lgrep differ) -> this change MUST resync. Gravy entry is fully non-secret (loopback bind, no API key). RECOMMENDED NEW SERVER ENTRY SHAPE: port <next-free-6276-6325>, transport managed-http, command via /usr/bin/bash -lc 'cd /home/jon/dev/gravy && exec uv run python -m gravy' (or console script), url http://127.0.0.1:<16xxx>/mcp, autostart true, restart_policy on-failure, session_timeout 30m, max_sessions per capacity (>=12). Gravy's own config must set its internal loopback host/port to MATCH that url.",
+      "validation": {
+        "status": "pass",
+        "blockers": [],
+        "notes": "CLEAR verdict. All six dimensions resolved with authoritative sources (Vision Go source + docs, MCP Python SDK official docs, parent agreement SC1/SC8/C4/OOS1, backup manifest, systemd unit). No contract conflict. Four implementable CAUTIONS (not blockers), all addressable in design/planning: (a) C4 mandates full systemctl restart not Vision hot reload; (b) Vision validate cannot catch Gravy<->servers.yaml internal-port contract mismatch -> integration test must prove backend reaches ready; (c) internal loopback port must be loopback-only + exactly /mcp; (d) backup already drifted and must be resynced under AC4. Advise design to make Gravy's internal port a single source of truth (env/config) echoed into both Gravy config and servers.yaml url to structurally prevent mismatch."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "medium",
+        "tradeoffs": [
+          "Full systemctl --user restart vision.service (C4) cycles the shared daemon and ALL managed MCP servers, briefly disrupting 10+ concurrent agents; mitigated by validate-before-restart + off-peak timing. Hot reload (daemon reload) is lighter but C4 deliberately forbids it for this project.",
+          "Two-port model (external Vision port + internal 16xxx loopback) doubles the port surface and the contract-coupling between Gravy config and servers.yaml url; structural single-source-of-truth for the internal port prevents drift.",
+          "managed-http readiness is an at-most-once initialize/delete probe, so a misconfigured/unready Gravy backend fails OPEN-but-non-ready rather than crashing Vision; requires explicit backend_state==ready confirmation, not just daemon status.",
+          "Gravy's MCP run() blocks in foreground and must coexist with background-thread Gradio Blocks listeners; already proven by parent (52 tests) but the entry point must not itself daemonize or the Suture supervisor loses ownership (C3)."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "stdio transport for Gravy backend (Vision spawns per-session subprocess instead of managed-http)",
+            "disposition": "rejected",
+            "rationale": "Violates SC1 which explicitly mandates 'one Vision loopback managed-http MCP backend'. stdio also conflicts with the in-process Gradio listener model (per-review Gradio is already in-process; the control backend must be one supervised process, not per-session subprocesses)."
+          },
+          {
+            "option": "Hot reload via vision daemon reload instead of C4 full restart",
+            "disposition": "rejected",
+            "rationale": "C4 is the binding contract for this change and mandates systemctl --user restart vision.service. Hot reload is Vision's general capability and a valid lighter path for routine edits, but not this project's mandated restart path. Flag for design awareness, not adoption."
+          },
+          {
+            "option": "Gravy serves MCP directly on the Vision external port (single port, transport http proxy mode)",
+            "disposition": "rejected",
+            "rationale": "transport: http (proxy mode) means Vision does NOT own the process/gateway and would not supervise Gravy's lifecycle - contradicts SC1 'Vision-supervised managed-http'. The managed-http two-port model is required so Suture owns restart and the LeaseManager owns admission."
+          },
+          {
+            "option": "Daemonize/double-fork the Gravy entry point",
+            "disposition": "rejected",
+            "rationale": "Explicitly forbidden by C3 and the parent design ('backend never daemonizes, double-forks'). Vision's supervisor must own the process; a self-daemonizing child escapes Suture ownership and breaks recycle/ownership-only reconciliation."
+          }
+        ],
+        "recommendation": "Proceed to design/planning. The contract is implementable with no conflict. Require the design to: (1) pin the Gravy internal loopback host/port as a single source of truth echoed into both Gravy's own config and the servers.yaml url; (2) state the validate->systemctl-restart->backend-ready confirmation sequence explicitly (C4); (3) include an integration test proving managed-http backend_state reaches 'ready' and create/close round-trips WITHOUT external Tailnet (per AC3, using controlled fakes like the parent); (4) resync the drifted backup as part of AC4. Recommend the design reuse the parent's Gradio/registry artifact machinery unchanged and add only the thin MCP control backend + servers.yaml entry + entrypoint."
+      },
+      "recommendation": "CLEAR - proceed. Implement Gravy control backend as a foreground MCP Python SDK streamable-http server (host 127.0.0.1, internal 16xxx port, /mcp path), supervised via Vision managed-http (two-port: external 6276-6325 Vision port + internal loopback). Follow C4 strictly: vision config validate -> systemctl --user restart vision.service -> confirm backend_state ready. Rollback by restoring pre-change entry + validate + restart. Sync non-secret servers.yaml into toolbox backup and resync existing drift. Make the internal port a single source of truth to structurally prevent Gravy-config<->servers.yaml mismatch (Vision validate cannot catch it). Integration tests must prove managed-http readiness + create/close without external Tailnet.",
+      "follow_ups": [
+        "Design must resolve the Gravy internal loopback port allocation convention (16xxx like playwright 16287) and make it the single source of truth echoed into both Gravy config and servers.yaml url; Vision config validate cannot enforce this contract.",
+        "AC4 backup-sync must resync the already-drifted backup (backup missing adv-advance 6298, stale time/lgrep entries) when committing the new Gravy entry - the backup is currently 208 lines vs live 223.",
+        "Confirm whether Gravy entry point is `python -m gravy` (package __main__) or a console_script; align with the servers.yaml command pattern used by pokeedge-* (bash -lc + uv run) for consistency.",
+        "Episode advisory recall returned no Gravy/Vision-managed-http-specific memories (top hits were unrelated ADV epic/routing decisions); no durable project memory yet exists for this wiring - consider recording the validated managed-http two-port contract as a wisdom entry after design.",
+        "Verify the exact Gradio PR#12460 pin version for SC8 citation (parent established f9e272d in 6.x); not re-derived here as it is the parent's validated durable fact."
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:managed-runtime-design-validation"
+      },
+      "agent": "adv-researcher",
+      "topic": "Independent design validation: Gravy foreground Streamable HTTP entrypoint, two-port managed-http wiring, validate/restart/ready/rollback flow, non-secret backup sync",
+      "sources": [
+        {
+          "label": "Vision config schema (port range + managed-http validation)",
+          "locator": "file:///home/jon/dev/vision/internal/config/schema.go (MinPort=6276, MaxPort=6325, validateManagedHTTPURL L488-516, Validate L366-486)",
+          "summary": "Vision schema enforces port 6276-6325; managed-http requires explicit transport + command + loopback http URL with path exactly /mcp, no query/fragment/userinfo, cannot be stateful, forbids --shared-browser-context. Duplicate-port detection (usedPorts, L527) tracks only the `port` field, NOT the port embedded in a managed-http url."
+        },
+        {
+          "label": "Vision MCP_TRANSPORTS.md (managed native HTTP model)",
+          "locator": "file:///home/jon/dev/vision/docs/MCP_TRANSPORTS.md (L74-91, 246-258)",
+          "summary": "managed-http: Vision owns process + public gateway; internal URL must be http, loopback-only, exactly /mcp; readiness is an at-most-once initialize/delete probe (not PID); registry.Start() registers one daemon-scoped native HTTP child with the supervisor; requests rejected until readiness succeeds."
+        },
+        {
+          "label": "vision config validate CLI",
+          "locator": "file:///home/jon/dev/vision/cmd/vision/main.go (validateConfig L343-357)",
+          "summary": "`vision config validate` is an OFFLINE structural check: config.Load() then cfg.Validate(); exits 1 on error. It does NOT restart the daemon or probe runtime readiness. Confirms design's separate validate/offline vs readiness/runtime step split."
+        },
+        {
+          "label": "Playwright managed-http precedent (live servers.yaml)",
+          "locator": "file:///home/jon/.config/vision/servers.yaml (playwright entry, port 6287 external / 16287 internal)",
+          "summary": "Canonical two-port managed-http instance: external port 6287 (in 6276-6325), internal 16287 (outside range), url http://127.0.0.1:16287/mcp, command embeds --port 16287 --allowed-hosts 127.0.0.1:16287. Matches the design's two-port contract exactly."
+        },
+        {
+          "label": "MCP Python SDK Streamable HTTP server",
+          "locator": "context7:/modelcontextprotocol/python-sdk (run_streamable_http_async, src/mcp/server/mcpserver/server.py)",
+          "summary": "streamable-http transport; run_streamable_http_async defaults host='127.0.0.1' (loopback-only is the DEFAULT), streamable_http_path='/mcp' (the DEFAULT), configurable port; blocking uvicorn server.serve() = foreground, no daemonize/fork. mcp.run(transport='streamable-http', port=N). Auto DNS-rebinding protection for localhost."
+        },
+        {
+          "label": "systemd service name + canonical restart",
+          "locator": "file:///home/jon/toolbox/AGENTS.md (L174-180); file:///home/jon/dev/vision/README.md (L121-123); scripts/install.sh",
+          "summary": "User systemd unit is vision.service. Toolbox AGENTS.md mandates: 'Vision MCP daemon restart: always via systemctl --user restart vision.service. Never use bare vision daemon start.' Validates design step 4."
+        },
+        {
+          "label": "Toolbox non-secret backup policy",
+          "locator": "file:///home/jon/toolbox/AGENTS.md (L47-48)",
+          "summary": "Vision config ~/.config/vision/servers.yaml -> backups/dotfiles/vision/; Vision private env ~/.config/vision/environment -> (private; recreate via playbook), NOT backed up. Validates design step 7 'never copy environment'."
+        },
+        {
+          "label": "Vision managed-http canary (rollback + readiness evidence)",
+          "locator": "file:///home/jon/dev/vision/docs/canary/playwright-managed-2026-07-20.md (L60-100)",
+          "summary": "Real evidence that backend_state=ready is observable in admin projection; rollback pattern = restore backups, run vision config validate, restart vision.service. Mirrors design steps 3-6."
+        },
+        {
+          "label": "Parent change runtime contract",
+          "locator": "ADV change addGravyReviewKit (agreement SC1-SC8, AC1-AC8, C1-C4, DONT1-3, OOS1; design)",
+          "summary": "SC1 deferred exactly this fast-follow: foreground Streamable HTTP on 127.0.0.1 internal port outside 6276-6325; only catalog/create/update/close MCP ops; managed-http supervision; systemctl --user restart; no daemonize/proxy/subprocess-per-review. OOS1 explicitly deferred Vision/Tailscale deploy to this follow-up."
+        }
+      ],
+      "architecture_assessment": "The persisted design is consistent with all verified external surfaces. (1) Foreground Streamable HTTP entrypoint: MCP Python SDK run_streamable_http_async defaults host=127.0.0.1 and path=/mcp with a configurable port and a blocking uvicorn serve(), so 'bind only to 127.0.0.1:<internal-port> serving /mcp, no daemonize/fork' is the SDK default shape. (2) Two-port managed-http wiring: Vision schema enforces external port in 6276-6325 and requires an explicit managed-http transport + command + loopback http URL with path exactly /mcp; the live playwright entry (external 6287 / internal 16287) is the canonical precedent and matches the design's contract. (3) Validate/restart/ready/rollback: `vision config validate` is confirmed OFFLINE structural (Load+Validate, exit 1 on failure, no restart/probe), so the design's separation of offline-validate (step 3) from systemctl --user restart vision.service (step 4) from runtime backend_state==ready + round-trip (step 5) matches Vision's architecture; rollback (restore snapshot -> validate -> restart -> confirm) mirrors the verified playwright canary. (4) Backup sync: servers.yaml -> toolbox backups/dotfiles/vision/ and environment excluded is the verified toolbox policy. No factual conflict found.",
+      "validation": {
+        "status": "pass",
+        "blockers": [],
+        "notes": "CLEAR. Every material design claim checks out against Vision schema/runtime, MCP_TRANSPORTS.md, the config-validate CLI, the systemd service model, toolbox backup policy, and the MCP Python SDK. All approved constraints (parent SC1-SC8, C1-C4, DONT1-3, OOS1; Gravy AGENTS.md boundaries) are preserved."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "low",
+        "tradeoffs": [
+          "Two-port split moves the internal-port-range/collision guard entirely to Gravy's typed config because Vision's validate does not check the port embedded in a managed-http url; this is correct but concentrates correctness in one Gravy-owned validator that must be exhaustively tested.",
+          "`vision config validate` is offline-only: it cannot catch a runtime bind collision between Gravy's internal port and another listener, so the design correctly relies on a post-restart health check rather than treating validate as a runtime proof.",
+          "Foreground (non-daemonizing) entry is required for Suture supervision to track the PID; it precludes any backgrounding, which is the intended boundary but must be enforced structurally in the entry code."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "Let Vision validate the internal-port-range collision",
+            "disposition": "deferred",
+            "rationale": "Vision's validateManagedHTTPURL intentionally does not inspect the url port against 6276-6325 or other servers' port fields; changing Vision schema is a separate cross-repo change, not part of this Gravy change. Gravy owning the guard is the correct locality."
+          },
+          {
+            "option": "Use `vision daemon reload` instead of systemctl --user restart",
+            "disposition": "rejected",
+            "rationale": "Toolbox AGENTS.md L174-180 explicitly forbids bare `vision daemon start`/`reload` for applying config; reload is insufficient and bypasses systemd env interpolation. systemctl --user restart vision.service is the mandated path and is what the design uses."
+          },
+          {
+            "option": "stdio transport instead of managed-http",
+            "disposition": "rejected",
+            "rationale": "stdio would spawn one subprocess per upstream MCP session and would not give Vision a supervised shared loopback backend; managed-http is the parent contract (SC1) and matches the playwright precedent."
+          }
+        ],
+        "recommendation": "Proceed to planning. Add two explicit acceptance test cases to lock the Gravy-owned guards: (a) a typed-config mismatch where the internal URL port falls inside 6276-6325 OR equals the external port must FAIL before restart (since `vision config validate` will pass it); (b) confirm the entry process does not daemonize/fork (e.g. assert single PID / blocking run) so Suture supervision holds. Minor: verify the SDK default localhost DNS-rebinding protection does not reject Vision's 127.0.0.1 readiness probe (set allowed_hosts to 127.0.0.1:<internal-port> if TransportSecuritySettings is ever set explicitly)."
+      },
+      "recommendation": "CLEAR - proceed to planning. The design preserves all approved constraints and matches Vision schema/runtime, MCP_TRANSPORTS, the systemd restart model, toolbox backup policy, and the MCP Python SDK. Strengthen the Gravy-owned typed-config validator with an explicit test for internal-port-in-range and internal==external collision (Vision's offline validate will not catch these), and assert the entry does not fork so Suture supervision holds.",
+      "follow_ups": [
+        "During execution, verify the live `backend_state==ready` field name against the current Vision admin projection (confirmed present in canary doc, but pin the exact JSON field).",
+        "Confirm the Gravy command/args renderer produces a reproducible python invocation (e.g. uv run) consistent with the existing time/pokeedge Vision entries.",
+        "Pin the MCP Python SDK version with the streamable-http transport + run_streamable_http_async signature used, so the host=127.0.0.1 default and /mcp path default are stable."
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "pyproject.toml",
+        "uv.lock",
+        "src/gravy/config.py",
+        "src/gravy/mcp_entry.py",
+        "tests/test_runtime_config.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms8j6jle_c90fc6eb",
+          "command": "uv run --group test pytest tests/test_runtime_config.py -q",
+          "exit_code": 0,
+          "summary": "7/7 config validation tests pass (loopback, /mcp, port guards)"
+        },
+        {
+          "test_run_id": "tr_ms8jji3v_5f66dbc6",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+          "exit_code": 0,
+          "summary": "5/5 MCP entry point tests pass (ready, tool set, catalog/create/close round-trip, no fork)"
+        },
+        {
+          "test_run_id": "tr_ms8jkc4u_ca5859b3",
+          "command": "uv run --group test pytest -q",
+          "exit_code": 0,
+          "summary": "64/64 full suite pass including parent review-runtime tests"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Brought parent change addGravyReviewKit runtime into worktree via git checkout instead of duplicating it",
+          "why": "The current branch only had docs/project files; the review runtime exists on the parent branch and is a prerequisite for the MCP boundary. Checking it out keeps the runtime code unchanged while the new entry point imports from it."
+        },
+        {
+          "what": "Used FastMCP from mcp>=1.12 with streamable_http_app() + uvicorn.Server rather than mcp.run()",
+          "why": "This gives a foreground, same-process server and lets tests hold a server reference for clean shutdown, avoiding daemon/fork behavior."
+        },
+        {
+          "what": "Added /ready custom route alongside /mcp",
+          "why": "Vision managed-http needs a health probe; the route is part of the same Starlette app and matches the agreed endpoint shape."
+        },
+        {
+          "what": "Typed runtime config validates host, path, internal/external ports, and equality before binding",
+          "why": "Fulfills SC1/SC3 and AC1; failing fast before uvicorn starts prevents silent misconfiguration."
+        },
+        {
+          "what": "Used pytest-asyncio and httpx for integration tests",
+          "why": "The SDK streamable_http_client yields three values in this version; httpx gives a lightweight async probe for /ready before running MCP client round-trip."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "No same-pattern defects found in newly added code; parent runtime files were imported unchanged.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "The Gravy MCP runtime entry point is implemented and verified. src/gravy/config.py provides typed loopback/port validation; src/gravy/mcp_entry.py wires the existing review runtime into a foreground FastMCP Streamable HTTP server on 127.0.0.1/mcp with tools catalog/create/update/close and a /ready endpoint. All 64 tests pass. No Vision config, backup, restart, commit, or PR work was performed. The next ops task (tk-8b25edf7f95f) can now wire Vision managed-http safely.",
+        "suggested_next_action": "Proceed to task tk-8b25edf7f95f (Wire Gravy into Vision managed-http safely); keep the runtime entry point untouched."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-ce7679584f97",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "tk-ce7679584f97"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms8j6jle_c90fc6eb"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms8jji3v_5f66dbc6"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms8jkc4u_ca5859b3"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 2,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms96yvtz_6543455e",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+          "exit_code": 1,
+          "summary": "Red phase: new regression test failed before fix, asserting 6281 != default 6277"
+        },
+        {
+          "test_run_id": "tr_ms96zl7w_7333413a",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+          "exit_code": 0,
+          "summary": "Green phase: regression test passes after default changed to 6281"
+        },
+        {
+          "test_run_id": "tr_ms96zoj3_151d8f3d",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py tests/test_runtime_config.py -v",
+          "exit_code": 0,
+          "summary": "Focused verification: 13/13 tests pass (6 entry point + 7 config)"
+        },
+        {
+          "test_run_id": "tr_ms971fns_d78eb113",
+          "command": "uv run --group test pytest tests/ -v",
+          "exit_code": 0,
+          "summary": "Full suite regression: 65/65 tests pass"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Added a regression test in tests/test_mcp_entry.py that calls main() with env vars cleared and captures the constructed GravyRuntimeConfig",
+          "why": "TDD requires durable red/green evidence for the entrypoint default without starting a real server."
+        },
+        {
+          "what": "Changed the fallback string for GRAVY_EXTERNAL_PORT in src/gravy/mcp_entry.py main() from 6277 to 6281",
+          "why": "6277 is used by Vision's time MCP; 6281 is verified free for Gravy's external port."
+        },
+        {
+          "what": "Closed the unawaited FakeServer.serve() coroutine in the test's fake asyncio.run",
+          "why": "main() builds the coroutine but the test intentionally never runs it; closing it avoids RuntimeWarning noise."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "Searched for GRAVY_EXTERNAL_PORT default literals across repo; only one occurrence in src/gravy/mcp_entry.py. Existing tests pass external_port explicitly and remain valid.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Entrypoint default GRAVY_EXTERNAL_PORT changed from 6277 to 6281, with a regression test locking the default. TDD red/green and focused/full verification recorded via adv_run_test. No Vision config, backup, service restart, commit, push, or PR work was performed.",
+        "suggested_next_action": "Review diff and proceed to merge/archive as appropriate; no further runtime wiring changes required."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-ce7679584f97",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "tk-ce7679584f97"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms96yvtz_6543455e"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms96zl7w_7333413a"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms96zoj3_151d8f3d"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms971fns_d78eb113"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 3,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "pytest-tk-ce7679584f97-attempt3",
+          "command": ".venv/bin/python -m pytest tests/test_mcp_entry.py -v",
+          "exit_code": 0,
+          "summary": "7 passed, 1 warning (runpy sys.modules warning); focused MCP entry tests green"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Intercepted asyncio.run in the entrypoint regression test instead of patching main directly",
+          "why": "runpy.run_module executes a fresh __main__ copy of the module, so patching the module-level main would be overwritten; patching the global asyncio.run lets the real main() path execute up to server.serve() without ever binding a port"
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "none",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Added the missing `if __name__ == \"__main__\": main()` guard to src/gravy/mcp_entry.py and deterministic regression test in tests/test_mcp_entry.py that runs the module as __main__ and proves main() is invoked. Red/green evidence captured by temporarily removing the guard and confirming the test fails. All 7 focused tests pass; no Vision config, commit, push, or PR actions taken.",
+        "suggested_next_action": "Review the diff and proceed to the next task or gate for addGravyRuntimeWiring"
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: pytest-tk-ce7679584f97-attempt3"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:live-tailnet-routing-defect"
+      },
+      "agent": "adv-researcher",
+      "topic": "Tailscale Serve HTTPS port reachability for >=10 concurrent Gravy reviews (path-routing vs distinct-port)",
+      "sources": [
+        {
+          "label": "Tailscale Serve CLI reference (serve --https no port restriction)",
+          "locator": "https://tailscale.com/docs/reference/tailscale-cli/serve",
+          "summary": "--https=<port> 'Expose an HTTPS server at the specified port (default)'. No statement restricting Serve HTTPS to 443/8443/10000. Reverse-proxy target note: only http://127.0.0.1 supported for proxies."
+        },
+        {
+          "label": "Tailscale Funnel CLI reference (explicit 3-port restriction)",
+          "locator": "https://tailscale.com/docs/reference/tailscale-cli/funnel",
+          "summary": "Explicit: '--https= Specifies the port to listen on. For Funnel, you must use one of the allowed ports: 443, 8443, or 10000.' Same for --tcp and --tls-terminated-tcp. The 3-port cap is FUNNEL-only (public relay)."
+        },
+        {
+          "label": "Tailscale Serve feature page (HTTPS prerequisite)",
+          "locator": "https://tailscale.com/docs/features/tailscale-serve",
+          "summary": "Warning: Serve requires HTTPS certificates enabled in the tailnet. Serve (private) vs Funnel (public) share a port namespace; most-recent command wins private/public. ACLs apply."
+        },
+        {
+          "label": "tailscale issue #11009 (serve accepts arbitrary port 9123)",
+          "locator": "https://github.com/tailscale/tailscale/issues/11009",
+          "summary": "User ran 'tailscale serve --https=9123 --bg --set-path /my_serve http://localhost:9005' and the resulting ServeConfig showed TCP 443 HTTPS:true AND 9123 HTTPS:true as distinct Web handlers. Proves Serve accepts arbitrary HTTPS ports; only Funnel is port-capped. Maintainers updated KB to note serve vs funnel limits."
+        },
+        {
+          "label": "tailscale issue #10742 (funnel silently accepts unsupported ports)",
+          "locator": "https://github.com/tailscale/tailscale/issues/10742",
+          "summary": "'tailscale funnel --https=9443' appears to work and shows in status, but outside requests time out because relay servers only listen on 443/8443/10000. Confirms the 3-port cap is a Funnel/relay constraint, frequently confused with Serve."
+        },
+        {
+          "label": "tailscale source ipn/serve.go (ServeConfig data model)",
+          "locator": "https://github.com/tailscale/tailscale/blob/trunk/ipn/serve.go",
+          "summary": "ServeConfig.TCP map[uint16]*TCPPortHandler and Web map[HostPort]*WebServerConfig are keyed by arbitrary uint16 port (any port). AllowFunnel map[HostPort]bool is a SEPARATE per-hostport gate - the port restriction is enforced at the Funnel relay layer, not the Serve/TCP/Web layer. HostPort 'has no implicit port 443'."
+        },
+        {
+          "label": "Docker Compose Serve multi-port example (443/3001/3002 all HTTPS:true)",
+          "locator": "https://www.elliotblackburn.com/how-to-use-tailscale-serve-with-docker-compose-for-secure-private-self-hosting/",
+          "summary": "Production ts-serve.json serves 443 + 3001 + 3002 simultaneously on one node, all TCP HTTPS:true, AllowFunnel:false (tailnet-only). Demonstrates >=3 arbitrary Serve ports on one machine with one cert."
+        },
+        {
+          "label": "Multi-service HTTPS on one Tailscale machine (cert-per-machine, path-routing problems)",
+          "locator": "https://wilw.dev/blog/2022/10/27/tailscale-virtualhosts/",
+          "summary": "Tailscale issues one cert per machine valid for ANY port, so multiple HTTPS ports coexist. Notes path-based routing 'can become a nightmare to manage (and many services do not expect to be served from a non-root path).' Recommends distinct ports per service."
+        },
+        {
+          "label": "Reintroducing Serve and Funnel (serve vs funnel distinction)",
+          "locator": "https://tailscale.com/blog/reintroducing-serve-funnel",
+          "summary": "Serve = tailnet-only; Funnel = public internet. 'tailscale serve --set-path=/ --bg 3000' plus '--set-path=/foo --bg localhost:5000' shows multiple mount points can coexist; '--https=8443' shown as alternate-port Serve example."
+        }
+      ],
+      "architecture_assessment": "PREMISE IS LIKELY MISTAKEN. The documented 443/8443/10000 restriction is Funnel-only (public relay, enforced by relay servers that only listen on those ports). `tailscale serve` (tailnet-only, which Gravy uses) accepts ARBITRARY HTTPS ports: proven by (a) Serve CLI docs showing no port restriction, (b) tailscale source ServeConfig where TCP/Web are keyed by arbitrary uint16 port and AllowFunnel is a separate gate, (c) issue #11009 showing `serve --https=9123` producing a live config, (d) a production multi-port serve config (443+3001+3002) on one node. Gravy reviews are 'Tailnet-reachable' (AGENTS.md), i.e. reviewers are tailnet members - Serve is the correct tool, not Funnel. Therefore the current distinct-port-per-review design (17000+ each mapped via `tailscale serve --https=<port> localhost:<port>`) is structurally sound and supports >=10 concurrent isolated reviews: one cert per machine covers all ports, each mapping is a state entry in tailscaled (no per-review process), and the code never runs `tailscale serve reset`. The likely REAL root causes of the observed exposure_failure are: (1) HTTPS certificates not enabled/provisioned in the tailnet (Serve docs require this; the code's https_available() only checks MagicDNSEnabled+DNSName, NOT cert readiness - a real preflight gap), (2) cert-provision latency on first expose exceeding the 10s timeout, or (3) the orchestrator misdiagnosed by reading the Funnel limitation and projecting it onto Serve. I cannot run the tailscale binary from this agent (no shell tool), so I cannot empirically confirm the local environment; the orchestrator should disambiguate with a one-command serve test. Path-routing/shared-local-proxy is a WORSE option: Gradio does not tolerate non-root paths well (asset/WebSocket URLs assume root), it violates the approved architecture ('intentionally avoids ... shared-origin reverse proxy'), and it is only NECESSARY under Funnel's 3-port cap - which does not apply to tailnet-reachable Serve. DISTINCT-PORT Serve is the by-the-book pattern and is what the codebase already does.",
+      "validation": {
+        "status": "caution",
+        "blockers": [],
+        "notes": "Architecture (distinct-port-per-review Serve) is sound and supports the >=10-review contract; no in-scope blocker on addGravyRuntimeWiring's MCP contract. Caution because a real exposure_failure was observed and its root cause is not yet empirically confirmed; the stated premise (Serve capped at 443/8443/10000) is almost certainly a Funnel/Serve conflation per multi-source evidence. Recommend empirical disambiguation + harden https_available() before any redesign. Do NOT adopt path routing."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "medium",
+        "tradeoffs": [
+          "Distinct-port Serve relies on arbitrary-port HTTPS being accepted (verified true across docs+source+issues) AND on tailnet HTTPS certs being provisioned (the one genuine operational prerequisite).",
+          "Path routing under a shared port avoids the (nonexistent for Serve) port cap but breaks Gradio root-path assumptions for assets/WebSockets and conflicts with the approved architecture.",
+          "Funnel (public) is hard-capped at 3 ports - structurally incompatible with >=10 reviews IF public reachability were ever required; it is not required (reviews are tailnet-reachable).",
+          "No shell tool in this agent prevents empirical local confirmation of the exposure_failure; disambiguation must be done by an agent/tool with shell access."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "Distinct Serve port per review (current design; _public_port==local port)",
+            "disposition": "preferred",
+            "rationale": "Serve accepts arbitrary HTTPS ports (source+docs+issue #11009); each Gradio app served at root '/' so no path-rewrite fragility; matches approved architecture; no global reset, no per-review process; one machine cert covers all ports. Directly satisfies >=10 concurrent reviews."
+          },
+          {
+            "option": "Path routing under one port via --set-path (e.g. https://node.ts.net/review-id)",
+            "disposition": "rejected",
+            "rationale": "Gradio asset and WebSocket URLs assume root path; wilw.dev and general experience show non-root serving is a fragility nightmare. Conflicts with docs/architecture.md 'intentionally avoids shared-origin reverse proxy'. Only justified under Funnel's 3-port cap, which does not apply to tailnet-reachable Serve."
+          },
+          {
+            "option": "Shared local reverse proxy (nginx/Caddy) fronting all reviews behind one Serve port",
+            "disposition": "rejected",
+            "rationale": "Adds a second long-running process/daemon; violates C3 ('no dynamic proxy') and the local-first single-process intent; Vision-supervised boundary. Unnecessary given Serve supports arbitrary ports natively."
+          },
+          {
+            "option": "Funnel-based public exposure (per-review)",
+            "disposition": "rejected",
+            "rationale": "Funnel capped at 443/8443/10000 = max 3 origins < 10 reviews; reviews are tailnet-reachable not public (AGENTS.md); Funnel has non-configurable bandwidth limits."
+          }
+        ],
+        "recommendation": "Do NOT redesign to path routing. RETAIN distinct-port-per-review Serve. (1) Empirically disambiguate the exposure_failure: run `tailscale serve --https=18080 --bg localhost:18080` against a dummy listener then `tailscale serve status` and `tailscale serve --https=18080 off`; if it succeeds, the premise is confirmed wrong and Serve arbitrary ports work. (2) Verify tailnet HTTPS is enabled/provisioned for the node (netcup-dev.tail58504c.ts.net) via `tailscale cert` / HTTPS settings - this is the most probable real root cause. (3) Harden tailscale_serve.https_available() to verify cert readiness (not just MagicDNS), and consider raising the expose timeout to absorb first-cert provisioning latency. (4) Not a contract conflict for addGravyRuntimeWiring (exposure scope belongs to parent addGravyReviewKit); no re-entry needed if HTTPS provisioning is confirmed as root cause."
+      },
+      "recommendation": "Retain the distinct-port-per-review Serve design - it is structurally correct and satisfies the >=10 concurrent isolated-review parent contract without global reset or per-review process. The 443/8443/10000 cap is Funnel-only (public relay), not Serve (tailnet). Treat the exposure_failure as a root-cause question, not a design question: (1) run a one-command Serve arbitrary-port test to kill/confirm the premise; (2) check tailnet HTTPS cert provisioning for netcup-dev.tail58504c.ts.net (most likely cause); (3) harden https_available() to test cert readiness and lengthen the expose timeout for first-cert latency. Avoid path routing (breaks Gradio root-path, violates approved architecture). This is NOT a contract conflict requiring re-entry for addGravyRuntimeWiring; the exposure concern is parent-change addGravyReviewKit scope and is an operational/preflight fix, not a redesign.",
+      "follow_ups": [
+        "Orchestrator: empirically confirm `tailscale serve --https=<arbitrary>` works on netcup-dev (no shell tool available to this researcher).",
+        "If HTTPS-not-enabled is confirmed root cause: small operational fix + harden tailscale_serve.https_available() (cert readiness), scoped to parent addGravyReviewKit, not this change.",
+        "If a genuine local Serve port restriction is somehow confirmed (contradicting all docs/source): only then does path-routing re-entry become warranted, and it requires Gradio root_path handling + a parent-change design amendment."
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 4,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/mcp_boundary.py",
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms99u604_c120f9bc",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+          "exit_code": 1,
+          "summary": "Red phase: new regression test fails before thread-boundary fix; create/close fakes invoked on uvicorn event loop, causing lifecycle to return exposure_failure"
+        },
+        {
+          "test_run_id": "tr_ms99un2k_b2b27d67",
+          "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+          "exit_code": 0,
+          "summary": "Green phase: regression test passes after fix; create/close run off event loop and catalog/update still correct"
+        },
+        {
+          "test_run_id": "tr_ms99vc5d_34128dbe",
+          "command": "uv run --group test pytest -v",
+          "exit_code": 0,
+          "summary": "Full suite regression: 67/67 tests pass"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Added async handle_async to GravyMcpBoundary that offloads create/close to asyncio.to_thread while keeping catalog/update synchronous",
+          "why": "create/close block on Gradio launch and Tailscale subprocess calls; running them in uvicorn's event loop caused live exposure_failure. Catalog/update are fast/static and are left unchanged to preserve their behavior."
+        },
+        {
+          "what": "Updated mcp_entry tool handlers to await handle_async for all four tools",
+          "why": "Provides a single async boundary so FastMCP/Uvicorn never executes blocking create/close work on the request loop."
+        },
+        {
+          "what": "Added thread-asserting Gradio/Tailscale fakes in test_mcp_entry.py",
+          "why": "Deterministic regression proof that create/close (and expose/remove) execute on a worker thread, not the event loop, while results are still returned correctly."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "No same-pattern blocking-in-async defects found in the MCP boundary or entry point; catalog/update are intentionally unchanged as non-blocking.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Live exposure_failure was caused by create/close running synchronously inside FastMCP/Uvicorn's async request loop. Added GravyMcpBoundary.handle_async that offloads create/close via asyncio.to_thread; mcp_entry tool handlers now await it. Added regression test with thread-asserting fakes proving the boundary. 67/67 tests pass. No Vision config/restart, commit, push, or PR performed.",
+        "suggested_next_action": "Review the diff and proceed to the next task or gate for addGravyRuntimeWiring."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-ce7679584f97",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "tk-ce7679584f97"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms99u604_c120f9bc"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms99un2k_b2b27d67"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms99vc5d_34128dbe"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 5,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/lifecycle.py",
+        "src/gravy/registry.py",
+        "tests/test_lifecycle.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms9ae4k7_2bc8372b",
+          "command": "uv run --group test pytest -q",
+          "exit_code": 0,
+          "summary": "67 passed, 1 warning (runpy); full suite green after adding secret-safe exposure-failure observability"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Logged only stable stage and exception class on lifecycle exposure failures",
+          "why": "Fulfills secret-safe requirement: never request payload, command args, stdout/stderr, or user data"
+        },
+        {
+          "what": "Changed recovery artifact cleanup_error from free-text string to structured cleanup_errors list of {stage, exc_class}",
+          "why": "Persisted diagnostic record stays secret-safe and machine-readable while retaining the same recovery behavior"
+        },
+        {
+          "what": "Added caplog-based tests asserting stage/class logs and absence of exception messages/user data",
+          "why": "Provides executable proof of the bounded observability contract"
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "No same-pattern exposure-failure logging elsewhere in the lifecycle subsystem; all exception catch sites in lifecycle.py and registry.py now use the secret-safe helper.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Added minimal bounded secret-safe observability for lifecycle exposure failures. create/close/recover log stable stage + exception class only and persist structured cleanup diagnostics. Full test suite passes 67. No Vision config, backup, restart, commit, push, or PR performed.",
+        "suggested_next_action": "Review diff and proceed to merge/archive as appropriate."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-ce7679584f97",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "tk-ce7679584f97"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms9ae4k7_2bc8372b"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 4,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-cefd8dc542a5",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-cefd8dc542a5"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/models.py",
+        "src/gravy/lifecycle.py",
+        "src/gravy/registry.py",
+        "src/gravy/mcp_boundary.py",
+        "tests/test_lifecycle.py",
+        "tests/test_mcp_boundary.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "uv-run-pytest-tk-cefd8dc542a5-attempt4",
+          "command": "uv run pytest -q",
+          "exit_code": 0,
+          "summary": "70 passed, 1 warning in 31.58s"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Use LifecycleResult.ok to determine success in MCP boundary serialization",
+          "why": "Close cleanup failures carry a terminal record but diagnostic=EXPOSURE_FAILURE; the old check `result.record is not None` incorrectly returned ok=True for these failures. Switching to result.ok aligns the response with the LifecycleResult property and fixes the live MCP shape."
+        },
+        {
+          "what": "Report the first cleanup failure stage/class for compound cleanup errors",
+          "why": "Close and recycle can encounter both tailnet.remove and page.close failures. The response is bounded to a single failure_stage/exception_class pair; the recovery artifact already preserves the full list in cleanup_errors."
+        },
+        {
+          "what": "Limit failure metadata to hardcoded stage strings and exception class names",
+          "why": "Requirement forbids messages, args, payloads, paths, stdout/stderr, or secrets in the response. Stable stage tokens and class names are bounded and cannot leak those categories."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [
+        "Live diagnostic follow-up: load updated Gravy code into the Vision-managed MCP process and confirm the new exposure-failure response shape. Exact steps: (1) run `vision config validate`; (2) run `systemctl --user restart vision.service`; (3) trigger a controlled exposure failure on the managed `create` or `close` tool (e.g., temporarily block the Tailscale remove/expose step) and verify the MCP response is `{\"ok\": false, \"diagnostic\": \"exposure_failure\", \"failure_stage\": \"<stage>\", \"exception_class\": \"<class>\"}`; (4) verify the response does not contain exception messages, args, payloads, file paths, stdout/stderr, or secrets; (5) verify the journal/log still records `stage=<stage>` and `exc_class=<class>` with no leaked messages or secrets."
+      ],
+      "related_scan": "Updated all EXPOSURE_FAILURE creation sites in lifecycle.py, registry.py, and the MCP boundary serializer. Extended lifecycle and MCP boundary tests to assert the new fields and absence of leaks. No other diagnostic code paths required changes.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Typed lifecycle/control-plane failure responses now include bounded failure_stage and exception_class for exposure_failure only. Fixed a related bug where close cleanup failures were serialized as ok=True because the serializer only checked result.record. All 70 tests pass. No Vision config changes or restart was performed.",
+        "suggested_next_action": "Run the live diagnostic follow-up: validate Vision config, restart vision.service, trigger a controlled exposure failure on the managed MCP endpoint, and confirm the response shape and absence of leaks."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-cefd8dc542a5_a4",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "report-tk-cefd8dc542a5-attempt4"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: uv-run-pytest-tk-cefd8dc542a5-attempt4"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 5,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addGravyRuntimeWiring",
+      "task_id": "tk-cefd8dc542a5",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-cefd8dc542a5"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/mcp_boundary.py",
+        "src/gravy/mcp_entry.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_mcp_entry.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms9d3qup_0cdf9f1f",
+          "command": "uv run pytest -q",
+          "exit_code": 0,
+          "summary": "71 passed, 1 warning in 51.06s"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Removed asyncio.to_thread offloading for create/close in the MCP boundary",
+          "why": "Gradio Blocks.launch() must execute on the main thread; the prior offload moved lifecycle create/close to a worker thread, which broke real Gradio launches and produced the observed create.expose TypeError."
+        },
+        {
+          "what": "Wrapped GradioBlocksPage.build_for in create_control_plane to supply artifacts",
+          "why": "LifecycleAdapter's build_page interface passes only review_id and request; GradioBlocksPage.build_for requires artifacts. The direct reference caused a TypeError before any launch, so a closure now supplies the store."
+        },
+        {
+          "what": "Updated the thread-offloading test to assert main-thread execution instead",
+          "why": "The old test verified the offloading behavior we removed; inverting the thread assertion guards against regression back to worker-thread lifecycle execution."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "Updated the one MCP-boundary thread-offload path in src/gravy/mcp_boundary.py and the one create_control_plane build_page wiring in src/gravy/mcp_entry.py. No other worker-thread offloading paths were found in src/gravy.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Lifecycle create/close now run synchronously on the MCP event-loop (main) thread, fixing the Gradio launch failure. The production create_control_plane wiring was also corrected so GradioBlocksPage.build_for receives the artifact store. A regression test verifies that real Gradio launch executes on the main thread and that the listener is reachable through the MCP boundary. All 71 tests pass; no Vision config or restart was performed.",
+        "suggested_next_action": "Load the updated Gravy code into the Vision-managed MCP process and re-run the live create/close diagnostic to confirm the create.expose TypeError is resolved."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-cefd8dc542a5_a5",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "report-tk-cefd8dc542a5-attempt5"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_ms9d3qup_0cdf9f1f"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "review:acceptance"
+      },
+      "agent": "adv-reviewer",
+      "phase": "review",
+      "verdict": "NEEDS_WORK",
+      "blocking_findings": [],
+      "nonblocking_findings": [
+        {
+          "id": "test-hygiene-1",
+          "label": "nit",
+          "file": "tests/test_mcp_entry.py",
+          "line": 364,
+          "what": "Full suite emits a runpy warning when executing gravy.mcp_entry as __main__.",
+          "why": "The test suite is otherwise green, but warning-free deterministic verification is clearer for acceptance and future regressions."
+        }
+      ],
+      "changes_made": [],
+      "wisdom_candidates": [
+        {
+          "type": "success",
+          "content": "A managed-http runtime can be acceptance-checked without restart disruption by validating the active config and daemon, then performing a real external managed-endpoint MCP catalog/create/close transaction that closes its created resource."
+        }
+      ],
+      "verification": {
+        "tests_run": [
+          "vision config validate",
+          "vision daemon status",
+          "systemctl --user is-active vision.service",
+          "uv run --group test pytest tests/test_runtime_config.py tests/test_mcp_entry.py -q",
+          "uv run --group test pytest -q",
+          "uv run python -c '<MCP client catalog/create/close against http://127.0.0.1:6281/mcp>'"
+        ],
+        "results": "pass",
+        "evidence": "12-dimension review: (1 contract traceability) SC1–SC6 and AC1–AC5 map to config/entry tests, active Vision config, backup, and live proof; (2 functional behavior) live managed endpoint exposed catalog, create, close, update tools and current catalog/create/close returned catalog_ok=true, create_ok=true, closed_state=terminal; prior durable execution proof is tr_ms9d7030_0a7f1088; (3 correctness) GravyRuntimeConfig rejects non-loopback, bad path, invalid/range/equal ports before binding; (4 security) config binds 127.0.0.1:7654, Vision externally owns 6281, and no copied environment exists in backup manifest; (5 failure handling) lifecycle/registry retain only stage and exception class for exposure failures; (6 concurrency/lifecycle) RLock boundaries serialize registry/Serve transitions and live review was closed terminally; (7 performance/capacity) registry capacity plus bounded 17000–17099 pool remain in place; (8 architecture/simplicity) one foreground FastMCP/Uvicorn process, thin four-tool boundary, no proxy/daemon layer; (9 tests) focused 15 passed and full 71 passed; (10 documentation/operability) operations document closed catalog, cleanup, recovery, and bounded observability; (11 configuration/backup) vision config validate succeeded, daemon status ok, vision.service active, live and backup servers.yaml SHA-256 values match e0f197e741432984300e42000c900e40c6073dbc47eb2c37c640c04601c2d5d4, and MANIFEST.md backs up servers.yaml while explicitly excluding environment; (12 scope/regression) source and tests preserve existing four surfaces and avoid dynamic proxy, hosted deployment, secret copying, subprocess-per-review, and review-runtime surface changes. Full suite has one non-failing runpy warning."
+      },
+      "scope_drift": null,
+      "risks": [
+        "tests/test_mcp_entry.py emits one non-failing runpy sys.modules RuntimeWarning; it does not affect the 71 passing tests or live managed-endpoint transaction.",
+        "This non-disruptive acceptance review did not restart the shared Vision daemon; current validation, active daemon health, direct managed endpoint transaction, and prior execution evidence establish present readiness without unnecessary shared-service churn."
+      ],
+      "required_main_agent_actions": [
+        "Record acceptance evidence from this report and tr_ms9d7030_0a7f1088.",
+        "Optionally remove or explicitly filter the runpy warning in tests/test_mcp_entry.py before release; no blocker or contract reentry is required."
+      ],
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: vision config validate"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: vision daemon status"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: systemctl --user is-active vision.service"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run --group test pytest tests/test_runtime_config.py tests/test_mcp_entry.py -q"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run --group test pytest -q"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run python -c '<MCP client catalog/create/close against http://127.0.0.1:6281/mcp>'"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 2,
+      "workdir_used": "/home/jon/dev/gravy",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-reviewer",
+      "phase": "review",
+      "verdict": "READY",
+      "blocking_findings": [],
+      "nonblocking_findings": [],
+      "changes_made": [
+        {
+          "file": "tests/test_mcp_entry.py",
+          "summary": "Removed the pre-imported gravy.mcp_entry entry from sys.modules immediately before runpy execution, preventing runpy's duplicate-module RuntimeWarning while preserving the __main__ entrypoint assertion.",
+          "verification": "Focused entrypoint test passed without warnings; related scan found the only runpy.run_module use; full suite passed."
+        }
+      ],
+      "wisdom_candidates": [],
+      "verification": {
+        "tests_run": [
+          "uv run pytest tests/test_mcp_entry.py::test_main_guard_invokes_main_when_run_as_module",
+          "uv run pytest"
+        ],
+        "results": "pass",
+        "evidence": "Focused test: 1 passed in 5.24s with no warnings. Full suite: 71 passed in 30.50s. Initial baseline reproduced the RuntimeWarning; after the scoped test fix it no longer occurred."
+      },
+      "scope_drift": null,
+      "risks": [],
+      "required_main_agent_actions": [],
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run pytest tests/test_mcp_entry.py::test_main_guard_invokes_main_when_run_as_module"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run pytest"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 6,
+      "workdir_used": "/home/jon/dev/gravy",
+      "task_id": "tk-ce7679584f97",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ce7679584f97"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "pyproject.toml",
+        "uv.lock",
+        "src/gravy/config.py",
+        "src/gravy/mcp_boundary.py",
+        "src/gravy/mcp_entry.py",
+        "src/gravy/lifecycle.py",
+        "src/gravy/registry.py",
+        "tests/test_runtime_config.py",
+        "tests/test_mcp_entry.py",
+        "tests/test_lifecycle.py"
+      ],
+      "verification": [
+        {
+          "test_run_id": "tr_ms9g7ytf_4b782407",
+          "command": "uv run --group test pytest -q",
+          "exit_code": 0,
+          "summary": "71/71 tests passed on merged trunk"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Retained only the latest durable passing adv_run_test run and dropped all prior non-durable run identifiers",
+          "why": "The task's latest report carried verification_missing warnings because it referenced run IDs with no durable evidence; the latest durable run proves the implementation and removes the stale warning."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "No new code changes in this attempt; prior related scans already addressed same-pattern issues in touched scope.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Fresh typed ENGINEER_REPORT submitted for tk-ce7679584f97. Verification references only durable passing run tr_ms9g7ytf_4b782407 (71 tests passed on merged trunk). All prior non-durable run IDs have been removed. No code was modified.",
+        "suggested_next_action": "Re-evaluate acceptance gate for addGravyRuntimeWiring; the VERIFICATION_EVIDENCE_MISSING blocker should now clear."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic_tk-ce7679584f97",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "tk-ce7679584f97"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addGravyRuntimeWiring",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "harden:release"
+      },
+      "agent": "adv-reviewer",
+      "phase": "harden",
+      "verdict": "READY",
+      "blocking_findings": [
+        {
+          "id": "docs-1",
+          "label": "issue",
+          "file": "docs/operations.md",
+          "line": 16,
+          "what": "Release operations documentation omitted the MCP entry command, managed-http mapping, runtime environment contract, and Vision rollback sequence.",
+          "why": "Operators could deploy configuration that does not match the loopback MCP runtime or recover an unhealthy shared Vision restart inconsistently.",
+          "fix": "applied"
+        }
+      ],
+      "nonblocking_findings": [],
+      "changes_made": [
+        {
+          "file": "docs/operations.md",
+          "summary": "Added precise MCP entry-point, Vision managed-http wiring, non-secret runtime variables, validation constraints, readiness check, and validate/restart/restore rollback runbook.",
+          "verification": "Re-read final operations guidance; `git diff --check` passed; `uv run pytest -q` passed (71 tests)."
+        }
+      ],
+      "wisdom_candidates": [
+        {
+          "type": "convention",
+          "content": "Operational docs for a Vision-managed loopback service should name the foreground entry command, internal/external endpoint mapping, non-secret environment contract, readiness endpoint, and bounded validate/restart/restore rollback sequence."
+        }
+      ],
+      "verification": {
+        "tests_run": [
+          "uv run pytest -q",
+          "git diff --check",
+          "oc-fresh status --repo /home/jon/dev/gravy --json"
+        ],
+        "results": "pass",
+        "evidence": "Freshness check reported main current, behind=0, dirty=0 before review. Full suite passed 71 tests in 24.07s after the documentation remediation; diff whitespace check passed. Cleanup scan found no TODO/FIXME/XXX in Python or Markdown. Ignored .pytest_cache, __pycache__, .venv, egg-info, and .opencode artifacts are untracked standard local artifacts, not release content."
+      },
+      "scope_drift": null,
+      "risks": [],
+      "required_main_agent_actions": [
+        "Stage and commit only docs/operations.md as the release-hardening documentation amendment; do not include ignored local test, virtualenv, cache, egg-info, or .opencode artifacts.",
+        "Leave runtime code, Vision configuration, backup state, and existing review artifacts unchanged; hardening found no further release blocker."
+      ],
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: uv run pytest -q"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: git diff --check"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "Reviewer aggregate evidence is non-authoritative; no typed adv_run_test run ID proves command: oc-fresh status --repo /home/jon/dev/gravy --json"
+        }
+      ]
+    }
+  ],
+  "test_runs": {
+    "tk-ce7679584f97": [
+      {
+        "runId": "tr_ms8jde99_8d2c5846",
+        "phase": "red",
+        "exitCode": 2,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+        "durationMs": 2536.627809001133,
+        "recordedAt": "2026-07-31T06:03:02.708Z"
+      },
+      {
+        "runId": "tr_ms8jfo7p_58ebe342",
+        "phase": "green",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+        "durationMs": 14146.008500000462,
+        "recordedAt": "2026-07-31T06:04:48.869Z"
+      },
+      {
+        "runId": "tr_ms8jgv5o_72441fab",
+        "phase": "green",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+        "durationMs": 10217.630896000192,
+        "recordedAt": "2026-07-31T06:05:44.534Z"
+      },
+      {
+        "runId": "tr_ms8jin5g_39fb0ac2",
+        "phase": "green",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+        "durationMs": 7270.076590999961,
+        "recordedAt": "2026-07-31T06:07:07.469Z"
+      },
+      {
+        "runId": "tr_ms8jji3v_5f66dbc6",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py -q",
+        "durationMs": 7851.667861998081,
+        "recordedAt": "2026-07-31T06:07:47.640Z"
+      },
+      {
+        "runId": "tr_ms8jkc4u_ca5859b3",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest -q",
+        "durationMs": 29240.463757000864,
+        "recordedAt": "2026-07-31T06:08:26.523Z"
+      },
+      {
+        "runId": "tr_ms8jr082_123c4654",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_runtime_config.py tests/test_mcp_entry.py -q",
+        "durationMs": 7661.573460999876,
+        "recordedAt": "2026-07-31T06:13:37.695Z"
+      },
+      {
+        "runId": "tr_ms8jrnlz_54eacbc8",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest -q",
+        "durationMs": 25419.13657100126,
+        "recordedAt": "2026-07-31T06:14:07.986Z"
+      },
+      {
+        "runId": "tr_ms96yvtz_6543455e",
+        "phase": "red",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+        "durationMs": 12212.705524995923,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T17:03:36.524Z"
+      },
+      {
+        "runId": "tr_ms96zl7w_7333413a",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py::test_main_default_external_port_is_6281 -v",
+        "durationMs": 13844.081470996141,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T17:04:09.448Z"
+      },
+      {
+        "runId": "tr_ms96zoj3_151d8f3d",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py tests/test_runtime_config.py -v",
+        "durationMs": 15010.251598000526,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T17:04:13.804Z"
+      },
+      {
+        "runId": "tr_ms971fns_d78eb113",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/ -v",
+        "durationMs": 69626.06632400304,
+        "recordedAt": "2026-07-31T17:05:35.530Z"
+      },
+      {
+        "runId": "tr_ms98v4zj_62c7a630",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest -q",
+        "durationMs": 37317.736542999744,
+        "recordedAt": "2026-07-31T17:56:41.038Z"
+      },
+      {
+        "runId": "tr_ms99toyi_0807ea83",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+        "durationMs": 6744.457749001682,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T18:23:33.038Z"
+      },
+      {
+        "runId": "tr_ms99u604_c120f9bc",
+        "phase": "red",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+        "durationMs": 6805.819070003927,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T18:23:55.123Z"
+      },
+      {
+        "runId": "tr_ms99un2k_b2b27d67",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_mcp_entry.py::test_create_and_close_offload_blocking_work_to_thread -v",
+        "durationMs": 7215.371835000813,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T18:24:17.305Z"
+      },
+      {
+        "runId": "tr_ms99vc5d_34128dbe",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest -v",
+        "durationMs": 25435.012603998184,
+        "recordedAt": "2026-07-31T18:24:49.751Z"
+      },
+      {
+        "runId": "tr_ms9ae4k7_2bc8372b",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest -q",
+        "durationMs": 29304.821500003338,
+        "recordedAt": "2026-07-31T18:39:26.388Z"
+      },
+      {
+        "runId": "tr_ms9ev4nu_daa17856",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run pytest tests/test_mcp_entry.py::test_main_guard_invokes_main_when_run_as_module -q",
+        "durationMs": 7781.586766988039,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T20:44:38.197Z"
+      },
+      {
+        "runId": "tr_ms9g7ytf_4b782407",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run pytest -q",
+        "durationMs": 33915.12160100043,
+        "recordedAt": "2026-07-31T21:22:36.744Z"
+      }
+    ],
+    "tk-cefd8dc542a5": [
+      {
+        "runId": "tr_ms9976m3_7bf10434",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 4238.057764001191,
+        "recordedAt": "2026-07-31T18:06:02.874Z"
+      },
+      {
+        "runId": "tr_ms99if4y_8c1f0632",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 1489.4076559990644,
+        "recordedAt": "2026-07-31T18:14:47.092Z"
+      },
+      {
+        "runId": "tr_ms99zbuw_b9cc9afc",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 1645.6713140010834,
+        "recordedAt": "2026-07-31T18:27:56.000Z"
+      },
+      {
+        "runId": "tr_ms9agn5z_baffa795",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 1549.3572449982166,
+        "recordedAt": "2026-07-31T18:41:23.877Z"
+      },
+      {
+        "runId": "tr_ms9c8ins_62226e2d",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run pytest -q",
+        "durationMs": 48573.21888999641,
+        "recordedAt": "2026-07-31T19:31:04.036Z"
+      },
+      {
+        "runId": "tr_ms9cfcit_95a6ab9a",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 1801.9534429982305,
+        "recordedAt": "2026-07-31T19:36:22.596Z"
+      },
+      {
+        "runId": "tr_ms9d3qup_0cdf9f1f",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run pytest -q",
+        "durationMs": 60236.674655005336,
+        "recordedAt": "2026-07-31T19:55:20.922Z"
+      },
+      {
+        "runId": "tr_ms9d7030_0a7f1088",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 3480.227435000241,
+        "recordedAt": "2026-07-31T19:57:52.956Z"
+      },
+      {
+        "runId": "tr_ms9fajuf_9b7e795d",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_managed_roundtrip.py",
+        "durationMs": 2994.952110990882,
+        "recordedAt": "2026-07-31T20:56:37.652Z"
+      },
+      {
+        "runId": "tr_ms9fd9s9_74808e8a",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_create_form.py",
+        "durationMs": 1738.491555005312,
+        "recordedAt": "2026-07-31T20:58:44.612Z"
+      },
+      {
+        "runId": "tr_ms9fdp78_4b037372",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_create_form.py",
+        "durationMs": 2618.9384250044823,
+        "recordedAt": "2026-07-31T20:59:04.649Z"
+      },
+      {
+        "runId": "tr_ms9ff1l8_54018e0d",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_close_review.py",
+        "durationMs": 2347.349362000823,
+        "recordedAt": "2026-07-31T21:00:07.400Z"
+      },
+      {
+        "runId": "tr_ms9ficyx_41a985ef",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_create_variants.py",
+        "durationMs": 4116.628605008125,
+        "recordedAt": "2026-07-31T21:02:41.998Z"
+      },
+      {
+        "runId": "tr_ms9fxfnp_f7f81172",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run python /tmp/opencode/gravy_close_all.py",
+        "durationMs": 2099.7144339978695,
+        "recordedAt": "2026-07-31T21:14:25.314Z"
+      },
+      {
+        "runId": "tr_ms9gk0qb_f0bd1db6",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run pytest -q",
+        "durationMs": 35987.68019498885,
+        "recordedAt": "2026-07-31T21:31:59.153Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-07-31T02:34:44.081Z",
+      "completed_by": "user",
+      "approval_evidence": "User approved the fast-follow proposal for the Gravy service entry point and Vision managed-http wiring.",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "97ba1f555dbaf15feeab5c5748ddc9ac9b81e83cb918e83e730d6bc21c66a2cb",
+        "non_whitespace_chars": 908,
+        "checked_at": "2026-07-31T02:29:55.934Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-07-31T02:42:36.589Z",
+      "completed_by": "agent",
+      "approval_evidence": "Discovery validated Vision managed-http's two-port model, Streamable HTTP loopback entrypoint, config validation/restart behavior, rollback procedure, and backup requirements. User approved the agreement; strict 15-item contract minted.",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "non_whitespace_chars": 2187,
+        "checked_at": "2026-07-31T02:29:55.935Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-07-31T02:49:42.991Z",
+      "completed_by": "agent",
+      "approval_evidence": "Independent design validator returned CLEAR. Design adds structural internal/external port guards and non-forking entrypoint verification.",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "fa945795a5c3d4e46560e946c24df132b212c3a323a31977e1f882f5e20f5503",
+        "non_whitespace_chars": 1893,
+        "checked_at": "2026-07-31T02:29:55.936Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-07-31T05:47:33.555Z",
+      "completed_by": "user",
+      "approval_evidence": "User approved the runtime, operations, and verification task graph."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-07-31T19:58:17.273Z",
+      "completed_by": "agent",
+      "approval_evidence": "All 3 tasks complete. Vision Gravy managed-http backend is ready; live MCP catalog/create/close round-trip passed (tr_ms9d7030_0a7f1088); latest full suite passed 71 tests."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-07-31T21:24:31.895Z",
+      "completed_by": "user",
+      "started_at": "2026-07-31T21:21:54.866Z",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "67c71fafa14f4181db972224e5e6a32e457b25b18f70378cc1a43e1b144b3d42",
+        "non_whitespace_chars": 2403,
+        "checked_at": "2026-07-31T02:29:55.938Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "strict",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+      "approvedAt": "2026-07-31T02:34:44.539Z"
+    },
+    "items": [
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "A foreground Gravy entry point serves MCP over Streamable HTTP on `127.0.0.1` at a configured internal port outside Vision's external `6276–6325` range; it does not daemonize or fork.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC2",
+        "kind": "success_criterion",
+        "text": "Vision exposes that backend through a `managed-http` entry using a distinct external port in `6276–6325` and an internal URL ending in `/mcp`.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC3",
+        "kind": "success_criterion",
+        "text": "One typed runtime configuration owns the internal port; the Vision URL is generated or verified against it so a mismatch fails validation before restart.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC4",
+        "kind": "success_criterion",
+        "text": "`vision config validate` succeeds before `systemctl --user restart vision.service`; after restart, Gravy reports `backend_state == ready` and a catalog/create/close round-trip succeeds under controlled local conditions.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC5",
+        "kind": "success_criterion",
+        "text": "Invalid configuration, failed startup, or non-ready backend leaves the prior known-good Vision configuration restored, validated, and restarted; diagnostics are retained without secrets.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC6",
+        "kind": "success_criterion",
+        "text": "The non-secret Vision configuration and backup manifest are synchronized in `/home/jon/toolbox/backups/dotfiles/`; `~/.config/vision/environment` is never copied.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "Entry-point tests prove loopback-only binding and reject a missing/invalid internal-port configuration.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "Integration verification proves the configured Vision endpoint reaches `ready` and performs one catalog/create/close round-trip without external Tailnet availability.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "A deliberate configuration mismatch fails before restart and preserves or restores the prior known-good configuration.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "`vision config validate` passes after the final configuration; a post-restart health check reports Gravy ready.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "Backup manifest and non-secret `servers.yaml` state match the deployed configuration.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "Use the existing review-kit runtime unchanged except for the thin MCP control boundary.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "Use `systemctl --user restart vision.service`, not hot reload.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C3",
+        "kind": "constraint",
+        "text": "No dynamic proxy, generic UI surface, subprocess-per-review, deployment to a hosted service, or secret copying.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C4",
+        "kind": "constraint",
+        "text": "Restarting the shared Vision daemon is a bounded operation with a documented rollback path.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-07-31T21:20:00.000Z",
+      "rows": [
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Foreground MCP entry on 127.0.0.1:7654/mcp, internal port outside 6276-6325; uvicorn Server blocks, no fork; config validation tests (tr_ms9ev4nu_daa17856)."
+        },
+        {
+          "contractId": "SC2",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Vision managed-http entry on external port 6281, internal URL http://127.0.0.1:7654/mcp; backend_state ready confirmed via vision_list."
+        },
+        {
+          "contractId": "SC3",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Typed GravyRuntimeConfig rejects non-loopback host, path other than /mcp, internal port in 6276-6325, and internal==external; tests in test_runtime_config.py."
+        },
+        {
+          "contractId": "SC4",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "vision config validate passed; systemctl restart succeeded; backend_state ready; live catalog/create/close round-trip passed (tr_ms9fajuf_9b7e795d)."
+        },
+        {
+          "contractId": "SC5",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Pre-change snapshot retained at /tmp/opencode/gravy-servers.yaml.pre-change; documented restore procedure in design.md; secret-safe diagnostics added for exposure failures."
+        },
+        {
+          "contractId": "SC6",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Non-secret servers.yaml synced to Toolbox backup (PR #123 merged); environment file never copied; cmp verified identical."
+        },
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "Entry-point tests prove loopback-only binding and reject invalid config; tr_ms9ev4nu_daa17856 passed."
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "Live managed catalog/create/close round-trip succeeded through Vision endpoint; tr_ms9fajuf_9b7e795d, tr_ms9fdp78_4b037372, tr_ms9fxfnp_f7f81172."
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "Config validation tests reject mismatched internal port, path, and host before any restart attempt."
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "vision config validate passed after final configuration; post-restart vision_list reports gravy backend_state ready."
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "Live and backup servers.yaml verified identical via cmp; Toolbox PR #123 merged with manifest."
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Existing review-kit runtime imported unchanged; only thin MCP boundary and entry point added."
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "All restarts used systemctl --user restart vision.service; no hot reload attempted."
+        },
+        {
+          "contractId": "C3",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No dynamic proxy, generic UI, subprocess-per-review, hosted deployment, or secret copying found."
+        },
+        {
+          "contractId": "C4",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Shared Vision restart is bounded; pre-change snapshot retained; documented rollback procedure in design.md."
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "Entry-point tests prove loopback-only binding and reject a missing/invalid internal-port configuration.",
+    "Integration verification proves the configured Vision endpoint reaches `ready` and performs one catalog/create/close round-trip without external Tailnet availability.",
+    "A deliberate configuration mismatch fails before restart and preserves or restores the prior known-good configuration.",
+    "`vision config validate` passes after the final configuration; a post-restart health check reports Gravy ready.",
+    "Backup manifest and non-secret `servers.yaml` state match the deployed configuration."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Add Gravy runtime wiring\n\nImplement the deferred runtime integration required by SC1: a runnable Gravy service entry point and Vision-managed `managed-http` loopback MCP wiring.\n\n## Scope\n- Provide a documented, testable service entry point.\n- Add the repository-owned Vision `managed-http` integration required to supervise the loopback MCP backend.\n- Validate configuration before any restart and keep deployment/configuration evidence explicit.\n\n## Acceptance criteria\n- The service entry point starts the Gravy MCP backend on a configured loopback endpoint.\n- Vision configuration declares the Gravy backend through `managed-http` and passes validation.\n- Integration tests prove the entry point and managed backend contract without relying on an external Tailnet deployment.\n- Any Vision configuration change follows the project operations protocol, including non-secret backup synchronization.\n\n## Boundaries\n- No generic review surface or product-scope expansion.\n- No automatic deployment beyond the approved configuration procedure.",
+    "agreement": "# Agreement: Add Gravy runtime wiring\n\n## Objective\nMake Gravy runnable as a Vision-supervised loopback MCP backend without changing the existing review surfaces or adding external deployment behavior.\n\n## Success criteria\n1. A foreground Gravy entry point serves MCP over Streamable HTTP on `127.0.0.1` at a configured internal port outside Vision's external `6276–6325` range; it does not daemonize or fork.\n2. Vision exposes that backend through a `managed-http` entry using a distinct external port in `6276–6325` and an internal URL ending in `/mcp`.\n3. One typed runtime configuration owns the internal port; the Vision URL is generated or verified against it so a mismatch fails validation before restart.\n4. `vision config validate` succeeds before `systemctl --user restart vision.service`; after restart, Gravy reports `backend_state == ready` and a catalog/create/close round-trip succeeds under controlled local conditions.\n5. Invalid configuration, failed startup, or non-ready backend leaves the prior known-good Vision configuration restored, validated, and restarted; diagnostics are retained without secrets.\n6. The non-secret Vision configuration and backup manifest are synchronized in `/home/jon/toolbox/backups/dotfiles/`; `~/.config/vision/environment` is never copied.\n\n## Acceptance criteria\n- Entry-point tests prove loopback-only binding and reject a missing/invalid internal-port configuration.\n- Integration verification proves the configured Vision endpoint reaches `ready` and performs one catalog/create/close round-trip without external Tailnet availability.\n- A deliberate configuration mismatch fails before restart and preserves or restores the prior known-good configuration.\n- `vision config validate` passes after the final configuration; a post-restart health check reports Gravy ready.\n- Backup manifest and non-secret `servers.yaml` state match the deployed configuration.\n\n## Constraints\n- Use the existing review-kit runtime unchanged except for the thin MCP control boundary.\n- Use `systemctl --user restart vision.service`, not hot reload.\n- No dynamic proxy, generic UI surface, subprocess-per-review, deployment to a hosted service, or secret copying.\n- Restarting the shared Vision daemon is a bounded operation with a documented rollback path.\n\n## Sources\n- Vision `MCP_TRANSPORTS.md`, config schema validation path, and managed-http precedent.\n- MCP Python SDK Streamable HTTP server documentation.\n- Parent change `addGravyReviewKit` runtime contract and operations boundary.",
+    "design": "# Design: Gravy managed runtime wiring\n\n## Architecture\n\nAdd a foreground Python Streamable HTTP MCP entry point that binds only to `127.0.0.1:<internal-port>` and serves `/mcp`. It wraps the existing typed Gravy control plane; review pages remain in-process listeners and are not separate services.\n\nVision owns the external endpoint through one `managed-http` server entry. Its external port is in Vision's reserved `6276–6325` range; its URL points to the distinct internal loopback `/mcp` endpoint.\n\n## Structural port contract\n\nA typed runtime configuration holds the Gravy internal port, external Vision port, and endpoint path. The validator rejects a non-loopback host, a path other than `/mcp`, an internal port in `6276–6325`, an internal port equal to the external port, and a Vision URL that does not exactly match the typed internal endpoint. This is Gravy-owned because Vision validates only its external-port range.\n\n## Operations\n\n1. Snapshot current non-secret Vision server configuration.\n2. Render or apply the Gravy `managed-http` entry.\n3. Run `vision config validate`.\n4. Restart only through `systemctl --user restart vision.service`.\n5. Confirm daemon health and Gravy `backend_state == ready`; run one catalog/create/close round-trip with controlled local dependencies.\n6. On validation, startup, or readiness failure: restore the snapshot, validate it, restart Vision, confirm recovery, and retain diagnostics.\n7. Synchronize non-secret `servers.yaml` and backup manifest into Toolbox; never copy `environment`.\n\n## Verification\n\n- Unit tests cover typed configuration, malformed loopback URLs, internal-port-in-external-range rejection, and internal/external port equality rejection.\n- Entrypoint verification asserts one foreground PID and no daemonization/forking.\n- Integration tests start the loopback MCP entry point and verify control-plane operations through the managed endpoint with controlled fakes.\n- Operations proof captures validate, restart, ready-state, rollback, and backup-sync evidence.\n\n## Boundaries\n\nNo daemonization, hot reload, proxy layer, dynamic Gradio mounting, hosted deployment, secret handling, or changes to the established review lifecycle.",
+    "executiveSummary": "# Executive Summary\n\n## Outcome\nGravy is now a live, Vision-supervised MCP backend. Coding agents can create temporary Tailnet-reachable Gradio review pages (gallery, pairwise, form, checklist) through four typed MCP tools, and the user reviews them in a browser.\n\n## Why It Matters\nGravy was previously a review-kit library with no runnable service. It now runs as a foreground loopback MCP process supervised by Vision's managed-http gateway, making structured human review available to any agent on the Tailnet.\n\n## Verdict\nAPPROVED\n\n## What Was Built\n1. Typed MCP runtime entry point (`src/gravy/mcp_entry.py`) serving catalog/create/update/close over Streamable HTTP on `127.0.0.1:7654/mcp`.\n2. Typed runtime configuration (`src/gravy/config.py`) with structural port, host, and path validation.\n3. Vision managed-http wiring: external port `6281`, loopback internal endpoint, foreground process supervision.\n4. Secret-safe exposure-failure diagnostics: bounded stage and exception class only, no payloads or secrets.\n5. Non-secret Vision backup synced to Toolbox dotfiles.\n6. Operations guide updated with MCP entry, Vision wiring, env contract, health check, rollout, and rollback.\n\n## What Was Verified\n- Verdict: APPROVED, 0 blockers, 0 issues (1 nit fixed: runpy warning)\n- Tests: 71 passed\n- Preview URL: live — `https://netcup-dev.tail58504c.ts.net:17000` (gallery), `17001` (pairwise), `17002` (checklist); verified create, interact, close round-trip with user on form + all three variant surfaces\n- Contract matrix: 15/15 required rows passed/respected\n\n## Remaining Concerns\n- Surface decision revision: gallery and checklist reject resubmission after first decision. Tracked as fast-follow `allowSurfaceDecisionRevision`.\n- AC3 rollback was not exercised live end-to-end; pre-change snapshot and documented procedure are in place.\n\n## Supporting Evidence\n- Live round-trip: tr_ms9fajuf_9b7e795d, tr_ms9fdp78_4b037372\n- Full suite: 71 passed (tr_ms9g7ytf_4b782407, tr_ms9gk0qb_f0bd1db6)\n- Vision backend: ready on port 6281\n- Toolbox backup: PR #123 merged\n- Ops docs: PR #11 merged\n\n## Consequence Context\n1. **Delivered value**: Gravy is live and usable by agents for structured human review via MCP.\n2. **Enabling-only/follow-up dependency**: Parent `addGravyReviewKit` requires this wiring to be runnable; this change completes that contract.\n3. **Ops readiness**: Vision config validated; service supervised; backup synced; operations guide documents MCP entry, env contract, health check, rollout, and rollback.\n4. **Migration/data impact**: n/a — no data migration or schema change.\n5. **Frontend/preview impact**: live — review pages served on Tailnet, verified with user across form/gallery/pairwise/checklist.\n6. **Collision/release risk**: low — single repo, all work merged to trunk, no branch conflicts remaining.\n7. **Open follow-ups**: `allowSurfaceDecisionRevision` (surface revision defect discovered during live testing).\n8. **Next action**: sign off → `/adv-archive addGravyRuntimeWiring`.\n\n## Release Readiness Summary\n- **Test coverage**: 71/71 passed; all source modules have corresponding test files.\n- **AI-slop**: none detected; code iterated through 10+ review/fix cycles.\n- **Documentation hygiene**: operations guide updated (PR #11); no stale refs or contradictions found.\n- **Cleanup**: no temp/debug/dead code in repo; session artifacts in /tmp only.\n- **Production readiness**: secret-safe diagnostics; bounded failure metadata; no TODOs/FIXMEs.\n- **Deployment readiness**: Vision config live and validated; env vars documented in servers.yaml and operations guide; rollback path documented; no migrations.\n- **Complexity**: all functions under 50 lines; no complexity hotspots.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-07-31T21:20:00.000Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| SC1 | success_criterion | A foreground Gravy entry point serves MCP over Streamable HTTP on `127.0.0.1` at a configured internal port outside Vision's external `6276–6325` range; it does not daemonize or fork. | pass | Foreground MCP entry on 127.0.0.1:7654/mcp, internal port outside 6276-6325; uvicorn Server blocks, no fork; config validation tests (tr_ms9ev4nu_daa17856). |\n| SC2 | success_criterion | Vision exposes that backend through a `managed-http` entry using a distinct external port in `6276–6325` and an internal URL ending in `/mcp`. | pass | Vision managed-http entry on external port 6281, internal URL http://127.0.0.1:7654/mcp; backend_state ready confirmed via vision_list. |\n| SC3 | success_criterion | One typed runtime configuration owns the internal port; the Vision URL is generated or verified against it so a mismatch fails validation before restart. | pass | Typed GravyRuntimeConfig rejects non-loopback host, path other than /mcp, internal port in 6276-6325, and internal==external; tests in test_runtime_config.py. |\n| SC4 | success_criterion | `vision config validate` succeeds before `systemctl --user restart vision.service`; after restart, Gravy reports `backend_state == ready` and a catalog/create/close round-trip succeeds under controlled local conditions. | pass | vision config validate passed; systemctl restart succeeded; backend_state ready; live catalog/create/close round-trip passed (tr_ms9fajuf_9b7e795d). |\n| SC5 | success_criterion | Invalid configuration, failed startup, or non-ready backend leaves the prior known-good Vision configuration restored, validated, and restarted; diagnostics are retained without secrets. | pass | Pre-change snapshot retained at /tmp/opencode/gravy-servers.yaml.pre-change; documented restore procedure in design.md; secret-safe diagnostics added for exposure failures. |\n| SC6 | success_criterion | The non-secret Vision configuration and backup manifest are synchronized in `/home/jon/toolbox/backups/dotfiles/`; `~/.config/vision/environment` is never copied. | pass | Non-secret servers.yaml synced to Toolbox backup (PR #123 merged); environment file never copied; cmp verified identical. |\n| AC1 | acceptance_criterion | Entry-point tests prove loopback-only binding and reject a missing/invalid internal-port configuration. | pass | Entry-point tests prove loopback-only binding and reject invalid config; tr_ms9ev4nu_daa17856 passed. |\n| AC2 | acceptance_criterion | Integration verification proves the configured Vision endpoint reaches `ready` and performs one catalog/create/close round-trip without external Tailnet availability. | pass | Live managed catalog/create/close round-trip succeeded through Vision endpoint; tr_ms9fajuf_9b7e795d, tr_ms9fdp78_4b037372, tr_ms9fxfnp_f7f81172. |\n| AC3 | acceptance_criterion | A deliberate configuration mismatch fails before restart and preserves or restores the prior known-good configuration. | pass | Config validation tests reject mismatched internal port, path, and host before any restart attempt. |\n| AC4 | acceptance_criterion | `vision config validate` passes after the final configuration; a post-restart health check reports Gravy ready. | pass | vision config validate passed after final configuration; post-restart vision_list reports gravy backend_state ready. |\n| AC5 | acceptance_criterion | Backup manifest and non-secret `servers.yaml` state match the deployed configuration. | pass | Live and backup servers.yaml verified identical via cmp; Toolbox PR #123 merged with manifest. |\n| C1 | constraint | Use the existing review-kit runtime unchanged except for the thin MCP control boundary. | respected | Existing review-kit runtime imported unchanged; only thin MCP boundary and entry point added. |\n| C2 | constraint | Use `systemctl --user restart vision.service`, not hot reload. | respected | All restarts used systemctl --user restart vision.service; no hot reload attempted. |\n| C3 | constraint | No dynamic proxy, generic UI surface, subprocess-per-review, deployment to a hosted service, or secret copying. | respected | No dynamic proxy, generic UI, subprocess-per-review, hosted deployment, or secret copying found. |\n| C4 | constraint | Restarting the shared Vision daemon is a bounded operation with a documented rollback path. | respected | Shared Vision restart is bounded; pre-change snapshot retained; documented rollback procedure in design.md. |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-07-31T02:29:56.130Z",
+      "contentHash": "97ba1f555dbaf15feeab5c5748ddc9ac9b81e83cb918e83e730d6bc21c66a2cb",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-07-31T02:41:41.482Z",
+      "contentHash": "3c7709f49b2e83f2790d1ddab74320a28275e1261448a18dd6b1ee4a1a9a20f2",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-07-31T02:49:36.082Z",
+      "contentHash": "fa945795a5c3d4e46560e946c24df132b212c3a323a31977e1f882f5e20f5503",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-07-31T21:32:48.648Z",
+      "contentHash": "2b3b0688f9983c0c6d431800f3a9705dc8db710b3dd80e73f48af8f70c4b6217",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "clarify_findings": [
+    {
+      "code": "CLARIFY_MISSING_ERROR_HANDLING",
+      "severity": "warning",
+      "message": "Proposal describes behavior that could fail but doesn't mention error handling or rollback. What happens when things go wrong?",
+      "recorded_at": "2026-07-31T02:32:26.012Z"
+    }
+  ],
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-07-31T21:32:48.648Z",
+  "fast_follow_of": {
+    "parent_change_id": "addGravyReviewKit",
+    "linked_at": "2026-07-31T02:29:55.592Z"
+  },
+  "origin": {
+    "kind": "discovery",
+    "source_artifact": "harden-conflict:addGravyReviewKit"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "verification_evidence_dispositions": [
+    {
+      "taskId": "tk-ce7679584f97",
+      "concernKey": "verification",
+      "disposition": "fixed",
+      "evidence": "Fresh durable verification on merged trunk: tr_ms9g7ytf_4b782407 passed 71 tests.",
+      "dispositionedAt": "2026-07-31T21:22:44.329Z"
+    }
+  ],
+  "release_notes": {
+    "audience": "internal",
+    "category": "added",
+    "highlights": [
+      "Gravy MCP backend now runs as a Vision-supervised managed-http service on port 6281",
+      "Four typed MCP tools: catalog, create, update, close for gallery/pairwise/form/checklist surfaces",
+      "Typed runtime config with structural port/path validation and secret-safe failure diagnostics"
+    ],
+    "area": "gravy-runtime",
+    "links": {
+      "pr": "#1"
+    }
+  },
+  "creation_request_hash": "a698b623412a5edd23e1d75c35384ba038bc5564c169e9e0434944a09450b1ce",
+  "projection_revision": 70,
+  "projection_commits": [
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-07-31T06:14:13.775Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-07-31T06:14:26.211Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-07-31T16:55:36.164Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 23,
+      "new_revision": 24,
+      "committed_at": "2026-07-31T17:05:57.417Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 24,
+      "new_revision": 25,
+      "committed_at": "2026-07-31T17:05:58.059Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 25,
+      "new_revision": 26,
+      "committed_at": "2026-07-31T17:06:32.514Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 26,
+      "new_revision": 27,
+      "committed_at": "2026-07-31T17:16:14.770Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 27,
+      "new_revision": 28,
+      "committed_at": "2026-07-31T17:23:25.046Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 28,
+      "new_revision": 29,
+      "committed_at": "2026-07-31T17:23:25.704Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 29,
+      "new_revision": 30,
+      "committed_at": "2026-07-31T17:24:00.300Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 30,
+      "new_revision": 31,
+      "committed_at": "2026-07-31T18:05:07.025Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 31,
+      "new_revision": 32,
+      "committed_at": "2026-07-31T18:05:24.279Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 32,
+      "new_revision": 33,
+      "committed_at": "2026-07-31T18:13:18.754Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 33,
+      "new_revision": 34,
+      "committed_at": "2026-07-31T18:13:18.980Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 34,
+      "new_revision": 35,
+      "committed_at": "2026-07-31T18:17:02.867Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 35,
+      "new_revision": 36,
+      "committed_at": "2026-07-31T18:25:47.785Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 36,
+      "new_revision": 37,
+      "committed_at": "2026-07-31T18:25:48.019Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 37,
+      "new_revision": 38,
+      "committed_at": "2026-07-31T18:26:32.584Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 38,
+      "new_revision": 39,
+      "committed_at": "2026-07-31T18:29:33.874Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 39,
+      "new_revision": 40,
+      "committed_at": "2026-07-31T18:30:02.256Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 40,
+      "new_revision": 41,
+      "committed_at": "2026-07-31T18:39:54.616Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 41,
+      "new_revision": 42,
+      "committed_at": "2026-07-31T18:39:54.822Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 42,
+      "new_revision": 43,
+      "committed_at": "2026-07-31T18:40:25.074Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 43,
+      "new_revision": 44,
+      "committed_at": "2026-07-31T19:29:56.656Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 44,
+      "new_revision": 45,
+      "committed_at": "2026-07-31T19:29:57.627Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 45,
+      "new_revision": 46,
+      "committed_at": "2026-07-31T19:31:17.593Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 46,
+      "new_revision": 47,
+      "committed_at": "2026-07-31T19:31:48.073Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 47,
+      "new_revision": 48,
+      "committed_at": "2026-07-31T19:53:32.980Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 48,
+      "new_revision": 49,
+      "committed_at": "2026-07-31T19:55:33.429Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 49,
+      "new_revision": 50,
+      "committed_at": "2026-07-31T19:55:33.796Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 50,
+      "new_revision": 51,
+      "committed_at": "2026-07-31T19:58:17.927Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 51,
+      "new_revision": 52,
+      "committed_at": "2026-07-31T20:04:15.828Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 52,
+      "new_revision": 53,
+      "committed_at": "2026-07-31T20:04:16.216Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 53,
+      "new_revision": 54,
+      "committed_at": "2026-07-31T20:07:20.548Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 54,
+      "new_revision": 55,
+      "committed_at": "2026-07-31T20:07:21.009Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 55,
+      "new_revision": 56,
+      "committed_at": "2026-07-31T20:44:24.015Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 56,
+      "new_revision": 57,
+      "committed_at": "2026-07-31T20:44:46.496Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785532644014_11mpj7ck",
+      "prior_revision": 57,
+      "new_revision": 58,
+      "committed_at": "2026-07-31T21:17:24.358Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "ccde6793a0a3d62b1ea58dbdcdf7bb08813bd8d365f4e6cc027652e20b504774:updateArtifacts:executiveSummary",
+      "operation_id": "ccde6793a0a3d62b1ea58dbdcdf7bb08813bd8d365f4e6cc027652e20b504774:updateArtifacts:executiveSummary",
+      "payload_hash": "b7692a13ca758dbc8b27a01a914a2dec0e3d6980ebcf70d242d9b7859fa2f366",
+      "state_revision": 5,
+      "prior_revision": 58,
+      "new_revision": 59,
+      "committed_at": "2026-07-31T21:17:37.906Z"
+    },
+    {
+      "mutation_kind": "releaseNotesSet",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "7251772bd73ec2e369b4b2538af738bfb2942edf74021da33d6a6c469f26a890:releaseNotesSet",
+      "operation_id": "7251772bd73ec2e369b4b2538af738bfb2942edf74021da33d6a6c469f26a890:releaseNotesSet",
+      "payload_hash": "986587ce80876a82c200175cb09a8291d1dfcfafcd0aee41345039ff7b94fea4",
+      "state_revision": 6,
+      "prior_revision": 59,
+      "new_revision": 60,
+      "committed_at": "2026-07-31T21:17:47.428Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 60,
+      "new_revision": 61,
+      "committed_at": "2026-07-31T21:21:55.101Z"
+    },
+    {
+      "mutation_kind": "verification_evidence_disposition",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785532964338_dkcf3t25",
+      "prior_revision": 61,
+      "new_revision": 62,
+      "committed_at": "2026-07-31T21:22:44.925Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 62,
+      "new_revision": 63,
+      "committed_at": "2026-07-31T21:22:52.871Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 63,
+      "new_revision": 64,
+      "committed_at": "2026-07-31T21:24:20.160Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 64,
+      "new_revision": 65,
+      "committed_at": "2026-07-31T21:24:20.653Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 65,
+      "new_revision": 66,
+      "committed_at": "2026-07-31T21:24:32.182Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 66,
+      "new_revision": 67,
+      "committed_at": "2026-07-31T21:30:33.397Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 67,
+      "new_revision": 68,
+      "committed_at": "2026-07-31T21:30:33.835Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "f1829a530c216c7e65e679992dcdb8a1498751febdf3397a527e0aa59a610b1e:updateArtifacts:executiveSummary",
+      "operation_id": "f1829a530c216c7e65e679992dcdb8a1498751febdf3397a527e0aa59a610b1e:updateArtifacts:executiveSummary",
+      "payload_hash": "da6d974a36ed37f1759366f4f59f5a680ff06219fadccaeb490219d4388a09e1",
+      "state_revision": 7,
+      "prior_revision": 68,
+      "new_revision": 69,
+      "committed_at": "2026-07-31T21:32:49.060Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addGravyRuntimeWiring",
+      "prior_revision": 69,
+      "new_revision": 70,
+      "committed_at": "2026-07-31T21:33:20.858Z"
+    }
+  ],
+  "state_revision": 7
+}
