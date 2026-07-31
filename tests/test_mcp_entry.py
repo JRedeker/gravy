@@ -9,6 +9,7 @@ import os
 import runpy
 import socket
 import subprocess
+import sys
 import threading
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -360,6 +361,7 @@ def test_main_guard_invokes_main_when_run_as_module(monkeypatch: pytest.MonkeyPa
         coro.close()
 
     monkeypatch.setattr(asyncio, "run", fake_asyncio_run)
+    monkeypatch.delitem(sys.modules, "gravy.mcp_entry")
 
     runpy.run_module("gravy.mcp_entry", run_name="__main__")
 
