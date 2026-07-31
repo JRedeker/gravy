@@ -209,3 +209,110 @@ def test_close_terminates_launch_thread_and_allows_port_reuse(tmp_path: Path):
     finally:
         second.close()
     assert not _port_in_use("127.0.0.1", port)
+
+
+def test_gallery_prior_returns_latest_decision(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "gallery", "items": ["a.png", "b.png"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.gallery_prior() is None
+    controller.gallery_submit("b.png", ["b.png", "a.png"], "first")
+    controller.gallery_submit("a.png", ["a.png", "b.png"], "revised")
+
+    prior = controller.gallery_prior()
+    assert prior == {"selection": "a.png", "ranking": ["a.png", "b.png"], "notes": "revised"}
+
+
+def test_form_prior_returns_latest_values(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "form", "fields": ["summary", "approved"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.form_prior() == {}
+    controller.form_submit({"summary": "Draft", "approved": False})
+    controller.form_submit({"summary": "Final", "approved": True})
+
+    assert controller.form_prior() == {"summary": "Final", "approved": True}
+
+
+def test_checklist_prior_returns_decided_criterion(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request(
+        {"surface": "checklist", "criteria": ["Has title", "Has image"]}
+    )
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.checklist_prior("Has title") == (False, "")
+    controller.checklist_submit("Has title", True, "first pass")
+    controller.checklist_submit("Has title", False, "revised")
+
+    assert controller.checklist_prior("Has title") == (False, "revised")
+    assert controller.checklist_prior("Has image") == (False, "")
+
+
+def test_gallery_builder_pre_populates_component_values(tmp_path: Path):
+    from gravy.gradio_runtime import _build_gallery
+
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "gallery", "items": ["a.png", "b.png"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+    controller.gallery_submit("b.png", ["b.png", "a.png"], "prior note")
+
+    resumed = ReviewPageController("review-one", request, artifacts)
+    blocks = _build_gallery(resumed, request)
+
+    # Gradio stores constructor values on the component children.
+    values = {
+        c.label: getattr(c, "value", None)
+        for c in blocks.children
+        if hasattr(c, "value") and hasattr(c, "label")
+    }
+    assert values.get("Selection") == "b.png"
+    assert values.get("Ranking (select in order)") == ["b.png", "a.png"]
+    assert values.get("Notes") == "prior note"
+
+
+def test_form_builder_pre_populates_component_values(tmp_path: Path):
+    from gravy.gradio_runtime import _build_form
+
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "form", "fields": ["summary", "approved"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+    controller.form_submit({"summary": "Final", "approved": True})
+
+    resumed = ReviewPageController("review-one", request, artifacts)
+    blocks = _build_form(resumed, request)
+
+    values = {
+        c.label: getattr(c, "value", None)
+        for c in blocks.children
+        if hasattr(c, "value") and hasattr(c, "label")
+    }
+    assert values.get("summary") == "Final"
+    assert values.get("approved") is True
+
+
+def test_no_decision_renders_blank_values(tmp_path: Path):
+    from gravy.gradio_runtime import _build_gallery
+
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request({"surface": "gallery", "items": ["a.png", "b.png"]})
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.gallery_prior() is None
+    blocks = _build_gallery(controller, request)
+
+    values = {
+        c.label: getattr(c, "value", None)
+        for c in blocks.children
+        if hasattr(c, "value") and hasattr(c, "label")
+    }
+    assert values.get("Selection") is None
+    assert values.get("Notes") is None
