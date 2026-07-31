@@ -1,0 +1,202 @@
+"""MCP runtime entry point tests."""
+
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import json
+import os
+import socket
+import subprocess
+from collections.abc import AsyncIterator, Mapping
+from pathlib import Path
+from typing import Any
+
+import httpx
+import pytest
+from mcp import ClientSession
+from mcp.client.streamable_http import streamable_http_client
+
+from gravy.artifacts import ArtifactStore
+from gravy.config import ConfigurationError, GravyRuntimeConfig
+from gravy.control_plane import GravyControlPlane
+from gravy.lifecycle import LifecycleAdapter
+from gravy.mcp_entry import GravyMcpServer
+from gravy.ports import PortPool
+from gravy.registry import ReviewRegistry
+
+
+class FakePage:
+    def __init__(self) -> None:
+        self.launched_port: int | None = None
+        self.closed = False
+
+    def launch(self, port: int) -> None:
+        self.launched_port = port
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class FakeTailnet:
+    def __init__(self) -> None:
+        self.mappings: dict[str, int] = {}
+
+    def https_available(self) -> bool:
+        return True
+
+    def expose(self, review_id: str, port: int) -> str:
+        self.mappings[review_id] = port
+        return f"https://{review_id}.tailnet.test"
+
+    def remove(self, review_id: str, port: int) -> None:
+        self.mappings.pop(review_id, None)
+
+    def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
+        return set()
+
+
+def _make_plane(tmp_path: Path) -> GravyControlPlane:
+    lifecycle = LifecycleAdapter(
+        ReviewRegistry(tmp_path / "registry.json"),
+        PortPool(41000, 41010),
+        ArtifactStore(tmp_path / "artifacts"),
+        FakeTailnet(),
+        lambda _review_id, _request: FakePage(),
+    )
+    return GravyControlPlane(lifecycle)
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+@contextlib.asynccontextmanager
+async def _running_server(server: GravyMcpServer, *, timeout: float = 5.0) -> AsyncIterator[GravyMcpServer]:
+    task = asyncio.create_task(server.serve())
+    base = f"http://{server.config.internal_host}:{server.config.internal_port}"
+    try:
+        async with httpx.AsyncClient(timeout=0.5) as client:
+            deadline = asyncio.get_event_loop().time() + timeout
+            while True:
+                try:
+                    resp = await client.get(f"{base}/ready")
+                    if resp.status_code == 200:
+                        break
+                except Exception:
+                    pass
+                if asyncio.get_event_loop().time() >= deadline:
+                    raise TimeoutError("server did not become ready")
+                await asyncio.sleep(0.05)
+        yield server
+    finally:
+        server.shutdown()
+        try:
+            await asyncio.wait_for(task, timeout=2.0)
+        except asyncio.TimeoutError:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+
+
+@contextlib.asynccontextmanager
+async def _mcp_session(server: GravyMcpServer) -> AsyncIterator[ClientSession]:
+    url = f"http://{server.config.internal_host}:{server.config.internal_port}{server.config.path}"
+    async with streamable_http_client(url) as (
+        read_stream,
+        write_stream,
+        _get_session_id,
+    ):
+        async with ClientSession(read_stream, write_stream) as session:
+            await session.initialize()
+            yield session
+
+
+def _tool_text(result: Any) -> dict[str, Any]:
+    assert len(result.content) == 1
+    return json.loads(result.content[0].text)
+
+
+def test_server_rejects_invalid_config_before_binding(tmp_path: Path) -> None:
+    bad_config = GravyRuntimeConfig(internal_port=6277, external_port=6277)
+    with pytest.raises(ConfigurationError):
+        GravyMcpServer(bad_config, _make_plane(tmp_path))
+
+
+async def test_server_ready_endpoint_reports_ready(tmp_path: Path) -> None:
+    config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
+    server = GravyMcpServer(config, _make_plane(tmp_path))
+    async with _running_server(server):
+        async with httpx.AsyncClient(timeout=1.0) as client:
+            resp = await client.get(
+                f"http://{config.internal_host}:{config.internal_port}/ready"
+            )
+            assert resp.status_code == 200
+            assert resp.json() == {"status": "ready"}
+
+
+async def test_server_exposes_only_catalog_create_update_close_tools(tmp_path: Path) -> None:
+    config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
+    server = GravyMcpServer(config, _make_plane(tmp_path))
+    async with _running_server(server):
+        async with _mcp_session(server) as session:
+            tools = await session.list_tools()
+            names = {tool.name for tool in tools.tools}
+            assert names == {"catalog", "create", "update", "close"}
+
+
+async def test_server_round_trips_catalog_create_close(tmp_path: Path) -> None:
+    config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
+    server = GravyMcpServer(config, _make_plane(tmp_path))
+    async with _running_server(server):
+        async with _mcp_session(server) as session:
+            catalog = _tool_text(await session.call_tool("catalog", {}))
+            assert catalog["ok"] is True
+            surfaces = {item["surface"] for item in catalog["result"]["surfaces"]}
+            assert surfaces == {"gallery", "pairwise", "form", "checklist"}
+
+            created = _tool_text(
+                await session.call_tool(
+                    "create",
+                    {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+                )
+            )
+            assert created["ok"] is True
+            review_id = created["record"]["review_id"]
+            assert created["record"]["state"] == "active"
+
+            closed = _tool_text(await session.call_tool("close", {"review_id": review_id}))
+            assert closed["ok"] is True
+            assert closed["record"]["state"] == "terminal"
+
+
+async def test_server_is_foreground_and_does_not_fork(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    fork_calls: list[Any] = []
+    popen_calls: list[Any] = []
+
+    def fake_fork() -> int:
+        fork_calls.append(True)
+        raise OSError("fork is not allowed")
+
+    def fake_popen(*args: Any, **kwargs: Any) -> Any:
+        popen_calls.append((args, kwargs))
+        raise OSError("subprocess is not allowed")
+
+    monkeypatch.setattr(os, "fork", fake_fork)
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+
+    config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
+    server = GravyMcpServer(config, _make_plane(tmp_path))
+    async with _running_server(server):
+        async with httpx.AsyncClient(timeout=1.0) as client:
+            resp = await client.get(
+                f"http://{config.internal_host}:{config.internal_port}/ready"
+            )
+            assert resp.status_code == 200
+
+    assert not fork_calls
+    assert not popen_calls
