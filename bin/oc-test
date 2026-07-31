@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Canonical test entrypoint for Gravy.
+#
+# Always routes through `uv run pytest` so the project venv (with gradio + all
+# runtime deps) is used, not the ambient system python. Without this, bare
+# `python -m pytest` resolves to the system interpreter and the gradio-dependent
+# test modules (test_gradio_runtime, test_lifecycle, test_mcp_boundary,
+# test_mcp_entry) fail at collection with ModuleNotFoundError.
+#
+# Routes through oc-test-gate for host-level throttling when available.
+#
+# Usage:
+#   bin/oc-test                       # smoke (default) — full suite, fast feedback
+#   bin/oc-test smoke                 # same as default
+#   bin/oc-test targeted [-- ...]     # raw pytest with custom args/files
+#   bin/oc-test full                  # full suite (requires RUN_FULL_TESTS=1)
+
+set -euo pipefail
+
+run_with_optional_gate() {
+  local tier="$1"
+  shift
+
+  if command -v oc-test-gate >/dev/null 2>&1; then
+    exec oc-test-gate "$tier" -- "$@"
+  fi
+
+  printf 'bin/oc-test: oc-test-gate not found; running %s tier directly.\n' "$tier" >&2
+  printf 'Install oc-test-gate only if you want machine-wide test throttling/serialization.\n' >&2
+  exec "$@"
+}
+
+tier="${1:-smoke}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+# Full suite requires explicit opt-in (matches sibling-repo convention).
+if [[ "$tier" == "full" && "${RUN_FULL_TESTS:-0}" != "1" ]]; then
+  printf 'Refusing full suite. Re-run with RUN_FULL_TESTS=1.\n' >&2
+  exit 2
+fi
+
+case "$tier" in
+  smoke)
+    [[ $# -eq 0 ]] || { printf 'bin/oc-test smoke takes no extra args.\n' >&2; exit 64; }
+    run_with_optional_gate smoke uv run pytest -q
+    ;;
+  targeted)
+    [[ "${1:-}" != "--" ]] || shift
+    run_with_optional_gate targeted uv run pytest -q "$@"
+    ;;
+  full)
+    [[ $# -eq 0 ]] || { printf 'bin/oc-test full takes no extra args.\n' >&2; exit 64; }
+    run_with_optional_gate full uv run pytest -q
+    ;;
+  *)
+    printf 'Usage: bin/oc-test [smoke|targeted|full] [pytest args...]\n' >&2
+    printf '\nTiers:\n' >&2
+    printf '  smoke     Full suite, fast feedback (default).\n' >&2
+    printf '  targeted  Raw pytest with file/test filters (pass args after --).\n' >&2
+    printf '  full      Full suite (requires RUN_FULL_TESTS=1).\n' >&2
+    exit 64
+    ;;
+esac
