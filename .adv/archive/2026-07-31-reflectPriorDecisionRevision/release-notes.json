@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "change_id": "reflectPriorDecisionRevision",
+  "title": "Reflect prior decision on revision",
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Review surfaces now pre-populate fields with the prior decision on revision",
+    "highlights": [
+      "Gallery, form, and checklist surfaces show the reviewer's prior submission in the input fields when a review already has a decision",
+      "Revision happens in place: change one field, keep the rest, instead of re-entering from scratch",
+      "Checklist populates pass/comment when a previously-decided criterion is selected"
+    ],
+    "area": "review surfaces UI",
+    "user_action_required": false,
+    "links": {}
+  }
+}

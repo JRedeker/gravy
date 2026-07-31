@@ -1,0 +1,16 @@
+{
+  "archived_at": "2026-07-31T23:15:53.691Z",
+  "capabilities": [],
+  "change_hash": "c8e1df1d2da749d0820c1a8f414f82ff58f859dfa5f4d788287aad234382d313",
+  "change_id": "reflectPriorDecisionRevision",
+  "completed_tasks": 2,
+  "created_at": "2026-07-31T22:59:15.048Z",
+  "current_gate": "release",
+  "last_activity_at": "2026-07-31T23:14:48.983Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "5fa078c22a23b2f96901ce4f7e2e3a09da879c99484ada5ec449facf9217aed1",
+  "task_count": 2,
+  "title": "Reflect prior decision on revision",
+  "version": "1"
+}

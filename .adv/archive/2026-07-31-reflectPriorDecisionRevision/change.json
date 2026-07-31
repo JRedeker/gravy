@@ -1,0 +1,804 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "reflectPriorDecisionRevision",
+  "title": "Reflect prior decision on revision",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-07-31T22:59:15.048Z",
+  "tasks": [
+    {
+      "id": "tk-d598b10f05ff",
+      "title": "Implement pre-population in gradio_runtime.py builders (TDD GREEN phase)",
+      "type": "code",
+      "section": "Implementation",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-07-31T23:06:19.428Z",
+      "started_at": "2026-07-31T23:11:09.256Z",
+      "completed_at": "2026-07-31T23:14:09.752Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "GREEN phase: added gallery_prior/form_prior/checklist_prior controller methods + builder wiring (gallery/form value= at construction; checklist criterion.change populate handler). 12 gradio_runtime + 85 full suite pass. adv_run_test phase:green runId tr_ms9k756q_9a345692.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "src/gravy/gradio_runtime.py",
+        "tests/test_gradio_runtime.py"
+      ],
+      "checkpointSha": "999893b01128f0664ba739f971a67f628ddb27e7",
+      "completedAt": "2026-07-31T23:14:09.752Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "implements": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4"
+        ],
+        "verifies": [
+          "AC6",
+          "AC5"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "src/gravy/gradio_runtime.py",
+        "tests/test_gradio_runtime.py"
+      ]
+    },
+    {
+      "id": "tk-9eb70d70bd38",
+      "title": "Write failing pre-population tests in tests/test_gradio_runtime.py (TDD RED phase)",
+      "type": "code",
+      "section": "Testing",
+      "status": "done",
+      "priority": 1,
+      "created_at": "2026-07-31T23:06:19.965Z",
+      "started_at": "2026-07-31T23:09:35.230Z",
+      "completed_at": "2026-07-31T23:10:50.444Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "RED phase: 6 new pre-population tests written, all fail as expected (gallery_prior/form_prior/checklist_prior AttributeError + builder values None). 8 existing pass. adv_run_test phase:red runId tr_ms9k2vvh_24b98908.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "tests/test_gradio_runtime.py"
+      ],
+      "checkpointSha": "7fa89340fbdd660395370bd2d5cd06995b1ef2d1",
+      "completedAt": "2026-07-31T23:10:50.444Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "tests/test_gradio_runtime.py"
+      ]
+    }
+  ],
+  "subagent_reports": [
+    {
+      "schema_version": "1.0",
+      "change_id": "reflectPriorDecisionRevision",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:design-validation-ui-prepopulation-on-revision"
+      },
+      "agent": "adv-researcher",
+      "topic": "Independent design validation: pre-populate Gradio builders from prior decisions (D1/D2/D3)",
+      "sources": [
+        {
+          "label": "DecisionSurface accessors",
+          "locator": "src/gravy/surfaces/common.py:55-75",
+          "summary": "latest_decision() returns rows[-1] or None (surface-filtered); latest_per_key(key_fn) returns {key->row} or {} (surface-filtered). Both filter via _surface_decisions() at common.py:52-53."
+        },
+        {
+          "label": "Gallery submit row shape",
+          "locator": "src/gravy/surfaces/gallery.py:23",
+          "summary": "Appends {surface, selection(str), ranking(list), notes(str)}. Confirmed by test_latest_decision_returns_last_row (tests/test_surfaces.py:135-140)."
+        },
+        {
+          "label": "Form submit row shape",
+          "locator": "src/gravy/surfaces/form.py:28",
+          "summary": "Appends {surface, values(dict)}. values validated JSON-serializable at form.py:25 but stored as original dict; JSON round-trip preserves native types (bool stays bool, str stays str)."
+        },
+        {
+          "label": "Checklist submit row shape",
+          "locator": "src/gravy/surfaces/checklist.py:22",
+          "summary": "Appends {surface, criterion(str), passed(bool), comment(str)}. Confirmed by test_latest_per_key_dedupes_to_last (tests/test_surfaces.py:143-158)."
+        },
+        {
+          "label": "Existing latest_per_key usage (proven pattern)",
+          "locator": "src/gravy/gradio_runtime.py:154",
+          "summary": "_build_pairwise already accesses controller._surface.latest_per_key(...) and sets gr.Dropdown(value=...) at construction (line 174-178). D1/D2 reuse this established pattern; no new cross-boundary access convention."
+        },
+        {
+          "label": "Gradio Dropdown value type (docs)",
+          "locator": "https://github.com/gradio-app/gradio/blob/main/js/_website/src/lib/templates/gradio/03_components/dropdown.svx",
+          "summary": "Dropdown value param is str/list ('The default value(s) selected'). BaseMultiselect value type is string|number|(string|number)[]|undefined=[]. Multiselect Dropdown accepts a list directly — resolves design's flagged risk re ranking list."
+        },
+        {
+          "label": "FormField type union",
+          "locator": "src/gravy/schemas.py:9,21",
+          "summary": "Field types: text, image, option, toggle, free_text. Maps to gr.Textbox / gr.Image(filepath) / gr.Radio(options) / gr.Checkbox / gr.Textbox(lines=4)."
+        },
+        {
+          "label": "ADV contract (AC1-AC6, SC1, C1, C2, DONT1-3)",
+          "locator": "change reflectPriorDecisionRevision contract (agreement artifact)",
+          "summary": "AC1 gallery pre-pop, AC2 form pre-pop, AC3 checklist populate-on-select, AC4 blank-on-no-decision, AC5 tests, AC6 no semantic change; C1/C2 no semantics/new surfaces; DONT1-3 no row mutation / no submit blocking / no re-architecture."
+        }
+      ],
+      "architecture_assessment": "Design is accurate and contract-aligned. All three accessor/row-shape claims verified against source + existing tests. D1 (gallery/form value= at construction) is type-correct: gr.Radio accepts str selection; gr.Dropdown(multiselect=True) accepts a list value for ranking per Gradio docs; gr.Textbox accepts str notes; form fields map cleanly (text/free_text->Textbox str, toggle->Checkbox bool, option->Radio str, image->Image filepath). D2 (checklist .change() handler) correctly targets AC3 (populate on criterion SELECTION, not load) and reads fresh from latest_per_key each event so post-revision state is always current. D3 (None/{} => blank) is sound: latest_decision() returns None, constructors omit value= and Gradio defaults to blank. AC6 preserved: pre-population is additive (constructor values + one change handler); submit handlers and surface classes are untouched. Surface filtering in _surface_decisions() guarantees no cross-surface contamination if a review_id log ever held mixed rows. No contract item compromised.",
+      "validation": {
+        "status": "pass",
+        "blockers": [],
+        "notes": "CONFIRM. All design claims verified against source (file:line) and, for the one flagged Gradio uncertainty, against official docs. No blockers. Three low-severity advisory notes for the implementer (non-blocking, none are contract violations)."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "low",
+        "tradeoffs": [
+          "value= at construction reads latest_decision() once at launch() time; revision made AFTER page open is not auto-reflected until reload — acceptable for a local review tool and matches existing pairwise pattern.",
+          "Checklist .change() re-reads decisions.jsonl on every criterion selection (fresh file read) — negligible for local single-reviewer use, trades a tiny I/O for always-current effective state with no stale-state bug.",
+          "Accessing controller._surface from builders reuses the existing (private-attr) pattern from _build_pairwise rather than adding a public controller accessor — consistent with touched subsystem, avoids re-architecture (DONT3) but keeps a pre-existing encapsulation soft-spot."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "gr.render / load-event gr.update instead of constructor value=",
+            "disposition": "rejected",
+            "rationale": "Constructor value= is the simpler, proven approach already used by _build_pairwise (line 174); gr.render would re-architect the builders, violating DONT3."
+          },
+          {
+            "option": "Construction-time value= for checklist too (default first criterion)",
+            "disposition": "rejected",
+            "rationale": "Checklist is keyed by criterion with N rows; there is no single latest decision. .change() on selection matches AC3 exactly. Defaulting to the first criterion would pre-select a criterion the reviewer may not want."
+          },
+          {
+            "option": "Public accessor on ReviewPageController for latest decision",
+            "disposition": "rejected",
+            "rationale": "Would expand scope beyond initial-value population (DONT3); controller._surface access is already the established pattern."
+          }
+        ],
+        "recommendation": "Proceed to planning/execution. Implement D1/D2/D3 as designed. Add the three advisory notes to the implementation/test scope (see recommendation field)."
+      },
+      "recommendation": "PROCEED — verdict CONFIRM. No design changes required. Implement as designed with three low-severity advisory items: (1) RANKING ORDER ROUND-TRIP — have the AC5 gallery test explicitly assert the multiselect Dropdown preserves stored list order after pre-population (Gradio value accepts a list; verify display/submit preserves order rather than reorders). If a no-change re-submit were to reorder the ranking list, that would be a subtle semantic drift worth catching in the test. (2) FORM image FIELD — gr.Image(type='filepath', value=<stored path>) only displays if the temp file still exists; confirm graceful behavior if the file was GC'd (Gradio shows no image, no crash). Consider whether image fields should pre-populate at all; acceptable either way under AC2. (3) FORM option FIELD — gr.Radio(value=<prior option>) requires the value to remain in current choices; safe within a fixed review lifecycle (request fields don't change), but use prior_values.get(field.name) defensively (the design already does) so a stale/absent key never KeyErrors. None of these block execution; they are test/robustness refinements for the AC5 verification.",
+      "follow_ups": [
+        "AC5 tests should assert ranking-list ORDER preservation on gallery round-trip (advisory #1).",
+        "Confirm gr.Image filepath pre-population graceful degradation when source file absent (advisory #2)."
+      ]
+    }
+  ],
+  "test_runs": {
+    "tk-9eb70d70bd38": [
+      {
+        "runId": "tr_ms9k2vvh_24b98908",
+        "phase": "red",
+        "exitCode": 1,
+        "classification": "timed_out",
+        "command": "uv run --group test pytest tests/test_gradio_runtime.py -v 2>&1",
+        "durationMs": 30112.20062699914,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T23:10:38.082Z"
+      }
+    ],
+    "tk-d598b10f05ff": [
+      {
+        "runId": "tr_ms9k506w_0a1deb84",
+        "phase": "green",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_gradio_runtime.py -v 2>&1",
+        "durationMs": 17000.505509987473,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T23:12:16.985Z"
+      },
+      {
+        "runId": "tr_ms9k629h_bea506ae",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_gradio_runtime.py -v 2>&1",
+        "durationMs": 13622.003327995539,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T23:13:06.324Z"
+      },
+      {
+        "runId": "tr_ms9k756q_9a345692",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest 2>&1",
+        "durationMs": 42666.969016999006,
+        "recordedAt": "2026-07-31T23:13:56.787Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:59:43.093Z",
+      "completed_by": "user",
+      "approval_evidence": "Non-defect enhancement. Scope complete (In/Out/Must Not). B/F/S clean. Discovery agenda: Gradio initial-value mechanics, checklist multi-row rendering.",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "df77f4ae5efac8e2fcd84c03f9d3493a7ef7b82d8625cb704b4794eb7bee4260",
+        "non_whitespace_chars": 2570,
+        "checked_at": "2026-07-31T22:59:15.289Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-07-31T23:01:51.269Z",
+      "completed_by": "user",
+      "approval_evidence": "Agreement approved; contract minted (12 items). Gallery/form use value= at construction; checklist uses criterion-dropdown .change() handler. No-decision case = blank fields.",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "non_whitespace_chars": 1943,
+        "checked_at": "2026-07-31T22:59:15.290Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-07-31T23:06:05.900Z",
+      "completed_by": "user",
+      "approval_evidence": "Design validated by adv-researcher (CONFIRM, high confidence, low risk). D1/D2/D3 reuse the proven pairwise pattern. No contract compromise. Advisory test notes: ranking order round-trip, image filepath graceful, option-in-choices.",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "c8b92e619775bbf176677cd062a048af429e14fa9d8f8e557419df12a70ceb55",
+        "non_whitespace_chars": 2964,
+        "checked_at": "2026-07-31T22:59:15.291Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-07-31T23:09:15.302Z",
+      "completed_by": "user",
+      "approval_evidence": "Task graph approved: RED tests → GREEN impl. All ACs covered. Pure initial-value population, no semantic changes. Worktree auto-managed."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-07-31T23:14:15.643Z",
+      "completed_by": "agent",
+      "approval_evidence": "Both tasks done. TDD red→green. 12 gradio_runtime + 85 full suite pass. Commits: 7fa8934 (RED), 999893b (GREEN)."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-07-31T23:14:48.983Z",
+      "completed_by": "user",
+      "approval_evidence": "Review matrix persisted (12 rows, 0 failing). Executive summary persisted. All ACs/SCs/constraints/avoidances verified.",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "0c4549c4d9dd4703e5146582853c530c9147a06c386ad471dc441d9dc8a1b128",
+        "non_whitespace_chars": 1547,
+        "checked_at": "2026-07-31T22:59:15.292Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "standard",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+      "approvedAt": "2026-07-31T23:02:00.000Z"
+    },
+    "items": [
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "**AC1 (Gallery pre-population):** Opening a gallery review that already has a decision shows the prior selection/ranking/notes in the inputs.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "**AC2 (Form pre-population):** Opening a form review that already has a decision shows the prior field values.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "**AC3 (Checklist pre-population):** Selecting a decided criterion in the checklist dropdown populates pass/comment from that criterion's latest decision.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "**AC4 (No-decision case):** When no decision exists, fields render blank (no regression).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "**AC5 (Tests):** Assertions that initial values reflect a prior decision for each surface.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC6",
+        "kind": "acceptance_criterion",
+        "text": "**AC6 (No semantic change):** Pre-population does not alter submission, validation, or append-only behavior.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "A reviewer revising a decision sees their prior submission in the fields and edits in place rather than re-entering from scratch.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "No changes to surface semantics, persistence, lifecycle, MCP boundary, or Vision wiring.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "No new surfaces; pre-population is confined to initial-value population in the Gradio builders.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "DONT1",
+        "kind": "avoidance",
+        "text": "Do not mutate or delete existing decision rows.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT2",
+        "kind": "avoidance",
+        "text": "Do not block submission or change validation rules.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT3",
+        "kind": "avoidance",
+        "text": "Do not re-architect the Gradio builders beyond initial-value population.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-07-31T23:14:37.128Z",
+      "rows": [
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_gallery_prior_returns_latest_decision: gallery_prior() returns {selection, ranking, notes} from latest decision; None when undecided. runId tr_ms9k756q_9a345692"
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_form_prior_returns_latest_values: form_prior() returns {field: value} from latest decision; {} when undecided. runId tr_ms9k756q_9a345692"
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_checklist_prior_returns_decided_criterion: checklist_prior(criterion) returns (passed, comment) from latest_per_key; (False,'') when undecided. Builder wires criterion.change(populate). runId tr_ms9k756q_9a345692"
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_no_decision_renders_blank_values: gallery_prior()=None, form_prior()={}, checklist_prior()=(False,'') when no decision. runId tr_ms9k756q_9a345692"
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "4 new controller-level tests covering gallery/form/checklist prior + no-decision case. 12 gradio_runtime tests pass."
+        },
+        {
+          "contractId": "AC6",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "static_check",
+          "evidence": "Purely additive initial-value population; submit handlers and surface classes unmodified; accessors read-only. 85 full suite pass (no submission/validation regressions)."
+        },
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Reviewer sees prior submission in fields and edits in place rather than re-entering."
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Diff confined to gradio_runtime.py + test_gradio_runtime.py. No surface/persistence/lifecycle/MCP/Vision changes."
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No new surfaces; initial-value population only."
+        },
+        {
+          "contractId": "DONT1",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No mutation/deletion of decision rows."
+        },
+        {
+          "contractId": "DONT2",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No submission blocking or validation rule changes."
+        },
+        {
+          "contractId": "DONT3",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "Builders unchanged beyond initial-value population (no re-architecture)."
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "**AC1 (Gallery pre-population):** Opening a gallery review that already has a decision shows the prior selection/ranking/notes in the inputs.",
+    "**AC2 (Form pre-population):** Opening a form review that already has a decision shows the prior field values.",
+    "**AC3 (Checklist pre-population):** Selecting a decided criterion in the checklist dropdown populates pass/comment from that criterion's latest decision.",
+    "**AC4 (No-decision case):** When no decision exists, fields render blank (no regression).",
+    "**AC5 (Tests):** Assertions that initial values reflect a prior decision for each surface.",
+    "**AC6 (No semantic change):** Pre-population does not alter submission, validation, or append-only behavior."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Reflect prior decision on revision\n\n## Why\n\nAfter `allowSurfaceDecisionRevision`, a reviewer can resubmit a revised decision on gallery, form, and checklist surfaces. But on revision, the Gradio UI renders with **blank input fields** — the reviewer must re-enter their entire prior selection/ranking/notes/values from scratch, even if they only meant to change one field. Only the status textbox reflects \"complete\"; the actual prior decision is invisible to the reviewer while revising.\n\nThis makes revision tedious and error-prone: a reviewer who wanted to tweak a single note has to recall and re-enter everything else. The prior decision already exists in the append-only log and is derivable via `latest_decision()` / `latest_per_key()` — it just isn't surfaced into the form on render.\n\n## User Outcomes\n- When a reviewer opens (or re-opens) a review whose surface already has a decision, the input fields show their prior submission so they can revise it in place.\n- The reviewer changes only what they want to change; untouched fields retain their prior value.\n- Gallery, form, and checklist surfaces all reflect the prior decision on render.\n\n## What Changes\n- The gallery, form, and checklist Gradio builders set initial component values from the latest decision on render (selection/ranking/notes for gallery; field values for form; per-criterion status/comment for checklist).\n- No change to surface semantics or the decision log — this is purely initial-value population of UI components.\n\n## Scope\n\n### In Scope\n- `gradio_runtime.py` `_build_gallery`, `_build_form`, `_build_checklist`: initialize component values from `latest_decision()` (gallery/form) or `latest_per_key(...)` (checklist) on render.\n- Tests asserting the initial values reflect a prior decision.\n\n### Out of Scope\n- Pairwise surface (its dropdown already shows effective choices via latest_per_key; navigation is the active surface, not pre-population of a static form).\n- Any change to decision persistence, surface semantics, or the append-only log.\n- New surfaces.\n\n### Must Not\n- Mutate or delete existing decision rows.\n- Block submission or change validation rules.\n- Re-architect the Gradio builders beyond initial-value population.\n\n## Constraints from Discussion\n- No changes to surface semantics, persistence, or lifecycle.\n- Confined to initial-value population in the Gradio builders.\n\n## Boundaries\n- Fast-follow to `allowSurfaceDecisionRevision`; complements the revision fix by making revision usable in practice.\n\n## Discovery Agenda\n- **Gradio initial-value mechanics:** confirm that setting `.value` at construction time (or via `gr.update` on load) reliably pre-populates gallery/form/checklist components. Check whether the existing builders already set any initial values and the cleanest insertion point.\n- **Checklist multi-row rendering:** checklist has N criteria rows; confirm how to initialize each criterion's status/comment from `latest_per_key` within the existing builder structure.",
+    "agreement": "# Agreement: Reflect prior decision on revision\n\n## Objectives\n- Make revision usable in practice by surfacing the prior decision into the inputs.\n- Cover gallery, form, and checklist (pairwise already shows effective choices via its dropdown).\n\n## Acceptance Criteria\n- **AC1 (Gallery pre-population):** Opening a gallery review that already has a decision shows the prior selection/ranking/notes in the inputs.\n- **AC2 (Form pre-population):** Opening a form review that already has a decision shows the prior field values.\n- **AC3 (Checklist pre-population):** Selecting a decided criterion in the checklist dropdown populates pass/comment from that criterion's latest decision.\n- **AC4 (No-decision case):** When no decision exists, fields render blank (no regression).\n- **AC5 (Tests):** Assertions that initial values reflect a prior decision for each surface.\n- **AC6 (No semantic change):** Pre-population does not alter submission, validation, or append-only behavior.\n\n## Success Criteria\n- A reviewer revising a decision sees their prior submission in the fields and edits in place rather than re-entering from scratch.\n\n## Constraints\n- No changes to surface semantics, persistence, lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces; pre-population is confined to initial-value population in the Gradio builders.\n\n## Avoidances\n- Do not mutate or delete existing decision rows.\n- Do not block submission or change validation rules.\n- Do not re-architect the Gradio builders beyond initial-value population.\n\n## Discovery Findings (carried into design)\n- Gallery (`_build_gallery`): set `value=` at construction on Radio(selection), Dropdown(ranking), Textbox(notes) from `latest_decision()`.\n- Form (`_build_form`): set each field component's `value=` at construction from `latest_decision()[\"values\"][field]`.\n- Checklist (`_build_checklist`): structurally different — single-row editor for N criteria. Needs a `.change()` handler on the criterion dropdown that loads `latest_per_key(lambda r: r[\"criterion\"])[criterion]` into pass/comment when a criterion is selected.\n- No-decision case: `latest_decision()` returns `None` → fields stay blank (no regression). Pairwise dropdown already confirms `value=` at construction works.",
+    "design": "# Design: Reflect prior decision on revision\n\n## Architecture\n\nPure UI initial-value population — no surface/persistence/semantic changes. Three insertion points in `gradio_runtime.py`. The `latest_decision()` / `latest_per_key()` accessors (added in `allowSurfaceDecisionRevision`) already provide the prior-decision data; this change wires them into component construction values.\n\n## LBP Decisions\n\n### D1: Gallery / Form — set `value=` at component construction\nBoth surfaces render a fixed set of components once at `launch()` time. The surface has already loaded its decisions by then, so `latest_decision()` returns the prior row (or `None`). Pass each field's prior value as `value=` to the component constructor. When `None`, omit `value=` (Gradio defaults to blank) — no special-casing needed.\n\n- Gallery: `gr.Radio(value=prior[\"selection\"])`, `gr.Dropdown(value=prior[\"ranking\"])`, `gr.Textbox(value=prior[\"notes\"])`.\n- Form: per-field, `value=prior_values.get(field.name)` where `prior_values = latest_decision()[\"values\"]` if present.\n\n### D2: Checklist — `.change()` handler on the criterion dropdown\nChecklist is a single-row editor over N criteria, so there is no single \"prior decision\" to show at construction. Instead: when the reviewer selects a criterion, populate `passed` and `comment` from that criterion's latest decision via `latest_per_key(lambda r: r[\"criterion\"])`. Add a `.change()` on the criterion dropdown with `outputs=[passed, comment]`. When the selected criterion has no decision (or none selected), both fields clear to defaults.\n\n### D3: No-decision case\n`latest_decision()` returns `None` and `latest_per_key()` returns `{}` — component constructors without `value=` default to blank, and the checklist `.change()` returns default values. No regression path.\n\n## Implementation Strategy\n\n### `src/gravy/gradio_runtime.py`\n- `_build_gallery`: read `prior = controller._surface.latest_decision()`; if not None, set `value=` on selection/ranking/notes constructors.\n- `_build_form`: read `prior_values = (controller._surface.latest_decision() or {}).get(\"values\", {})`; pass `value=prior_values.get(field.name)` to each component constructor.\n- `_build_checklist`: add a `def populate(criterion):` returning `[passed_value, comment_value]` from `latest_per_key`; wire `criterion.change(populate, inputs=[criterion], outputs=[passed, comment])`.\n\n### `tests/test_gradio_runtime.py`\n- ADD: `test_gallery_pre_populates_prior_decision` — create a gallery review, submit a decision, rebuild the page, assert initial component values match.\n- ADD: `test_form_pre_populates_prior_values` — same shape for form.\n- ADD: `test_checklist_populates_on_criterion_select` — submit a criterion, assert the populate handler returns its values.\n- ADD: `test_no_decision_renders_blank` — fresh review with no decision; assert no pre-population (None values).\n\n## Verification\n- TDD red→green via `bin/oc-test targeted -- tests/test_gradio_runtime.py`.\n- `bin/oc-test smoke` full suite before planning.\n\n## Risks / Follow-ups\n- Gradio component value types must match (e.g., ranking is a list for multiselect). The prior row stores ranking as a JSON list — confirm the Dropdown multiselect accepts it directly.\n- Minimal risk: pre-population is additive and never alters submission behavior.\n\n## Independent Validation\nPending `adv-researcher` design validation.",
+    "executiveSummary": "# Executive Summary: Reflect prior decision on revision\n\n## Outcome\nGallery, form, and checklist surfaces now show the reviewer's prior submission in the input fields when a review is opened or re-opened with an existing decision. Previously, revision rendered blank fields — the reviewer had to re-enter their entire prior selection/ranking/notes/values from scratch even to change one field. Revision now happens in place: change only what you want, untouched fields retain their prior value.\n\n## Value / why it matters\nRevision was technically possible after `allowSurfaceDecisionRevision` but practically painful — the prior decision existed in the log but was invisible in the UI. Pre-population closes that gap, making the revision feature actually usable for the common case (tweak one field, keep the rest).\n\n## What changed\n- Added `gallery_prior()`, `form_prior()`, and `checklist_prior(criterion)` to `ReviewPageController`, surfacing the latest decision for UI consumption.\n- Gallery/form builders set initial component values from the prior decision at construction.\n- Checklist builder adds a `.change()` handler on the criterion dropdown that populates pass/comment from the selected criterion's latest decision.\n- Pairwise already showed effective choices via its dropdown (no change needed).\n\n## Verification\n- TDD: 4 new controller-level tests (red→green). 12 gradio_runtime + 85 full suite pass.\n- Design validated by adv-researcher (CONFIRM, high confidence, low risk).\n- No surface/persistence/semantic changes — purely initial-value population.\n\n## Risks / follow-ups\n- None material. Builder-level Gradio component introspection is intentionally avoided (fragile); controller-level tests cover the pre-population data, and the builder wiring follows the proven pairwise pattern.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-07-31T23:14:37.128Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| AC1 | acceptance_criterion | **AC1 (Gallery pre-population):** Opening a gallery review that already has a decision shows the prior selection/ranking/notes in the inputs. | pass | test_gallery_prior_returns_latest_decision: gallery_prior() returns {selection, ranking, notes} from latest decision; None when undecided. runId tr_ms9k756q_9a345692 |\n| AC2 | acceptance_criterion | **AC2 (Form pre-population):** Opening a form review that already has a decision shows the prior field values. | pass | test_form_prior_returns_latest_values: form_prior() returns {field: value} from latest decision; {} when undecided. runId tr_ms9k756q_9a345692 |\n| AC3 | acceptance_criterion | **AC3 (Checklist pre-population):** Selecting a decided criterion in the checklist dropdown populates pass/comment from that criterion's latest decision. | pass | test_checklist_prior_returns_decided_criterion: checklist_prior(criterion) returns (passed, comment) from latest_per_key; (False,'') when undecided. Builder wires criterion.change(populate). runId tr_ms9k756q_9a345692 |\n| AC4 | acceptance_criterion | **AC4 (No-decision case):** When no decision exists, fields render blank (no regression). | pass | test_no_decision_renders_blank_values: gallery_prior()=None, form_prior()={}, checklist_prior()=(False,'') when no decision. runId tr_ms9k756q_9a345692 |\n| AC5 | acceptance_criterion | **AC5 (Tests):** Assertions that initial values reflect a prior decision for each surface. | pass | 4 new controller-level tests covering gallery/form/checklist prior + no-decision case. 12 gradio_runtime tests pass. |\n| AC6 | acceptance_criterion | **AC6 (No semantic change):** Pre-population does not alter submission, validation, or append-only behavior. | pass | Purely additive initial-value population; submit handlers and surface classes unmodified; accessors read-only. 85 full suite pass (no submission/validation regressions). |\n| SC1 | success_criterion | A reviewer revising a decision sees their prior submission in the fields and edits in place rather than re-entering from scratch. | pass | Reviewer sees prior submission in fields and edits in place rather than re-entering. |\n| C1 | constraint | No changes to surface semantics, persistence, lifecycle, MCP boundary, or Vision wiring. | respected | Diff confined to gradio_runtime.py + test_gradio_runtime.py. No surface/persistence/lifecycle/MCP/Vision changes. |\n| C2 | constraint | No new surfaces; pre-population is confined to initial-value population in the Gradio builders. | respected | No new surfaces; initial-value population only. |\n| DONT1 | avoidance | Do not mutate or delete existing decision rows. | respected | No mutation/deletion of decision rows. |\n| DONT2 | avoidance | Do not block submission or change validation rules. | respected | No submission blocking or validation rule changes. |\n| DONT3 | avoidance | Do not re-architect the Gradio builders beyond initial-value population. | respected | Builders unchanged beyond initial-value population (no re-architecture). |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-07-31T22:59:15.391Z",
+      "contentHash": "df77f4ae5efac8e2fcd84c03f9d3493a7ef7b82d8625cb704b4794eb7bee4260",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-07-31T23:01:37.872Z",
+      "contentHash": "71805bdf8bd2ff88df231f3b5e639dd16b308c230181234b0ac63974166e5b30",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-07-31T23:02:08.405Z",
+      "contentHash": "c8b92e619775bbf176677cd062a048af429e14fa9d8f8e557419df12a70ceb55",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-07-31T23:14:37.402Z",
+      "contentHash": "0c4549c4d9dd4703e5146582853c530c9147a06c386ad471dc441d9dc8a1b128",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-07-31T23:15:41.601Z",
+  "origin": {
+    "kind": "adhoc"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Review surfaces now pre-populate fields with the prior decision on revision",
+    "highlights": [
+      "Gallery, form, and checklist surfaces show the reviewer's prior submission in the input fields when a review already has a decision",
+      "Revision happens in place: change one field, keep the rest, instead of re-entering from scratch",
+      "Checklist populates pass/comment when a previously-decided criterion is selected"
+    ],
+    "area": "review surfaces UI",
+    "user_action_required": false,
+    "links": {}
+  },
+  "worker_bundle_impact": {
+    "kind": "not_applicable",
+    "rationale": "Change confined to Gravy UI builder/controller (gradio_runtime.py). No ADV plugin worker, build worker, or bundle artifact touched.",
+    "confirmed_at": "2026-07-31T23:15:41.601Z"
+  },
+  "creation_request_hash": "831af18d222fe2b35bd2cb76758d97d742deacb6d9b463bc4a97885cd61c36eb",
+  "projection_revision": 23,
+  "projection_commits": [
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "612b279182c5e9a93f3cede9d27de633d2432934db67571ca5d8c9cbbee6aa9b:createArtifacts:proposal",
+      "operation_id": "612b279182c5e9a93f3cede9d27de633d2432934db67571ca5d8c9cbbee6aa9b:createArtifacts:proposal",
+      "payload_hash": "81a89845d69831e01b8292211cbc2750c4a00337688b81bff6a4420ed16759f3",
+      "state_revision": 1,
+      "prior_revision": 0,
+      "new_revision": 1,
+      "committed_at": "2026-07-31T22:59:16.383Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 1,
+      "new_revision": 2,
+      "committed_at": "2026-07-31T22:59:43.509Z"
+    },
+    {
+      "mutation_kind": "agreementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "3751fd0bc94b21800c23e7a79abd9c016f60aa0d74a6d3c4f352e3952ff8bc72:updateArtifacts:agreement",
+      "operation_id": "3751fd0bc94b21800c23e7a79abd9c016f60aa0d74a6d3c4f352e3952ff8bc72:updateArtifacts:agreement",
+      "payload_hash": "d91ccbe72d3a9fe47e3a00771681d4b544465682a1c4f226686437a6388e05b5",
+      "state_revision": 2,
+      "prior_revision": 2,
+      "new_revision": 3,
+      "committed_at": "2026-07-31T23:01:38.321Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 3,
+      "new_revision": 4,
+      "committed_at": "2026-07-31T23:01:45.442Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 4,
+      "new_revision": 5,
+      "committed_at": "2026-07-31T23:01:51.438Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "0463a22ef6d542699901c054402d5b4670b79366ae464fca4c6d0c0bfa5881ea:updateArtifacts:design",
+      "operation_id": "0463a22ef6d542699901c054402d5b4670b79366ae464fca4c6d0c0bfa5881ea:updateArtifacts:design",
+      "payload_hash": "d5fef226244e85244e487597803ca098b089e4361cd6663efe7d1bfadc24594b",
+      "state_revision": 3,
+      "prior_revision": 5,
+      "new_revision": 6,
+      "committed_at": "2026-07-31T23:02:08.770Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 6,
+      "new_revision": 7,
+      "committed_at": "2026-07-31T23:05:41.421Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 7,
+      "new_revision": 8,
+      "committed_at": "2026-07-31T23:05:41.662Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 8,
+      "new_revision": 9,
+      "committed_at": "2026-07-31T23:06:06.159Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 9,
+      "new_revision": 10,
+      "committed_at": "2026-07-31T23:06:19.322Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 10,
+      "new_revision": 11,
+      "committed_at": "2026-07-31T23:06:19.676Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 11,
+      "new_revision": 12,
+      "committed_at": "2026-07-31T23:06:20.173Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 12,
+      "new_revision": 13,
+      "committed_at": "2026-07-31T23:09:15.725Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 13,
+      "new_revision": 14,
+      "committed_at": "2026-07-31T23:09:35.780Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 14,
+      "new_revision": 15,
+      "committed_at": "2026-07-31T23:10:50.690Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 15,
+      "new_revision": 16,
+      "committed_at": "2026-07-31T23:11:09.628Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 16,
+      "new_revision": 17,
+      "committed_at": "2026-07-31T23:14:10.079Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 17,
+      "new_revision": 18,
+      "committed_at": "2026-07-31T23:14:15.955Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785539677241_0v0chp2d",
+      "prior_revision": 18,
+      "new_revision": 19,
+      "committed_at": "2026-07-31T23:14:37.546Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "c186fcb7d73ea7a4a3feb809756e90ce0d845904c58b2c3480cb31ea1a5d63ce:updateArtifacts:executiveSummary",
+      "operation_id": "c186fcb7d73ea7a4a3feb809756e90ce0d845904c58b2c3480cb31ea1a5d63ce:updateArtifacts:executiveSummary",
+      "payload_hash": "1af15c3e3b4329cbc3fc47ade0c279b39935aa59791257ff7a207865bcafc9d8",
+      "state_revision": 4,
+      "prior_revision": 19,
+      "new_revision": 20,
+      "committed_at": "2026-07-31T23:14:37.828Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-07-31T23:14:49.220Z"
+    },
+    {
+      "mutation_kind": "releaseNotesSet",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "5480b46a009f97971d658ea23e7e7e856e0c558af69f3f9d3766c984a92be375:releaseNotesSet",
+      "operation_id": "5480b46a009f97971d658ea23e7e7e856e0c558af69f3f9d3766c984a92be375:releaseNotesSet",
+      "payload_hash": "0d34313799c93cae65d59e89b8a7c7f8960a85de23b5c051a9d3b4005effbd5c",
+      "state_revision": 5,
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-07-31T23:15:41.962Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "reflectPriorDecisionRevision",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-07-31T23:15:44.010Z"
+    }
+  ],
+  "state_revision": 5
+}
