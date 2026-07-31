@@ -7,6 +7,7 @@ review page, so there is no separate serve operation.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Mapping
 from typing import Any
 
@@ -26,6 +27,16 @@ class GravyMcpBoundary:
     def tools(self) -> tuple[str, ...]:
         """The closed set of MCP tool names supported by Gravy."""
         return self._TOOL_NAMES
+
+    async def handle_async(self, name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:
+        """Async boundary that offloads blocking create/close work to a thread.
+
+        Catalog and update remain fast, synchronous calls so their behavior is
+        unchanged; create and close run outside FastMCP/Uvicorn's event loop.
+        """
+        if name in ("create", "close"):
+            return await asyncio.to_thread(self.handle, name, arguments)
+        return self.handle(name, arguments)
 
     def handle(self, name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:
         """Route one MCP tool call to the corresponding control-plane operation."""

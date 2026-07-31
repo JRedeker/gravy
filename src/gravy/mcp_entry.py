@@ -74,26 +74,26 @@ class GravyMcpServer:
         @self._mcp.tool()
         async def catalog() -> dict[str, Any]:
             """List supported review surfaces, schemas, and examples."""
-            return self._boundary.handle("catalog", {})
+            return await self._boundary.handle_async("catalog", {})
 
         @self._mcp.tool()
         async def create(surface: str, request: Mapping[str, Any]) -> dict[str, Any]:
             """Create a review page and return its lifecycle record."""
-            return self._boundary.handle(
+            return await self._boundary.handle_async(
                 "create", {"surface": surface, "request": request}
             )
 
         @self._mcp.tool()
         async def update(review_id: str, patch: Mapping[str, Any]) -> dict[str, Any]:
             """Update metadata for an active review."""
-            return self._boundary.handle(
+            return await self._boundary.handle_async(
                 "update", {"review_id": review_id, "patch": patch}
             )
 
         @self._mcp.tool()
         async def close(review_id: str) -> dict[str, Any]:
             """Close a review and release its resources."""
-            return self._boundary.handle("close", {"review_id": review_id})
+            return await self._boundary.handle_async("close", {"review_id": review_id})
 
         @self._mcp.custom_route("/ready", methods=["GET"])
         async def _ready(_request: Request) -> JSONResponse:
