@@ -18,8 +18,6 @@ class FormSurface(DecisionSurface):
         self._fields = frozenset(fields)
 
     def submit(self, values: Mapping[str, Any]) -> SurfaceProgress:
-        if self._surface_decisions():
-            raise SurfaceValidationError("form already has a submission")
         if set(values) != self._fields:
             raise SurfaceValidationError("form values must contain exactly the declared fields")
         copied_values = dict(values)
