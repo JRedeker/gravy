@@ -1,10 +1,13 @@
 import concurrent.futures
 import json
+import logging
 import multiprocessing
 import socket
 import threading
 import time
 from pathlib import Path
+
+import pytest
 
 from gravy.artifacts import ArtifactStore
 from gravy.gradio_runtime import GradioBlocksPage
@@ -105,19 +108,26 @@ def test_unavailable_tailnet_does_not_allocate_a_port_or_active_record(tmp_path:
     assert lifecycle.ports.reserved == frozenset()
 
 
-def test_exposure_failure_closes_the_started_page_and_releases_its_port(tmp_path: Path):
+def test_exposure_failure_closes_the_started_page_and_releases_its_port(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
     class FailingTailnet(FakeTailnet):
         def expose(self, review_id: str, port: int) -> str:
             raise OSError("serve failed")
 
     lifecycle, pages = adapter(tmp_path, FailingTailnet())
 
-    result = lifecycle.create(request())
+    with caplog.at_level(logging.WARNING, logger="gravy.registry"):
+        result = lifecycle.create(request())
 
     assert result.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
     assert pages[0].closed
     assert lifecycle.registry.active_records() == ()
     assert lifecycle.ports.reserved == frozenset()
+
+    messages = [r.message for r in caplog.records]
+    assert any("stage=create.expose" in m and "exc_class=OSError" in m for m in messages)
+    assert not any("serve failed" in m or "first.png" in m for m in messages)
 
 
 def test_recycle_marks_only_active_gravy_records_terminal_and_removes_their_mappings(tmp_path: Path):
@@ -219,7 +229,9 @@ def test_close_persistence_failure_leaves_external_resources_active(tmp_path: Pa
     assert lifecycle.ports.reserved == frozenset()
 
 
-def test_close_cleanup_failure_keeps_the_port_reserved(tmp_path: Path):
+def test_close_cleanup_failure_keeps_the_port_reserved(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
     """A failed teardown must not make a still-owned port reusable."""
 
     class CleanupFailingTailnet(FakeTailnet):
@@ -231,13 +243,20 @@ def test_close_cleanup_failure_keeps_the_port_reserved(tmp_path: Path):
     created = lifecycle.create(request()).record
     assert created is not None
 
-    closed = lifecycle.close(created.review_id)
+    with caplog.at_level(logging.WARNING, logger="gravy.lifecycle"):
+        closed = lifecycle.close(created.review_id)
 
     assert closed.record is not None
     assert closed.diagnostic is DiagnosticCode.EXPOSURE_FAILURE
     assert lifecycle.registry.get(created.review_id).state is ReviewState.TERMINAL
     assert pages[0].closed
     assert lifecycle.ports.reserved == frozenset({created.port})
+
+    messages = [r.message for r in caplog.records]
+    assert any(
+        "stage=tailnet.remove" in m and "exc_class=OSError" in m for m in messages
+    )
+    assert not any("cleanup refused" in m for m in messages)
 
 
 def _wait_for_server(host: str, port: int, timeout: float = 10.0) -> None:
@@ -427,7 +446,7 @@ def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifact
 
 
 def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_despite_cleanup_failure(
-    tmp_path: Path,
+    tmp_path: Path, caplog: pytest.LogCaptureFixture,
 ):
     """RED regression: even if Tailnet cleanup/reconciliation throws, every active
     review becomes terminal and a readable recovery artifact is preserved.
@@ -451,7 +470,8 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
         first.review_id, {"note": "pre-recycle"}
     )
 
-    recovered = lifecycle.recover_after_recycle()
+    with caplog.at_level(logging.WARNING, logger="gravy.lifecycle"):
+        recovered = lifecycle.recover_after_recycle()
 
     # Every active review is terminal, regardless of cleanup failures.
     assert lifecycle.registry.get(first.review_id).state is ReviewState.TERMINAL
@@ -470,7 +490,9 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
         assert recovery["review_id"] == record.review_id
         assert recovery["terminal_reason"] == "service_recycled"
         assert Path(recovery["artifact_path"]) == Path(record.artifact_path)
-        assert "cleanup_error" in recovery
+        assert recovery.get("cleanup_errors") == [
+            {"stage": "tailnet.remove", "exc_class": "OSError"}
+        ]
 
     # Pre-existing decisions are not deleted.
     assert decision_path.exists()
@@ -496,3 +518,13 @@ def test_recycle_terminalizes_active_reviews_and_preserves_recovery_artifact_des
         for result in recovered
     )
     assert all(page.closed for page in pages)
+
+    messages = [r.message for r in caplog.records]
+    assert any(
+        "stage=tailnet.remove" in m and "exc_class=OSError" in m for m in messages
+    )
+    assert any(
+        "stage=tailnet.reconcile_owned" in m and "exc_class=RuntimeError" in m
+        for m in messages
+    )
+    assert not any("cleanup refused" in m or "reconcile refused" in m for m in messages)

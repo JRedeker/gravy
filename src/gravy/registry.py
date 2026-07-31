@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import secrets
 import tempfile
@@ -15,6 +16,19 @@ from .artifacts import ArtifactStore
 from .models import DiagnosticCode, LifecycleResult, ReviewRecord, ReviewState
 from .ports import PortPool
 from .schemas import ReviewRequest
+
+
+_LOGGER = logging.getLogger("gravy.registry")
+
+
+def _log_exposure_failure(stage: str, exc: BaseException) -> None:
+    """Secret-safe observability: record only stable stage and exception class."""
+    _LOGGER.warning(
+        "lifecycle exposure failure at stage=%s exc_class=%s",
+        stage,
+        exc.__class__.__name__,
+        extra={"stage": stage, "exc_class": exc.__class__.__name__},
+    )
 
 
 class AtomicJsonStore:
@@ -111,7 +125,8 @@ class ReviewRegistry:
                         artifacts.discard_namespace(review_id)
                     return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
                 return LifecycleResult(record=record)
-            except Exception:
+            except Exception as exc:
+                _log_exposure_failure("create.expose", exc)
                 self._records.pop(review_id, None)
                 ports.release(port)
                 if namespace_created:
