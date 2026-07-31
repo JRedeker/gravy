@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import multiprocessing
 import socket
+import threading
 import time
 from pathlib import Path
 
@@ -143,6 +144,81 @@ def test_recycle_marks_only_active_gravy_records_terminal_and_removes_their_mapp
     assert 49999 not in tailnet.reconciled
 
 
+def test_close_and_recycle_serialize_tailnet_transitions(tmp_path: Path):
+    """Lifecycle transitions must not concurrently mutate Serve configuration."""
+
+    class BlockingTailnet(FakeTailnet):
+        def __init__(self) -> None:
+            super().__init__()
+            self.remove_started = threading.Event()
+            self.second_remove = threading.Event()
+            self.release_remove = threading.Event()
+            self._removing = False
+            self._transition_lock = threading.Lock()
+
+        def remove(self, review_id: str, port: int) -> None:
+            with self._transition_lock:
+                if self._removing:
+                    self.second_remove.set()
+                self._removing = True
+            self.remove_started.set()
+            self.release_remove.wait(timeout=1)
+            try:
+                super().remove(review_id, port)
+            finally:
+                with self._transition_lock:
+                    self._removing = False
+
+    tailnet = BlockingTailnet()
+    lifecycle, _pages = adapter(tmp_path, tailnet)
+    record = lifecycle.create(request()).record
+    assert record is not None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        close_future = executor.submit(lifecycle.close, record.review_id)
+        assert tailnet.remove_started.wait(timeout=1)
+        recycle_future = executor.submit(lifecycle.recover_after_recycle)
+        assert not tailnet.second_remove.wait(timeout=0.1)
+        tailnet.release_remove.set()
+        close_future.result(timeout=1)
+        recycle_future.result(timeout=1)
+
+    assert not tailnet.second_remove.is_set()
+
+
+def test_close_persistence_failure_leaves_external_resources_active(tmp_path: Path):
+    """Regression: close must persist terminal state before removing resources.
+
+    If registry persistence fails, the review must remain active and its Tailnet
+    mapping, page listener, and port reservation must survive so the operation
+    can be retried safely.
+    """
+    tailnet = FakeTailnet()
+    lifecycle, pages = adapter(tmp_path, tailnet)
+    created = lifecycle.create(request())
+    record = created.record
+    assert record is not None
+
+    lifecycle.registry._store.save = lambda _payload: (_ for _ in ()).throw(OSError("disk full"))
+
+    result = lifecycle.close(record.review_id)
+
+    assert result.diagnostic is DiagnosticCode.PERSISTENCE_FAILURE
+    assert lifecycle.registry.get(record.review_id).state is ReviewState.ACTIVE
+    assert tailnet.mappings == {record.review_id: record.port}
+    assert not pages[0].closed
+    assert lifecycle.ports.reserved == frozenset({record.port})
+
+    # A successful retry after persistence recovers can then clean everything.
+    lifecycle.registry._store.save = lambda payload: None
+    fixed = lifecycle.close(record.review_id)
+    assert fixed.record is not None
+    assert fixed.record.state is ReviewState.TERMINAL
+    assert pages[0].closed
+    assert tailnet.mappings == {}
+    assert lifecycle.ports.reserved == frozenset()
+
+
 def _wait_for_server(host: str, port: int, timeout: float = 10.0) -> None:
     deadline = time.monotonic() + timeout
     last_error: Exception | None = None
@@ -165,7 +241,7 @@ def _port_in_use(host: str, port: int) -> bool:
 def test_ten_concurrent_creates_use_distinct_ports_and_namespaces(tmp_path: Path):
     """Ten simultaneous creates yield distinct IDs, ports, URLs, and namespaces."""
     registry = ReviewRegistry(tmp_path / "registry.json")
-    ports = PortPool(41000, 41011)  # 12 ports, satisfies the >=10-port pool requirement
+    ports = PortPool(61000, 61011)  # 12 ports, outside the OS ephemeral range
     artifacts = ArtifactStore(tmp_path / "artifacts")
     pages: list[FakePage] = []
     tailnet = FakeTailnet()
@@ -214,7 +290,7 @@ def test_ten_concurrent_active_reviews_record_durable_decisions_via_controller(
     GradioBlocksPage controller without queue starvation.
     """
     registry = ReviewRegistry(tmp_path / "registry.json")
-    ports = PortPool(41000, 41011)  # 12 ports, satisfies >=10 concurrent reviews
+    ports = PortPool(61000, 61011)  # 12 ports, outside the OS ephemeral range
     artifacts = ArtifactStore(tmp_path / "artifacts")
     tailnet = FakeTailnet()
 
@@ -278,7 +354,7 @@ def test_ten_concurrent_active_reviews_record_durable_decisions_via_controller(
 def test_close_recycle_with_real_gradio_releases_listener_and_preserves_artifacts(tmp_path: Path):
     """Real Gradio teardown after close/recycle leaves no listener or subprocess."""
     registry = ReviewRegistry(tmp_path / "registry.json")
-    ports = PortPool(41000, 41002)
+    ports = PortPool(61000, 61002)  # outside the OS ephemeral range
     artifacts = ArtifactStore(tmp_path / "artifacts")
     tailnet = FakeTailnet()
 

@@ -134,7 +134,13 @@ class ReviewRegistry:
                 return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
             return LifecycleResult(record=updated)
 
-    def close(self, review_id: str, reason: str = "closed") -> LifecycleResult:
+    def close(
+        self,
+        review_id: str,
+        reason: str = "closed",
+        *,
+        release_port: bool = True,
+    ) -> LifecycleResult:
         with self._lock:
             record = self._records.get(review_id)
             if record is None:
@@ -148,6 +154,6 @@ class ReviewRegistry:
             except OSError:
                 self._records[review_id] = record
                 return LifecycleResult(diagnostic=DiagnosticCode.PERSISTENCE_FAILURE)
-            if self._ports is not None:
+            if self._ports is not None and release_port:
                 self._ports.release(record.port)
             return LifecycleResult(record=terminal)
