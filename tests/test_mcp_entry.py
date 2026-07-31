@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import json
 import os
+import runpy
 import socket
 import subprocess
 from collections.abc import AsyncIterator, Mapping
@@ -244,3 +245,18 @@ def test_main_default_external_port_is_6281(monkeypatch: pytest.MonkeyPatch) -> 
 
     assert captured_config is not None
     assert captured_config.external_port == 6281
+
+
+def test_main_guard_invokes_main_when_run_as_module(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Executing the module as __main__ calls main() without starting a real server."""
+    recorded: list[str] = []
+
+    def fake_asyncio_run(coro: Any) -> None:
+        recorded.append(coro.__qualname__)
+        coro.close()
+
+    monkeypatch.setattr(asyncio, "run", fake_asyncio_run)
+
+    runpy.run_module("gravy.mcp_entry", run_name="__main__")
+
+    assert recorded == ["GravyMcpServer.serve"]

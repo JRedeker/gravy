@@ -131,3 +131,7 @@ def main() -> None:
     control_plane = create_control_plane(config, state_dir)
     server = GravyMcpServer(config, control_plane)
     asyncio.run(server.serve())
+
+
+if __name__ == "__main__":
+    main()
