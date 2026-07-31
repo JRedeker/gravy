@@ -9,6 +9,7 @@ import os
 import runpy
 import socket
 import subprocess
+import threading
 from collections.abc import AsyncIterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -52,6 +53,54 @@ class FakeTailnet:
         return f"https://{review_id}.tailnet.test"
 
     def remove(self, review_id: str, port: int) -> None:
+        self.mappings.pop(review_id, None)
+
+    def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
+        return set()
+
+
+class ThreadCheckingFakePage:
+    """Fake page that asserts it never runs on the async event-loop thread."""
+
+    def __init__(self, loop_thread_id: int) -> None:
+        self.loop_thread_id = loop_thread_id
+        self.launched_port: int | None = None
+        self.closed = False
+
+    def launch(self, port: int) -> None:
+        assert threading.current_thread().ident != self.loop_thread_id, (
+            "launch must not run on the event-loop thread"
+        )
+        self.launched_port = port
+
+    def close(self) -> None:
+        assert threading.current_thread().ident != self.loop_thread_id, (
+            "close must not run on the event-loop thread"
+        )
+        self.closed = True
+
+
+class ThreadCheckingFakeTailnet:
+    """Fake tailnet that asserts Serve mutations never run on the event-loop thread."""
+
+    def __init__(self, loop_thread_id: int) -> None:
+        self.loop_thread_id = loop_thread_id
+        self.mappings: dict[str, int] = {}
+
+    def https_available(self) -> bool:
+        return True
+
+    def expose(self, review_id: str, port: int) -> str:
+        assert threading.current_thread().ident != self.loop_thread_id, (
+            "expose must not run on the event-loop thread"
+        )
+        self.mappings[review_id] = port
+        return f"https://{review_id}.tailnet.test"
+
+    def remove(self, review_id: str, port: int) -> None:
+        assert threading.current_thread().ident != self.loop_thread_id, (
+            "remove must not run on the event-loop thread"
+        )
         self.mappings.pop(review_id, None)
 
     def reconcile_owned(self, owned_ports: set[int]) -> set[int]:
@@ -245,6 +294,61 @@ def test_main_default_external_port_is_6281(monkeypatch: pytest.MonkeyPatch) -> 
 
     assert captured_config is not None
     assert captured_config.external_port == 6281
+
+
+async def test_create_and_close_offload_blocking_work_to_thread(
+    tmp_path: Path,
+) -> None:
+    """Blocking create/close handlers run off the async event loop and preserve results.
+
+    Regression for the managed endpoint behavior where real ``create`` returned
+    ``exposure_failure`` because Gradio launch and Tailscale Serve blocked
+    uvicorn's event loop.  The fakes here raise if they are invoked synchronously
+    from the loop thread, proving the tool handlers use a thread boundary.
+    """
+    loop_thread_id = threading.current_thread().ident
+
+    lifecycle = LifecycleAdapter(
+        ReviewRegistry(tmp_path / "registry.json"),
+        PortPool(41000, 41010),
+        ArtifactStore(tmp_path / "artifacts"),
+        ThreadCheckingFakeTailnet(loop_thread_id),
+        lambda _review_id, _request: ThreadCheckingFakePage(loop_thread_id),
+    )
+    plane = GravyControlPlane(lifecycle)
+    config = GravyRuntimeConfig(internal_port=_free_port(), external_port=6277)
+    server = GravyMcpServer(config, plane)
+
+    async with _running_server(server):
+        async with _mcp_session(server) as session:
+            created = _tool_text(
+                await session.call_tool(
+                    "create",
+                    {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+                )
+            )
+            assert created["ok"] is True
+            record = created["record"]
+            assert record["state"] == "active"
+            assert record["tailnet_url"].startswith("https://")
+
+            catalog = _tool_text(await session.call_tool("catalog", {}))
+            assert catalog["ok"] is True
+
+            updated = _tool_text(
+                await session.call_tool(
+                    "update",
+                    {"review_id": record["review_id"], "patch": {"phase": "reviewed"}},
+                )
+            )
+            assert updated["ok"] is True
+            assert updated["record"]["metadata"] == {"phase": "reviewed"}
+
+            closed = _tool_text(
+                await session.call_tool("close", {"review_id": record["review_id"]})
+            )
+            assert closed["ok"] is True
+            assert closed["record"]["state"] == "terminal"
 
 
 def test_main_guard_invokes_main_when_run_as_module(monkeypatch: pytest.MonkeyPatch) -> None:
