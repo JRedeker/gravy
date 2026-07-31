@@ -1,0 +1,20 @@
+{
+  "archived_at": "2026-07-31T21:33:30.802Z",
+  "capabilities": [],
+  "change_hash": "bd2e94e7eac7586ebd1d797f8d2149dd02de7582a75ec59ee37c6b047e4aa98a",
+  "change_id": "addGravyRuntimeWiring",
+  "completed_tasks": 3,
+  "created_at": "2026-07-31T02:29:55.790Z",
+  "current_gate": "release",
+  "fast_follow_of": {
+    "linked_at": "2026-07-31T02:29:55.592Z",
+    "parent_change_id": "addGravyReviewKit"
+  },
+  "last_activity_at": "2026-07-31T21:24:31.895Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "c6524b19173d4f2c1a78d6658bce4a234d4944069d61209c25a7a646ee98bd54",
+  "task_count": 3,
+  "title": "Add Gravy runtime wiring",
+  "version": "1"
+}
