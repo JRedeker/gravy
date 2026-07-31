@@ -21,7 +21,8 @@ from gravy.artifacts import ArtifactStore
 from gravy.config import ConfigurationError, GravyRuntimeConfig
 from gravy.control_plane import GravyControlPlane
 from gravy.lifecycle import LifecycleAdapter
-from gravy.mcp_entry import GravyMcpServer
+import gravy.mcp_entry
+from gravy.mcp_entry import GravyMcpServer, main
 from gravy.ports import PortPool
 from gravy.registry import ReviewRegistry
 
@@ -200,3 +201,46 @@ async def test_server_is_foreground_and_does_not_fork(tmp_path: Path, monkeypatc
 
     assert not fork_calls
     assert not popen_calls
+
+
+def test_main_default_external_port_is_6281(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured_config: GravyRuntimeConfig | None = None
+
+    class FakeControlPlane:
+        pass
+
+    def fake_create_control_plane(config: GravyRuntimeConfig, state_dir: Path) -> Any:
+        return FakeControlPlane()
+
+    class FakeServer:
+        def __init__(self, config: GravyRuntimeConfig, control_plane: Any) -> None:
+            nonlocal captured_config
+            captured_config = config
+
+        async def serve(self) -> None:
+            return None
+
+    def fake_asyncio_run(coro: Any) -> Any:
+        if hasattr(coro, "close"):
+            coro.close()
+        return None
+
+    monkeypatch.setattr(
+        gravy.mcp_entry, "create_control_plane", fake_create_control_plane
+    )
+    monkeypatch.setattr(gravy.mcp_entry, "GravyMcpServer", FakeServer)
+    monkeypatch.setattr(asyncio, "run", fake_asyncio_run)
+
+    for key in (
+        "GRAVY_INTERNAL_HOST",
+        "GRAVY_INTERNAL_PORT",
+        "GRAVY_EXTERNAL_PORT",
+        "GRAVY_PATH",
+        "GRAVY_STATE_DIR",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
+    main()
+
+    assert captured_config is not None
+    assert captured_config.external_port == 6281
