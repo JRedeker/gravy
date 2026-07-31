@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "change_id": "addPairwiseRevisionNavigation",
+  "title": "Add pairwise revision navigation",
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Pairwise review now supports revising past comparisons",
+    "highlights": [
+      "A reviewer can navigate back to any previously-decided pair via a pair-selector dropdown and revise their choice",
+      "The latest choice per pair is the effective one, consistent with gallery/form/checklist revision semantics",
+      "Forward flow through undecided pairs is preserved as the default experience",
+      "Append-only decision log retains the full revision history per pair"
+    ],
+    "area": "pairwise surface",
+    "user_action_required": false,
+    "links": {}
+  }
+}

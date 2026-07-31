@@ -1,0 +1,16 @@
+{
+  "archived_at": "2026-07-31T22:55:50.290Z",
+  "capabilities": [],
+  "change_hash": "e45cf6649c5cba54ba7bef3e9165264588783a52400cb069bb971b37cfc5e548",
+  "change_id": "addPairwiseRevisionNavigation",
+  "completed_tasks": 3,
+  "created_at": "2026-07-31T22:23:36.449Z",
+  "current_gate": "release",
+  "last_activity_at": "2026-07-31T22:54:12.783Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "76c3db38ef11e6c923fe882b881d84a738cd0dd26019c106ca7e70de3e1e3bb7",
+  "task_count": 3,
+  "title": "Add pairwise revision navigation",
+  "version": "1"
+}

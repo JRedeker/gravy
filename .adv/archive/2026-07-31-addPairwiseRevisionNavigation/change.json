@@ -1,0 +1,848 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "addPairwiseRevisionNavigation",
+  "title": "Add pairwise revision navigation",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-07-31T22:23:36.449Z",
+  "tasks": [
+    {
+      "id": "tk-6321b7836b43",
+      "title": "Implement pairwise revision navigation (TDD GREEN phase)",
+      "type": "code",
+      "section": "Implementation",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-07-31T22:40:29.414Z",
+      "started_at": "2026-07-31T22:42:34.190Z",
+      "completed_at": "2026-07-31T22:51:27.532Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "GREEN phase: implemented via adv-engineer. choose_pair (exact-match validation, no reversed order) on PairwiseSurface; pairwise_choose_pair on ReviewPageController; dropdown-driven _build_pairwise (dropdown as input+output, latest_per_key labels, reset to current_pair). 13 surface tests + 81 full suite pass. Verified independently by main agent. adv_run_test runId tr_ms9jccm8_ca77ee32.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "src/gravy/gradio_runtime.py",
+        "src/gravy/surfaces/pairwise.py",
+        "tests/test_gradio_runtime.py"
+      ],
+      "checkpointSha": "bac84642fe2b3db2bc7fa634b8103d9748e720d4",
+      "completedAt": "2026-07-31T22:51:27.532Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "implements": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6"
+        ],
+        "verifies": [
+          "AC6",
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "src/gravy/gradio_runtime.py",
+        "src/gravy/surfaces/pairwise.py",
+        "tests/test_gradio_runtime.py"
+      ]
+    },
+    {
+      "id": "tk-5be51dea90c4",
+      "title": "Write failing pairwise revision regression tests in tests/test_surfaces.py (TDD RED phase)",
+      "type": "code",
+      "section": "Testing",
+      "status": "done",
+      "priority": 1,
+      "created_at": "2026-07-31T22:40:30.051Z",
+      "started_at": "2026-07-31T22:41:26.952Z",
+      "completed_at": "2026-07-31T22:42:20.743Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "RED phase: 4 new pairwise revision tests written, all fail as expected (AttributeError: no choose_pair). 9 existing tests pass. Recorded via adv_run_test phase:red runId tr_ms9j2cgq_4568c51d.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "tests/test_surfaces.py"
+      ],
+      "checkpointSha": "13b2b0e57fe4a7e48556f2457a39056636471d35",
+      "completedAt": "2026-07-31T22:42:20.743Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC4",
+          "AC5",
+          "AC6",
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "tests/test_surfaces.py"
+      ]
+    },
+    {
+      "id": "tk-a3fd102c4c36",
+      "title": "Full suite verification",
+      "type": "verification",
+      "section": "Verification",
+      "status": "done",
+      "priority": 2,
+      "created_at": "2026-07-31T22:40:30.422Z",
+      "started_at": "2026-07-31T22:51:38.698Z",
+      "completed_at": "2026-07-31T22:52:57.644Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "Full suite verification: 81/81 pass via uv run --group test pytest (22s test, 30.5s wall). Covers surfaces (13), gradio_runtime wiring (8), lifecycle, registry, artifacts, mcp_boundary, mcp_entry, schemas, tailscale_serve. No regressions; pairwise revision + forward-flow coexist; append-only invariant held. adv_run_test phase:verify runId tr_ms9jfy0v_3c1a0bbf.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [],
+      "checkpointSha": "bac84642fe2b3db2bc7fa634b8103d9748e720d4",
+      "completedAt": "2026-07-31T22:52:57.644Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC7",
+          "SC1",
+          "SC2"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "separate_verification"
+      },
+      "touched_files": []
+    }
+  ],
+  "subagent_reports": [],
+  "test_runs": {
+    "tk-5be51dea90c4": [
+      {
+        "runId": "tr_ms9j202o_1fbcb33d",
+        "phase": "red",
+        "exitCode": 2,
+        "classification": "failed",
+        "command": "bin/oc-test targeted -- tests/test_surfaces.py -v 2>&1",
+        "durationMs": 1893.5151180028915,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T22:41:57.233Z"
+      },
+      {
+        "runId": "tr_ms9j2cgq_4568c51d",
+        "phase": "red",
+        "exitCode": 1,
+        "classification": "failed",
+        "command": "uv run --group test pytest tests/test_surfaces.py -v 2>&1",
+        "durationMs": 2045.5250689983368,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T22:42:13.295Z"
+      }
+    ],
+    "tk-6321b7836b43": [
+      {
+        "runId": "tr_ms9jbcew_e63dff65",
+        "exitCode": 143,
+        "classification": "timed_out",
+        "command": "uv run --group test pytest",
+        "durationMs": 30104.565068989992,
+        "recordedAt": "2026-07-31T22:49:13.252Z"
+      },
+      {
+        "runId": "tr_ms9jbjdj_5e6ff75a",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_surfaces.py -v",
+        "durationMs": 1431.209762006998,
+        "assertionDensity": 0,
+        "mockSurface": [],
+        "behaviorSurface": "medium",
+        "recordedAt": "2026-07-31T22:49:22.158Z"
+      },
+      {
+        "runId": "tr_ms9jccm8_ca77ee32",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest",
+        "durationMs": 30411.461380004883,
+        "recordedAt": "2026-07-31T22:50:00.075Z"
+      }
+    ],
+    "tk-a3fd102c4c36": [
+      {
+        "runId": "tr_ms9jf3wk_6a7f981d",
+        "phase": "verify",
+        "exitCode": 1,
+        "classification": "timed_out",
+        "command": "uv run --group test pytest 2>&1",
+        "durationMs": 30166.98534400761,
+        "recordedAt": "2026-07-31T22:52:08.739Z"
+      },
+      {
+        "runId": "tr_ms9jfy0v_3c1a0bbf",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest 2>&1",
+        "durationMs": 30476.348768994212,
+        "recordedAt": "2026-07-31T22:52:47.767Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:33:47.590Z",
+      "completed_by": "user",
+      "approval_evidence": "Problem statement confirmed; non-defect (new feature). Scope complete (In/Out/Must Not). B/F/S scan clean. Open design question: navigation UX shape (full selector vs back-button).",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "9c1bb4f48e7aa96678d4e9b95c3034fae914fe75d42528e107b2b1e9823d827f",
+        "non_whitespace_chars": 2918,
+        "checked_at": "2026-07-31T22:23:37.023Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:35:24.205Z",
+      "completed_by": "user",
+      "approval_evidence": "Agreement approved; contract minted (15 items). Surface revision-safety confirmed. Gradio pair-selector feasibility confirmed. Navigation UX recommendation: pair selector (option B). Design question carried forward.",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "non_whitespace_chars": 2607,
+        "checked_at": "2026-07-31T22:23:37.024Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:40:11.646Z",
+      "completed_by": "user",
+      "approval_evidence": "Design validated by adv-researcher (CONCERN → resolved). R1 fix: choose_pair exact-match validation (no reversed order). R2 fix: explicit Gradio wiring (dropdown as input + output). All source-accuracy claims pass. No contract compromise.",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "5eed1cb7cd67a4ccc999be7bde7c378148e33c7ccda0b969a5b6c4f7e0a77ac9",
+        "non_whitespace_chars": 6166,
+        "checked_at": "2026-07-31T22:23:37.025Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:41:10.056Z",
+      "completed_by": "user",
+      "approval_evidence": "Task graph approved: RED tests → GREEN impl → full suite verify. All ACs covered. Validator fixes baked in (R1 exact-match, R2 wiring). Worktree auto-managed."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:53:17.728Z",
+      "completed_by": "agent",
+      "approval_evidence": "All 3 tasks done. TDD red→green→verify. 13 surface tests pass; 81 full suite pass. Commits: 13b2b0e (RED), bac8464 (GREEN)."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-07-31T22:54:12.783Z",
+      "completed_by": "user",
+      "approval_evidence": "Review matrix persisted (15 rows, 0 failing). Executive summary persisted. All ACs/SCs/constraints/avoidances verified. User accepted delivered work inline.",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "546c60c862573cd14da8a3e87db049575076a06aeac77e02dc1faf6db3bdf089",
+        "non_whitespace_chars": 2077,
+        "checked_at": "2026-07-31T22:23:37.026Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "standard",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+      "approvedAt": "2026-07-31T22:36:00.000Z"
+    },
+    "items": [
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "**AC1 (Pair revision):** Re-deciding a previously-decided pair succeeds; the latest choice per pair is effective; `decisions.jsonl` preserves all rows.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "**AC2 (Navigation):** A reviewer can select any decided pair via a navigation affordance and the comparison view loads it for revision.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "**AC3 (Visibility):** The reviewer can see which pairs are decided and their current effective choice.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "**AC4 (Forward flow preserved):** Advancing through undecided pairs still works; completion counting is unchanged by revisions.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "**AC5 (Skip transition):** Revising a pair between \"skip\" and a real choice (or vice versa) updates the effective choice and completion correctly.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC6",
+        "kind": "acceptance_criterion",
+        "text": "**AC6 (Append-only invariant):** No row mutated/deleted in place; revision appends only.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC7",
+        "kind": "acceptance_criterion",
+        "text": "**AC7 (Regression tests):** Tests prove revision, navigation, skip-transition, and append-only audit preservation.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "A reviewer can revise any pairwise decision until the review closes without losing forward progress.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "SC2",
+        "kind": "success_criterion",
+        "text": "The durable decision log preserves the full revision history per pair.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "No changes to review lifecycle, MCP boundary, or Vision wiring.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "No new surfaces or product features beyond pairwise navigation.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C3",
+        "kind": "constraint",
+        "text": "Decision history remains append-only for audit; revision changes the effective/latest choice per pair only.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "DONT1",
+        "kind": "avoidance",
+        "text": "Do not mutate or delete existing decision-log rows in place.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT2",
+        "kind": "avoidance",
+        "text": "Do not change the pair combination order (`itertools.combinations` sequence is canonical).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT3",
+        "kind": "avoidance",
+        "text": "Do not disable forward navigation through undecided pairs.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-07-31T22:54:04.344Z",
+      "rows": [
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_pairwise_allows_pair_revision_and_latest_wins: choose_pair revises (a,b) left->right; latest_per_key returns choice=right; 2 rows in decisions.jsonl. runId tr_ms9jccm8_ca77ee32"
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "_build_pairwise dropdown pair-selector loads any pair into comparison view via .change(); choice buttons call choose_pair on active pair via controller.pairwise_choose_pair. Controller wiring test in test_gradio_runtime.py."
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "_build_choices labels each pair with effective choice via latest_per_key: 'a vs b - left' or 'a vs b - pending'. gradio_runtime.py"
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_pairwise_forward_flow_unchanged_after_revision: revise past pair; current_pair returns next undecided; complete False until all decided. runId tr_ms9jccm8_ca77ee32"
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_pairwise_skip_to_real_choice_revision: skip->left via choose_pair; effective=left; completion unchanged. runId tr_ms9jccm8_ca77ee32"
+        },
+        {
+          "contractId": "AC6",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "static_check",
+          "evidence": "Only _append/choose_pair append rows; ArtifactStore.append_decision opens mode 'a'. No mutate/delete path in diff."
+        },
+        {
+          "contractId": "AC7",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "4 new pairwise revision tests + controller wiring test; 13 surface + 81 full suite pass. runId tr_ms9jfy0v_3c1a0bbf"
+        },
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Pairwise now at parity with gallery/form/checklist revision semantics."
+        },
+        {
+          "contractId": "SC2",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Append-only log preserved; revision tests assert both rows present in decisions.jsonl."
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Diff confined to src/gravy/surfaces/pairwise.py + gradio_runtime.py + tests. No lifecycle/mcp_boundary/mcp_entry/Vision changes."
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Pair-selector dropdown is the in-scope navigation feature; no other new surfaces/features."
+        },
+        {
+          "contractId": "C3",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "_append path unchanged; decisions.jsonl schema unchanged; revision appends only."
+        },
+        {
+          "contractId": "DONT1",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No in-place mutation/deletion of decision rows in diff."
+        },
+        {
+          "contractId": "DONT2",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "combinations tuple unchanged; pair order preserved; choose_pair validates exact match against canonical tuples."
+        },
+        {
+          "contractId": "DONT3",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "Forward navigation preserved; dropdown defaults to current_pair; buttons reset to current_pair after choice."
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "**AC1 (Pair revision):** Re-deciding a previously-decided pair succeeds; the latest choice per pair is effective; `decisions.jsonl` preserves all rows.",
+    "**AC2 (Navigation):** A reviewer can select any decided pair via a navigation affordance and the comparison view loads it for revision.",
+    "**AC3 (Visibility):** The reviewer can see which pairs are decided and their current effective choice.",
+    "**AC4 (Forward flow preserved):** Advancing through undecided pairs still works; completion counting is unchanged by revisions.",
+    "**AC5 (Skip transition):** Revising a pair between \"skip\" and a real choice (or vice versa) updates the effective choice and completion correctly.",
+    "**AC6 (Append-only invariant):** No row mutated/deleted in place; revision appends only.",
+    "**AC7 (Regression tests):** Tests prove revision, navigation, skip-transition, and append-only audit preservation."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Add pairwise revision navigation\n\n## Why\n\nThe pairwise surface advances through item combinations via `current_pair` (the first undecided pair) and offers no way back. Once a reviewer chooses Left/Right/Tie/Skip on a pair, the surface moves to the next pair and the decided pair is skipped forever. A reviewer who misclicks, or who reconsiders an earlier comparison after seeing later pairs, has no recovery path.\n\nThis is inconsistent with the other three surfaces: after `allowSurfaceDecisionRevision`, gallery, form, and checklist all support revision (last-submission-wins). Pairwise is the lone holdout — the one intentionally-scoped-out defect from that change (documented in its design.md §D4).\n\n## User Outcomes\n- A reviewer can revisit and change a choice they made on an earlier pair in a pairwise review.\n- The reviewer's most recent choice on any pair is the one that counts.\n- The reviewer can see which pairs they have already decided and navigate among them.\n\n## What Changes\n- Pairwise surface semantics: allow re-deciding a previously-decided pair; the latest choice per pair is effective (consistent with the other surfaces' last-submission-wins).\n- Pairwise UI: add a navigation affordance so a reviewer can reach a decided pair to revise it (exact shape TBD in design — see Discovery Agenda).\n- The append-only decision log continues to preserve every choice; only the latest per pair is effective.\n\n## Scope\n\n### In Scope\n- Pairwise surface (`pairwise.py`): permit revising a decided pair; effective choice = latest row per (left, right) pair.\n- Pairwise Gradio builder (`gradio_runtime.py` `_build_pairwise`): add navigation so a reviewer can reach and revise a previously-decided pair.\n- Regression tests proving pairwise revision semantics + preserved audit history.\n\n### Out of Scope\n- Gallery, form, checklist surfaces (already support revision).\n- Review lifecycle, MCP boundary, Vision wiring.\n- New review surfaces or product features beyond pairwise navigation.\n- Multi-reviewer workflows.\n\n### Must Not\n- Mutate or delete existing decision-log rows (append-only invariant).\n- Change the pair combination order (`itertools.combinations` sequence is the canonical ordering).\n- Disable forward navigation through undecided pairs.\n\n## Constraints from Discussion\n- No changes to review lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces or product features beyond pairwise navigation.\n- Decision history remains append-only for audit; revision changes the effective/latest choice per pair only.\n\n## Boundaries\n- Fast-follow from `allowSurfaceDecisionRevision`, which scoped pairwise out (design.md §D4) pending a dedicated navigation change.\n- Confined to the pairwise surface module and its Gradio builder.\n\n## Discovery Agenda\n- **Navigation UX shape (design decision):** full pair selector (list/dropdown of all pairs with current choices) vs a simple \"previous pair\" back-button. Affects implementation complexity and Gradio component choice. Resolve in /adv-design.\n- **Gradio reactivity patterns:** how to render a selectable list of past pairs and re-render the comparison view on selection, within the existing Blocks builder structure. Consult Gradio docs (Context7) in /adv-discover.\n- **Skip → real choice transition:** if a reviewer revises a pair from \"skip\" to a real choice (or vice versa), confirm completion counting and effective-choice derivation remain correct.",
+    "agreement": "# Agreement: Add pairwise revision navigation\n\n## Objectives\n- Bring pairwise to parity with the other three surfaces' revision semantics (last-submission-wins).\n- Add the navigation visibility the advancing model currently lacks.\n\n## Acceptance Criteria\n- **AC1 (Pair revision):** Re-deciding a previously-decided pair succeeds; the latest choice per pair is effective; `decisions.jsonl` preserves all rows.\n- **AC2 (Navigation):** A reviewer can select any decided pair via a navigation affordance and the comparison view loads it for revision.\n- **AC3 (Visibility):** The reviewer can see which pairs are decided and their current effective choice.\n- **AC4 (Forward flow preserved):** Advancing through undecided pairs still works; completion counting is unchanged by revisions.\n- **AC5 (Skip transition):** Revising a pair between \"skip\" and a real choice (or vice versa) updates the effective choice and completion correctly.\n- **AC6 (Append-only invariant):** No row mutated/deleted in place; revision appends only.\n- **AC7 (Regression tests):** Tests prove revision, navigation, skip-transition, and append-only audit preservation.\n\n## Success Criteria\n- A reviewer can revise any pairwise decision until the review closes without losing forward progress.\n- The durable decision log preserves the full revision history per pair.\n\n## Constraints\n- No changes to review lifecycle, MCP boundary, or Vision wiring.\n- No new surfaces or product features beyond pairwise navigation.\n- Decision history remains append-only for audit; revision changes the effective/latest choice per pair only.\n\n## Avoidances\n- Do not mutate or delete existing decision-log rows in place.\n- Do not change the pair combination order (`itertools.combinations` sequence is canonical).\n- Do not disable forward navigation through undecided pairs.\n\n## Discovery Findings (carried into design)\n- Surface revision-safety confirmed: `current_pair`'s `decided` set uses set membership (dedupes), so forward flow and completion counting are unaffected by duplicate rows for a revised pair. The surface change is minimal: add a way to target a specific pair for revision (`choose_pair(left, right, choice)`), since `choose(choice)` only operates on `current_pair`.\n- Effective choice per pair derives from `latest_per_key(lambda r: (r[\"left\"], r[\"right\"]))`, added to `DecisionSurface` in `allowSurfaceDecisionRevision`.\n- Gradio feasibility confirmed: a pair-selector dropdown is implementable via `gr.Dropdown` with `.change()` event + `gr.update()`. The existing `_build_pairwise` builder already uses the return-value-updates-component pattern (`choose()` returns a string updating `pair_md`).\n\n## Open Design Question (for /adv-design)\n- **Navigation UX shape:** pair selector (dropdown showing all pairs with current effective choices) is recommended (meets all 3 User Outcomes including visibility). A back-button alone fails User Outcome #3 (\"see which pairs they've decided\"). Resolve formally in design, including exact Gradio component layout.",
+    "design": "# Design: Add pairwise revision navigation\n\n## Architecture\n\nTwo-part change: (1) a minimal surface API addition to target a specific pair for revision, and (2) a Gradio navigation affordance (pair-selector dropdown) so a reviewer can see and reach any decided pair. No new modules. Confined to `pairwise.py`, `gradio_runtime.py`, and tests.\n\n## LBP Decisions\n\n### D1: Surface API — add `choose_pair(left, right, choice)`, leave `choose(choice)` for forward flow\n`choose(choice)` continues to operate on `current_pair` (first undecided pair) — the existing forward-flow entry point is unchanged. A new `choose_pair(left, right, choice)` targets a specific pair for revision:\n- Validates `choice` is in `_choices`.\n- Validates `(left, right)` is a real pair **by exact match** against `self._pairs` (which holds canonical `combinations` tuples). Order-sensitive: `(left, right) in self._pairs`. No reversed-order acceptance — the canonical tuple is the single source of truth and all consumers (`current_pair`'s `decided` set, `latest_per_key`) key on canonical `(left, right)`. Accepting reversed order would append a non-canonical row that the `decided` set and `latest_per_key` treat as a different pair, silently breaking completion and effective-choice derivation.\n- Appends `{\"surface\", \"left\", \"right\", \"choice\"}`.\n- Returns `SurfaceProgress` computed from the (unchanged) completion logic.\n\nBoth methods append; latest per pair wins. `current_pair` and `complete` are unchanged — their `decided` set uses membership, which dedupes duplicate rows, so revisions don't disturb forward flow or completion counting.\n\n### D2: Navigation UX — pair-selector dropdown\nA `gr.Dropdown` lists every pair with its current effective choice, e.g. `\"a vs b — left\"` or `\"a vs b — pending\"`. Selecting a pair loads it into the comparison view (`pair_md`) and sets it as the active pair for the four choice buttons.\n\n- **Default selection:** `current_pair` (next undecided) — preserves forward flow as the default experience.\n- **Choice buttons operate on the active pair** via `choose_pair`, sourced from the dropdown's current value. The dropdown value is passed as an **input** to each button's `.click()`.\n- **After any choice:** the handler refreshes the dropdown labels (to reflect the new effective choice) AND resets the dropdown value to `current_pair`, returning to all three outputs `[pair_md, dropdown, status]`. This round-trip is what keeps forward progress continuous while allowing re-selection for further revision.\n\nThis meets all three User Outcomes: revise any pair (AC1), navigate to any decided pair (AC2), see decided pairs + their choices (AC3). A back-button alone cannot satisfy AC3.\n\n### D3: Skip ↔ real-choice transition\nNo special handling. Revising \"skip\" → \"left\" appends a new row; `latest_per_key` returns \"left\" as effective. The pair was already in the `decided` set (counted toward completion), so completion is unaffected. Revising \"left\" → \"skip\" works identically in reverse.\n\n### D4: Controller layer\nAdd `ReviewPageController.pairwise_choose_pair(left, right, choice)` mirroring the existing `pairwise_choose(choice)`. Returns `{\"complete\", \"remaining\", \"pair\"}`. The `_handle` wrapper catches `SurfaceValidationError` as before.\n\n## Implementation Strategy\n\n### `src/gravy/surfaces/pairwise.py`\n- Add `choose_pair(self, left, right, choice)`:\n  ```python\n  def choose_pair(self, left: str, right: str, choice: PairwiseChoice) -> SurfaceProgress:\n      if choice not in self._choices:\n          raise SurfaceValidationError(\"choice must be left, right, tie, or skip\")\n      pair = (left, right)\n      if pair not in self._pairs:\n          raise SurfaceValidationError(\"pair is not part of this review\")\n      self._append({\"surface\": self.surface, \"left\": left, \"right\": right, \"choice\": choice})\n      decided = {(row.get(\"left\"), row.get(\"right\")) for row in self._surface_decisions()}\n      remaining = sum(1 for c in self._pairs if c not in decided)\n      return SurfaceProgress(complete=remaining == 0, remaining=remaining)\n  ```\n  Exact-match validation (no reversed-order clause) — the canonical `combinations` tuple is the single source of truth.\n- Update the module docstring scope note: pairwise now SUPPORTS revision via `choose_pair`.\n- `choose`, `current_pair`, `complete` unchanged.\n\n### `src/gravy/gradio_runtime.py`\n- `ReviewPageController`: add `pairwise_choose_pair(self, left, right, choice)`.\n- `_build_pairwise`: replace the static layout with:\n  - A `gr.Dropdown` (pair selector) whose choices are built from all `_pairs` + effective choices via `latest_per_key(lambda r: (r[\"left\"], r[\"right\"]))`.\n  - `pair_md` showing the active comparison.\n  - The 4 choice buttons call `choose_pair` with the dropdown's current value as an **input**; the handler returns `(pair_md_text, dropdown_update, status)` to **all three outputs** — refreshing labels and resetting selection to `current_pair`.\n\n### `tests/test_surfaces.py`\n- ADD: `test_pairwise_allows_pair_revision_and_latest_wins` — decide (a,b) as left; revise (a,b) to right via `choose_pair`; assert 2 rows; assert `latest_per_key` returns right; assert forward flow still advances.\n- ADD: `test_pairwise_choose_pair_rejects_unknown_pair` — `choose_pair(\"x\",\"y\",\"left\")` raises; `choose_pair(\"b\",\"a\",\"left\")` (reversed order) also raises (regression for order-sensitivity).\n- ADD: `test_pairwise_skip_to_real_choice_revision` — decide (a,b) skip; revise to left; assert effective=left, completion unchanged.\n- ADD: `test_pairwise_forward_flow_unchanged_after_revision` — revise a past pair; confirm `current_pair` still returns the next undecided and `complete` is False until all decided.\n\n## Verification\n- TDD: write revision tests first (red — `choose_pair` doesn't exist), then implement (green).\n- `bin/oc-test targeted -- tests/test_surfaces.py` for iteration; `bin/oc-test smoke` full suite before planning.\n- The `gradio_runtime` test module covers controller wiring; add a wiring assertion that the dropdown is both input and output of the choice handler.\n\n## Risks / Follow-ups\n- Gradio dropdown re-render on every choice adds a round-trip; acceptable for single-reviewer local use.\n- The pairwise builder grows in complexity; a future refactor could extract a shared navigation-surface base, out of scope here.\n\n## Independent Validation\n`adv-researcher` design validation: **CONCERN → resolved**. Two fixes applied:\n- R1 (correctness): `choose_pair` validates `(left,right) in self._pairs` by exact match only — no reversed-order acceptance. Reversed order would write a non-canonical row that the `decided` set and `latest_per_key` treat as a distinct pair, silently breaking completion and effective-choice derivation. Regression test added for reversed-order rejection.\n- R2 (wiring clarity): choice buttons take the dropdown as input and the handler returns to `[pair_md, dropdown, status]` to refresh labels and reset to `current_pair`.\n\nAll source-accuracy claims PASS (current_pair/complete revision-safety, latest_per_key existence, append-only invariant, skip-transition, lifecycle/MCP non-reading of decisions). No contract-compromise risk with fixes applied.",
+    "executiveSummary": "# Executive Summary: Add pairwise revision navigation\n\n## Outcome\nThe pairwise surface now lets a reviewer revisit and revise any previously-decided pair — the last holdout after `allowSurfaceDecisionRevision` brought revision to gallery, form, and checklist. Previously, once a reviewer chose Left/Right/Tie/Skip on a pair, the surface advanced and offered no way back; a misclick or a reconsidered comparison was unrecoverable. A reviewer can now navigate to any decided pair, see their current effective choice, and change it.\n\n## Value / why it matters\nPairwise ranking is the surface most prone to second thoughts: a reviewer's judgment on pair (a,b) often shifts after seeing (a,c) and (b,c). Forbidding revision forced premature, frozen decisions. Pairwise is now at parity with the other three surfaces — last-submission-wins per pair, full append-only audit preserved — so the reviewer's final, considered ranking is what reaches the agent.\n\n## What changed\n- **Surface (`pairwise.py`):** added `choose_pair(left, right, choice)` for targeted revision (exact-match pair validation against the canonical combinations tuple). `choose`, `current_pair`, and `complete` are unchanged — their `decided` set dedupes, so revisions don't disturb forward flow or completion.\n- **Controller (`gradio_runtime.py`):** added `pairwise_choose_pair`; rebuilt `_build_pairwise` with a pair-selector dropdown showing every pair and its effective choice, defaulting to `current_pair`. Choice buttons operate on the active pair and reset to `current_pair` after each decision so forward progress stays the default.\n- **Tests:** 4 new regression tests (revision + latest-wins, reversed-order rejection, skip↔real transition, forward-flow preservation) plus a controller wiring test.\n\n## Verification\n- TDD: red (4 fail) → green (81 pass). 13 surface tests + 81 full suite pass.\n- Design independently validated by adv-researcher (CONCERN→resolved): exact-match pair validation fixes a correctness trap where reversed-order input would write non-canonical rows; explicit dropdown-as-input-and-output wiring.\n- Append-only invariant held; no row ever mutated or deleted.\n\n## Risks / follow-ups\n- Manual live UI smoke of the dropdown deferred to post-merge (runtime wiring tests cover the controller path).\n- The pairwise builder grew in complexity; a future refactor could extract a shared navigation-surface base, out of scope here.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-07-31T22:54:04.344Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| AC1 | acceptance_criterion | **AC1 (Pair revision):** Re-deciding a previously-decided pair succeeds; the latest choice per pair is effective; `decisions.jsonl` preserves all rows. | pass | test_pairwise_allows_pair_revision_and_latest_wins: choose_pair revises (a,b) left->right; latest_per_key returns choice=right; 2 rows in decisions.jsonl. runId tr_ms9jccm8_ca77ee32 |\n| AC2 | acceptance_criterion | **AC2 (Navigation):** A reviewer can select any decided pair via a navigation affordance and the comparison view loads it for revision. | pass | _build_pairwise dropdown pair-selector loads any pair into comparison view via .change(); choice buttons call choose_pair on active pair via controller.pairwise_choose_pair. Controller wiring test in test_gradio_runtime.py. |\n| AC3 | acceptance_criterion | **AC3 (Visibility):** The reviewer can see which pairs are decided and their current effective choice. | pass | _build_choices labels each pair with effective choice via latest_per_key: 'a vs b - left' or 'a vs b - pending'. gradio_runtime.py |\n| AC4 | acceptance_criterion | **AC4 (Forward flow preserved):** Advancing through undecided pairs still works; completion counting is unchanged by revisions. | pass | test_pairwise_forward_flow_unchanged_after_revision: revise past pair; current_pair returns next undecided; complete False until all decided. runId tr_ms9jccm8_ca77ee32 |\n| AC5 | acceptance_criterion | **AC5 (Skip transition):** Revising a pair between \"skip\" and a real choice (or vice versa) updates the effective choice and completion correctly. | pass | test_pairwise_skip_to_real_choice_revision: skip->left via choose_pair; effective=left; completion unchanged. runId tr_ms9jccm8_ca77ee32 |\n| AC6 | acceptance_criterion | **AC6 (Append-only invariant):** No row mutated/deleted in place; revision appends only. | pass | Only _append/choose_pair append rows; ArtifactStore.append_decision opens mode 'a'. No mutate/delete path in diff. |\n| AC7 | acceptance_criterion | **AC7 (Regression tests):** Tests prove revision, navigation, skip-transition, and append-only audit preservation. | pass | 4 new pairwise revision tests + controller wiring test; 13 surface + 81 full suite pass. runId tr_ms9jfy0v_3c1a0bbf |\n| SC1 | success_criterion | A reviewer can revise any pairwise decision until the review closes without losing forward progress. | pass | Pairwise now at parity with gallery/form/checklist revision semantics. |\n| SC2 | success_criterion | The durable decision log preserves the full revision history per pair. | pass | Append-only log preserved; revision tests assert both rows present in decisions.jsonl. |\n| C1 | constraint | No changes to review lifecycle, MCP boundary, or Vision wiring. | respected | Diff confined to src/gravy/surfaces/pairwise.py + gradio_runtime.py + tests. No lifecycle/mcp_boundary/mcp_entry/Vision changes. |\n| C2 | constraint | No new surfaces or product features beyond pairwise navigation. | respected | Pair-selector dropdown is the in-scope navigation feature; no other new surfaces/features. |\n| C3 | constraint | Decision history remains append-only for audit; revision changes the effective/latest choice per pair only. | respected | _append path unchanged; decisions.jsonl schema unchanged; revision appends only. |\n| DONT1 | avoidance | Do not mutate or delete existing decision-log rows in place. | respected | No in-place mutation/deletion of decision rows in diff. |\n| DONT2 | avoidance | Do not change the pair combination order (`itertools.combinations` sequence is canonical). | respected | combinations tuple unchanged; pair order preserved; choose_pair validates exact match against canonical tuples. |\n| DONT3 | avoidance | Do not disable forward navigation through undecided pairs. | respected | Forward navigation preserved; dropdown defaults to current_pair; buttons reset to current_pair after choice. |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-07-31T22:23:37.093Z",
+      "contentHash": "9c1bb4f48e7aa96678d4e9b95c3034fae914fe75d42528e107b2b1e9823d827f",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-07-31T22:35:07.612Z",
+      "contentHash": "8c3cb61f33283dd46e2afada470574f0651a741d2d372eb6aabc14e5856604a0",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-07-31T22:40:03.293Z",
+      "contentHash": "5eed1cb7cd67a4ccc999be7bde7c378148e33c7ccda0b969a5b6c4f7e0a77ac9",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-07-31T22:54:04.389Z",
+      "contentHash": "546c60c862573cd14da8a3e87db049575076a06aeac77e02dc1faf6db3bdf089",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-07-31T22:55:26.780Z",
+  "origin": {
+    "kind": "adhoc"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Pairwise review now supports revising past comparisons",
+    "highlights": [
+      "A reviewer can navigate back to any previously-decided pair via a pair-selector dropdown and revise their choice",
+      "The latest choice per pair is the effective one, consistent with gallery/form/checklist revision semantics",
+      "Forward flow through undecided pairs is preserved as the default experience",
+      "Append-only decision log retains the full revision history per pair"
+    ],
+    "area": "pairwise surface",
+    "user_action_required": false,
+    "links": {}
+  },
+  "worker_bundle_impact": {
+    "kind": "not_applicable",
+    "rationale": "Change is confined to Gravy Python surface/controller/UI modules (pairwise.py, gradio_runtime.py) and tests. No ADV plugin worker, build worker, or bundle artifact touched.",
+    "confirmed_at": "2026-07-31T22:55:26.780Z"
+  },
+  "creation_request_hash": "a9bc0734a6c3e654f9921e4b9b299b7057da9765a732b5d55447c07b208c7670",
+  "projection_revision": 25,
+  "projection_commits": [
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "2a0389f92544f849f4b1c7e067c088452eb3755a1a6761459fad0ff2e08bebd1:createArtifacts:proposal",
+      "operation_id": "2a0389f92544f849f4b1c7e067c088452eb3755a1a6761459fad0ff2e08bebd1:createArtifacts:proposal",
+      "payload_hash": "1ff23a26b1ab4656f76d9d5e63e8d97db9093dab66d4febc6318e0bd5a4a923f",
+      "state_revision": 1,
+      "prior_revision": 0,
+      "new_revision": 1,
+      "committed_at": "2026-07-31T22:23:38.405Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 1,
+      "new_revision": 2,
+      "committed_at": "2026-07-31T22:33:48.020Z"
+    },
+    {
+      "mutation_kind": "agreementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "e2da551dc6d3a499979074f3ca647e80ce02598641f8dacbc6548ce0ddce3b70:updateArtifacts:agreement",
+      "operation_id": "e2da551dc6d3a499979074f3ca647e80ce02598641f8dacbc6548ce0ddce3b70:updateArtifacts:agreement",
+      "payload_hash": "f3b99d2a9e4a24fce964af434948b2ced71076ddff6b737400f71a694d8230cb",
+      "state_revision": 2,
+      "prior_revision": 2,
+      "new_revision": 3,
+      "committed_at": "2026-07-31T22:35:08.140Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 3,
+      "new_revision": 4,
+      "committed_at": "2026-07-31T22:35:16.149Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 4,
+      "new_revision": 5,
+      "committed_at": "2026-07-31T22:35:24.484Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "473208dca5e1f76c61db5c08205485e68cf4c66d4ae569a47678c193f94d37df:updateArtifacts:design",
+      "operation_id": "473208dca5e1f76c61db5c08205485e68cf4c66d4ae569a47678c193f94d37df:updateArtifacts:design",
+      "payload_hash": "cbcf690a39735ebc0e1e9b1a14b337aa73c8fcaa4857832cd9391105c48ac834",
+      "state_revision": 3,
+      "prior_revision": 5,
+      "new_revision": 6,
+      "committed_at": "2026-07-31T22:35:57.796Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "d90aec6a107058e80db0c028e07e49eccc0d2f7de6ce161fed26291b65636e07:updateArtifacts:design",
+      "operation_id": "d90aec6a107058e80db0c028e07e49eccc0d2f7de6ce161fed26291b65636e07:updateArtifacts:design",
+      "payload_hash": "75246724d45087c107f06f2618ba278498d10af3766905530d2f89236c7a18c3",
+      "state_revision": 4,
+      "prior_revision": 6,
+      "new_revision": 7,
+      "committed_at": "2026-07-31T22:40:03.799Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 7,
+      "new_revision": 8,
+      "committed_at": "2026-07-31T22:40:11.960Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 8,
+      "new_revision": 9,
+      "committed_at": "2026-07-31T22:40:29.211Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 9,
+      "new_revision": 10,
+      "committed_at": "2026-07-31T22:40:29.856Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 10,
+      "new_revision": 11,
+      "committed_at": "2026-07-31T22:40:30.600Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 11,
+      "new_revision": 12,
+      "committed_at": "2026-07-31T22:40:32.191Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 12,
+      "new_revision": 13,
+      "committed_at": "2026-07-31T22:41:10.364Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 13,
+      "new_revision": 14,
+      "committed_at": "2026-07-31T22:41:27.321Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 14,
+      "new_revision": 15,
+      "committed_at": "2026-07-31T22:42:21.125Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 15,
+      "new_revision": 16,
+      "committed_at": "2026-07-31T22:42:34.665Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 16,
+      "new_revision": 17,
+      "committed_at": "2026-07-31T22:51:27.874Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 17,
+      "new_revision": 18,
+      "committed_at": "2026-07-31T22:51:39.173Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 18,
+      "new_revision": 19,
+      "committed_at": "2026-07-31T22:52:57.998Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 19,
+      "new_revision": 20,
+      "committed_at": "2026-07-31T22:53:18.195Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785538444382_hyi2wq9o",
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-07-31T22:54:04.786Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "1b92a17e418f0626e7ce45a83bacb527929dd1beeec9792cd988ad7a0622f22e:updateArtifacts:executiveSummary",
+      "operation_id": "1b92a17e418f0626e7ce45a83bacb527929dd1beeec9792cd988ad7a0622f22e:updateArtifacts:executiveSummary",
+      "payload_hash": "3d8a861323ac999fe62329bc163fc1b0060e8d32002fa7c6ac0a1cd42eec6f7f",
+      "state_revision": 5,
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-07-31T22:54:06.591Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-07-31T22:54:13.102Z"
+    },
+    {
+      "mutation_kind": "releaseNotesSet",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "6923446f2266d54478d50c8d8f78697cf37ad656321ae5cef67a541d5c0dd7aa:releaseNotesSet",
+      "operation_id": "6923446f2266d54478d50c8d8f78697cf37ad656321ae5cef67a541d5c0dd7aa:releaseNotesSet",
+      "payload_hash": "9d0eea8eae05bf6ec751da74aad25f9dc7750e56b382fbca33c772a2f4036af8",
+      "state_revision": 6,
+      "prior_revision": 23,
+      "new_revision": 24,
+      "committed_at": "2026-07-31T22:55:27.059Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addPairwiseRevisionNavigation",
+      "prior_revision": 24,
+      "new_revision": 25,
+      "committed_at": "2026-07-31T22:55:29.037Z"
+    }
+  ],
+  "state_revision": 6
+}
