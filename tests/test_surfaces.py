@@ -1,8 +1,11 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from gravy.artifacts import ArtifactStore
 from gravy.surfaces.checklist import ChecklistSurface
+from gravy.surfaces.common import SurfaceValidationError
 from gravy.surfaces.form import FormSurface
 from gravy.surfaces.gallery import GallerySurface
 from gravy.surfaces.pairwise import PairwiseSurface
@@ -153,3 +156,56 @@ def test_latest_per_key_dedupes_to_last(tmp_path: Path):
             "surface": "checklist",
         }
     }
+
+
+def test_pairwise_allows_pair_revision_and_latest_wins(tmp_path: Path):
+    surface = PairwiseSurface("review-one", ("a", "b", "c"), store(tmp_path))
+
+    surface.choose("left")  # decides (a, b)
+    surface.choose_pair("a", "b", "right")  # revise (a, b)
+
+    rows = [r for r in decisions(tmp_path) if r["surface"] == "pairwise"]
+    ab_rows = [r for r in rows if (r["left"], r["right"]) == ("a", "b")]
+    assert len(ab_rows) == 2
+    effective = surface.latest_per_key(lambda r: (r["left"], r["right"]))
+    assert effective[("a", "b")]["choice"] == "right"
+    # Forward flow advances past the revised pair to the next undecided.
+    assert surface.current_pair == ("a", "c")
+
+
+def test_pairwise_choose_pair_rejects_unknown_and_reversed_order(tmp_path: Path):
+    surface = PairwiseSurface("review-one", ("a", "b"), store(tmp_path))
+
+    with pytest.raises(SurfaceValidationError):
+        surface.choose_pair("x", "y", "left")
+    # Reversed order must be rejected — canonical combinations tuple is the source of truth.
+    with pytest.raises(SurfaceValidationError):
+        surface.choose_pair("b", "a", "left")
+    with pytest.raises(SurfaceValidationError):
+        surface.choose_pair("a", "b", "maybe")
+
+
+def test_pairwise_skip_to_real_choice_revision(tmp_path: Path):
+    surface = PairwiseSurface("review-one", ("a", "b"), store(tmp_path))
+
+    surface.choose("skip")  # decides (a, b) as skip
+    assert surface.complete  # only one pair, so complete
+    surface.choose_pair("a", "b", "left")  # revise skip -> left
+
+    effective = surface.latest_per_key(lambda r: (r["left"], r["right"]))
+    assert effective[("a", "b")]["choice"] == "left"
+    assert surface.complete  # completion unaffected by the revision
+
+
+def test_pairwise_forward_flow_unchanged_after_revision(tmp_path: Path):
+    surface = PairwiseSurface("review-one", ("a", "b", "c"), store(tmp_path))
+
+    surface.choose("left")  # (a, b)
+    surface.choose("tie")  # (a, c)
+    # Revise the first pair while one pair remains undecided.
+    surface.choose_pair("a", "b", "right")
+
+    assert surface.current_pair == ("b", "c")  # forward flow intact
+    assert not surface.complete
+    surface.choose("skip")
+    assert surface.complete
