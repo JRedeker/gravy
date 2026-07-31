@@ -12,7 +12,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from .control_plane import GravyControlPlane
-from .models import LifecycleResult
+from .models import DiagnosticCode, LifecycleResult
 
 
 class GravyMcpBoundary:
@@ -62,6 +62,13 @@ class GravyMcpBoundary:
 
 
 def _serialize(result: LifecycleResult) -> dict[str, Any]:
-    if result.record is not None:
+    if result.ok:
+        assert result.record is not None
         return {"ok": True, "record": result.record.to_dict()}
-    return {"ok": False, "diagnostic": str(result.diagnostic)}
+    response: dict[str, Any] = {"ok": False, "diagnostic": str(result.diagnostic)}
+    if result.diagnostic is DiagnosticCode.EXPOSURE_FAILURE:
+        if result.failure_stage is not None:
+            response["failure_stage"] = result.failure_stage
+        if result.exception_class is not None:
+            response["exception_class"] = result.exception_class
+    return response
