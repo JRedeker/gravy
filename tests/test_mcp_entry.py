@@ -214,7 +214,7 @@ async def test_server_round_trips_catalog_create_close(tmp_path: Path) -> None:
             created = _tool_text(
                 await session.call_tool(
                     "create",
-                    {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+                    {"request": {"surface": "gallery", "items": ["a.png"]}},
                 )
             )
             assert created["ok"] is True
@@ -325,7 +325,7 @@ async def test_create_and_close_run_on_event_loop_thread(
             created = _tool_text(
                 await session.call_tool(
                     "create",
-                    {"surface": "gallery", "request": {"surface": "gallery", "items": ["a.png"]}},
+                    {"request": {"surface": "gallery", "items": ["a.png"]}},
                 )
             )
             assert created["ok"] is True

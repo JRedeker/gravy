@@ -79,10 +79,15 @@ class GravyMcpServer:
             return await self._boundary.handle_async("catalog", {})
 
         @self._mcp.tool()
-        async def create(surface: str, request: Mapping[str, Any]) -> dict[str, Any]:
-            """Create a review page and return its lifecycle record."""
+        async def create(request: Mapping[str, Any]) -> dict[str, Any]:
+            """Create a review page and return its lifecycle record.
+
+            The request must include a ``surface`` key (e.g. ``gallery``,
+            ``queue``) that selects the review template, plus the template's
+            required fields.
+            """
             return await self._boundary.handle_async(
-                "create", {"surface": surface, "request": request}
+                "create", {"surface": request.get("surface", ""), "request": request}
             )
 
         @self._mcp.tool()
