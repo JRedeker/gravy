@@ -87,3 +87,18 @@ def test_startup_recovery_terminalizes_active_records_with_artifact_pointer(tmp_
     assert record.state is ReviewState.TERMINAL
     assert record.terminal_reason == "service_recycled"
     assert record.artifact_path.endswith(created.record.review_id)
+
+
+def test_control_plane_create_from_source(tmp_path: Path):
+    service = plane(tmp_path)
+    f = tmp_path / "batch.csv"
+    f.write_text("card-001\ncard-002\n")
+
+    created = service.create(
+        "queue",
+        {"surface": "queue", "source": str(f), "options": ["accept", "reject"]},
+    )
+
+    assert created.record is not None
+    assert created.record.state is ReviewState.ACTIVE
+    assert created.diagnostic is None

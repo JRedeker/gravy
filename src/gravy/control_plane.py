@@ -14,6 +14,7 @@ from .catalog import catalog
 from .lifecycle import LifecycleAdapter
 from .models import DiagnosticCode, LifecycleResult
 from .schemas import RequestValidationError, validate_request
+from .sources import resolve_source
 
 
 class GravyControlPlane:
@@ -26,9 +27,10 @@ class GravyControlPlane:
         return catalog()
 
     def create(self, surface: str, request: Mapping[str, Any]) -> LifecycleResult:
-        """Validate the closed discriminator before lifecycle allocation starts."""
+        """Resolve an optional file source and validate the closed discriminator."""
         try:
-            parsed = validate_request(request)
+            resolved = resolve_source(request)
+            parsed = validate_request(resolved)
         except RequestValidationError:
             return LifecycleResult(diagnostic=DiagnosticCode.INVALID_REQUEST)
         if surface != parsed.surface:
