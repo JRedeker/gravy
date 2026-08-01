@@ -1,0 +1,16 @@
+{
+  "archived_at": "2026-08-01T19:18:04.291Z",
+  "capabilities": [],
+  "change_hash": "929ee3593873c793d631a963faf7b7cde9a88bc071931396c7dfe80eb192878d",
+  "change_id": "addFileSourceBatchLoading",
+  "completed_tasks": 2,
+  "created_at": "2026-08-01T18:52:54.695Z",
+  "current_gate": "release",
+  "last_activity_at": "2026-08-01T19:17:20.212Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "c44a8690203d0440f31aea0dc4f5ff9c78189225f8eb22d25ec9b5486f12e178",
+  "task_count": 2,
+  "title": "Add file-source batch loading",
+  "version": "1"
+}

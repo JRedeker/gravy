@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "change_id": "addFileSourceBatchLoading",
+  "title": "Add file-source batch loading",
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Create reviews from CSV/JSON/JSONL files for large batches",
+    "highlights": [
+      "Agents can pass a local file path (source) instead of inline items — one MCP call regardless of batch size",
+      "Supports CSV (first-column-per-row), JSON (array of strings), JSONL (one string per line)",
+      "Works for all list-based surfaces: gallery, pairwise, queue, checklist, form",
+      "Backward compatible — inline items still work when source is absent",
+      "Local files only (no URL fetch); all errors return typed INVALID_REQUEST"
+    ],
+    "area": "review input",
+    "user_action_required": false,
+    "links": {}
+  }
+}

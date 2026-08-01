@@ -1,0 +1,1184 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "addFileSourceBatchLoading",
+  "title": "Add file-source batch loading",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-08-01T18:52:54.695Z",
+  "tasks": [
+    {
+      "id": "tk-7ba1ba82b179",
+      "title": "Implement sources.py + control_plane integration (TDD GREEN)",
+      "type": "code",
+      "section": "Implementation",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-08-01T19:01:12.817Z",
+      "completed_at": "2026-08-01T19:16:21.489Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "GREEN phase: 18/18 targeted tests pass (14 source + 4 control plane). Engineer confirmed 109 full suite. resolve_source implemented with CSV/JSON/JSONL loading, URL rejection, type guard, mutual exclusion, all errors → RequestValidationError. adv_run_test phase:verify runId tr_msar4peh_0032b492.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [],
+      "checkpointSha": "7e22da1e4dfd9d1f720c5a864be0db8450fdf609",
+      "completedAt": "2026-08-01T19:16:21.489Z",
+      "contract_refs": {
+        "implements": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6",
+          "AC7"
+        ],
+        "verifies": [
+          "AC8"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [],
+      "subagent_reports": [
+        {
+          "schema_version": "1.0",
+          "change_id": "addFileSourceBatchLoading",
+          "attempt": 1,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addFileSourceBatchLoading",
+          "task_id": "tk-7ba1ba82b179",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-7ba1ba82b179"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "tests/test_sources.py",
+            "src/gravy/sources.py",
+            "src/gravy/control_plane.py",
+            "tests/test_control_plane.py"
+          ],
+          "verification": [
+            {
+              "run_id": "tr_msaqy8xq_0e5330e5",
+              "command": "uv run --group test pytest tests/test_sources.py tests/test_control_plane.py -v",
+              "exit_code": 0,
+              "summary": "GREEN iteration: 18 passed (14 source + 4 control plane)"
+            },
+            {
+              "run_id": "tr_msar0kz6_a4c7151c",
+              "command": "uv run --group test pytest",
+              "exit_code": 0,
+              "summary": "Full suite: 109 passed in ~76s"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Added resolve_source() in a new sources.py module",
+              "why": "Keeps file I/O separate from the pure schema validator and makes error handling testable in isolation"
+            },
+            {
+              "what": "Called resolve_source in control_plane.create before validate_request",
+              "why": "Downstream validation and lifecycle continue to see a normal inline request; no surface/schema/builder changes needed"
+            },
+            {
+              "what": "Rejected URLs by prefix and required non-empty local path",
+              "why": "Agreement constraint: local files only; explicit guard is static-checkable and produces clear INVALID_REQUEST diagnostics"
+            },
+            {
+              "what": "Mapped source to surface-appropriate field (items/criteria/fields)",
+              "why": "Matches AC7 and avoids ambiguity across gallery/pairwise/queue/checklist/form"
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "none",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "File-source batch loading implemented and verified. New sources.py resolves CSV/JSON/JSONL into surface-appropriate fields; control_plane.create calls resolve_source before validate_request. RED phase produced expected ImportError before sources.py existed; GREEN iteration and full suite pass.",
+            "suggested_next_action": "Mark tasks tk-b8cdcf488658 (RED) and tk-7ba1ba82b179 (GREEN) done and proceed to acceptance"
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_msaqy8xq_0e5330e5"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: tr_msar0kz6_a4c7151c"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tk-b8cdcf488658",
+      "title": "Write failing source-resolution tests in tests/test_sources.py (TDD RED)",
+      "type": "code",
+      "section": "Testing",
+      "status": "done",
+      "priority": 1,
+      "created_at": "2026-08-01T19:01:14.122Z",
+      "started_at": "2026-08-01T19:02:32.758Z",
+      "completed_at": "2026-08-01T19:16:04.239Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "RED phase: 14 source-resolution tests + 1 control-plane test written. All fail (ModuleNotFoundError: gravy.sources). Recorded via adv-engineer local pytest.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "src/gravy/control_plane.py",
+        "src/gravy/sources.py",
+        "tests/test_control_plane.py",
+        "tests/test_sources.py"
+      ],
+      "checkpointSha": "7e22da1e4dfd9d1f720c5a864be0db8450fdf609",
+      "completedAt": "2026-08-01T19:16:04.239Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6",
+          "AC8"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "src/gravy/control_plane.py",
+        "src/gravy/sources.py",
+        "tests/test_control_plane.py",
+        "tests/test_sources.py"
+      ]
+    }
+  ],
+  "subagent_reports": [
+    {
+      "schema_version": "1.0",
+      "change_id": "addFileSourceBatchLoading",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:design-validation"
+      },
+      "agent": "adv-researcher",
+      "topic": "Independent design validation: sources.py / resolve_source before validate_request (addFileSourceBatchLoading)",
+      "sources": [
+        {
+          "label": "control_plane.py create()",
+          "locator": "src/gravy/control_plane.py:28-36",
+          "summary": "create() catches ONLY RequestValidationError (L30-33) -> INVALID_REQUEST; then surface != parsed.surface check. No broader catch. resolve_source must run inside this try."
+        },
+        {
+          "label": "schemas.py _require_exact_keys",
+          "locator": "src/gravy/schemas.py:78-80",
+          "summary": "Strict set equality: set(request) must equal {'surface', *keys}. Any extra key (e.g. leftover 'source') is rejected - resolution MUST precede validation."
+        },
+        {
+          "label": "schemas.py RequestValidationError",
+          "locator": "src/gravy/schemas.py:12-13",
+          "summary": "class RequestValidationError(ValueError) - sibling of json.JSONDecodeError, NOT a parent."
+        },
+        {
+          "label": "schemas.py queue branch",
+          "locator": "src/gravy/schemas.py:159-165",
+          "summary": "queue requires exactly {surface, items, options}; options len>=2."
+        },
+        {
+          "label": "mcp_boundary.py create dispatch",
+          "locator": "src/gravy/mcp_boundary.py:44-47",
+          "summary": "arguments['request'] dict passed whole as control_plane.create(surface, request). 'source' inside request flows through unchanged. No try/except wraps the create call (L40-60)."
+        },
+        {
+          "label": "design artifact sources.py code",
+          "locator": "design.md (sources.py block)",
+          "summary": "_load_json: json.loads(path.read_text()); _load_jsonl: json.loads(line) - both without try/except. Malformed content raises json.JSONDecodeError, not RequestValidationError."
+        },
+        {
+          "label": "Python json docs",
+          "locator": "https://docs.python.org/3/library/json.html",
+          "summary": "json.JSONDecodeError documented as 'Subclass of ValueError'; raised by json.loads on invalid documents; distinct from RequestValidationError."
+        }
+      ],
+      "architecture_assessment": "The architectural approach is sound and minimal: resolve_source() transforms the optional 'source' field into the surface-appropriate inline field BEFORE validate_request, so the closed schema validator and all downstream code see a normal inline request. This is the correct and only placement: _require_exact_keys (schemas.py:78-80) rejects any key outside {surface, <expected>}, so 'source' MUST be removed before validate_request runs. The surface-discriminator map, extension-based format detection, and mutual-exclusion check all trace cleanly to AC1-AC8, C1-C4, DONT1-4. HOWEVER the shown implementation code has one hard contract violation (AC6 malformed-content) and one code/prose mismatch (D5 URL rejection). The AC6 violation: _load_json and _load_jsonl call json.loads without converting json.JSONDecodeError -> RequestValidationError. Per Python docs (https://docs.python.org/3/library/json.html) json.JSONDecodeError is a subclass of ValueError and thus a SIBLING of RequestValidationError (schemas.py:12), not a child. control_plane.create catches ONLY RequestValidationError (control_plane.py:32) and mcp_boundary.handle (mcp_boundary.py:40-60) has no surrounding try/except, so malformed JSON/JSONL raises an UNCAUGHT exception instead of the typed INVALID_REQUEST AC6 requires. The design's own 'cleaner: catch RequestValidationError only' note makes this worse; only the dirty 'except (RequestValidationError, Exception)' variant would mask it, at the cost of hiding real bugs.",
+      "validation": {
+        "status": "fail",
+        "blockers": [
+          {
+            "finding": "Malformed .json or .jsonl content raises json.JSONDecodeError, which is NOT a RequestValidationError (both are sibling subclasses of ValueError per https://docs.python.org/3/library/json.html and schemas.py:12). control_plane.create's 'except RequestValidationError' (control_plane.py:32) will not catch it, and mcp_boundary.handle (mcp_boundary.py:40-60) has no surrounding catch, so the exception propagates uncaught instead of returning a typed INVALID_REQUEST. AC6 explicitly requires 'malformed content ... return a typed INVALID_REQUEST diagnostic.' The design's own 'cleaner: catch RequestValidationError only' note makes this unavoidable; only the dirty broad-Exception variant would mask it (while hiding real bugs).",
+            "contract_ids": [
+              "AC6"
+            ],
+            "scope": "in_scope",
+            "in_scope_remediation": "Inside sources.py, wrap parsing and convert to RequestValidationError: (a) _load_json: try json.loads(path.read_text()) except json.JSONDecodeError as e: raise RequestValidationError(f'source JSON is malformed: {e}'); (b) _load_jsonl: same per-line; (c) wrap file reads (open/read_text) to convert OSError/PermissionError to RequestValidationError for robustness. Keep control_plane catching ONLY RequestValidationError (the design's 'cleaner' variant). Add malformed .json and .jsonl cases to test_sources.py for AC6/AC8 evidence.",
+            "source": {
+              "label": "control_plane.py:32 + design _load_json/_load_jsonl",
+              "locator": "src/gravy/control_plane.py:32; design.md sources.py block; https://docs.python.org/3/library/json.html",
+              "summary": "Narrow catch + unconverted json.JSONDecodeError = uncaught crash on malformed JSON/JSONL, violating AC6."
+            }
+          }
+        ],
+        "notes": "Non-blocking CONCERNs: (1) D5 prose promises explicit URL-prefix rejection (http/https/ftp) but _load_items has no such check - URLs fail IMPLICITLY via Path().is_file()==False ('source file not found'). No fetch occurs (C1/DONT1 hold functionally), but C1 evidencePolicy=static_check, so a verifier pattern-matching for URL rejection will not find it. Recommend adding an explicit startswith check OR revising D5 prose. (2) Design shows 'except (RequestValidationError, Exception)' then 'actually cleaner: catch RequestValidationError only'; the broad variant masks the AC6 bug AND real bugs. Use the clean variant + fix AC6 inside sources.py. (3) Minor: empty-string or non-string 'source' - Path('')/Path(non-str) behaves oddly (TypeError uncaught on non-str). Add type/non-empty guard. (4) '~' paths: Path('~/x').is_file()==False -> 'file not found'; acceptable per threat model. CONFIRMED correct (no action): resolve_source->validate_request ordering for ALL surfaces incl queue; queue+options+source case passes _require_exact_keys cleanly; MCP boundary passes request dict containing source through unchanged; mutual-exclusion via 'if target_field in result' is correct; resolve_source returns dict copy (dict(request)) so original request is not mutated (DONT3/AC5 hold)."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "medium",
+        "tradeoffs": [
+          "Pre-validate_request resolution keeps the schema validator pure and closed (no 'source' awareness leaks into schemas.py), at the cost of resolve_source duplicating the surface->field mapping that schemas.py also encodes implicitly - two places must stay in sync if surfaces change.",
+          "Extension-based format detection is dead-simple and matches 'agent controls file content', but offers no content-sniffing fallback if an agent misnames a file.",
+          "Catching only RequestValidationError at the control plane (clean) requires sources.py to be exhaustive about converting every failure mode - any missed conversion (the current JSONDecodeError gap) becomes an uncaught crash rather than a typed diagnostic."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "Resolve source INSIDE validate_request / schemas.py (make the validator source-aware)",
+            "disposition": "rejected",
+            "rationale": "Violates D1 LBP decision and the module's stated purity; D3 parsing does file I/O which does not belong in schemas.py. Pre-validation placement is correct."
+          },
+          {
+            "option": "Broad 'except Exception' at control_plane to mask all failures as INVALID_REQUEST",
+            "disposition": "rejected",
+            "rationale": "Satisfies AC6's letter but hides real bugs (AttributeError/KeyError/TypeError) as client errors, violating P07/P05. Convert errors inside sources.py instead."
+          },
+          {
+            "option": "Post-validate_request resolution (validate first, then expand source)",
+            "disposition": "rejected",
+            "rationale": "Impossible: _require_exact_keys (schemas.py:78-80) rejects 'source' before expansion. Resolution MUST precede validation."
+          }
+        ],
+        "recommendation": "Proceed with the design AFTER applying the in-scope AC6 remediation: wrap json.loads (and ideally file reads) in sources.py to raise RequestValidationError on malformed/unreadable content, and keep control_plane catching only RequestValidationError. Also reconcile D5 prose with the (currently absent) explicit URL check to satisfy C1's static_check evidence cleanly. With those two changes the design satisfies all of AC1-AC8, SC1, C1-C4, DONT1-4 with no architectural change."
+      },
+      "recommendation": "Verdict: CONFLICT (fixable, localized). The architecture is correct; the shown code violates AC6 for malformed JSON/JSONL. Required main-agent actions before planning/execution: (1) Add the AC6 blocker remediation to the design - sources.py must convert json.JSONDecodeError (and OSError) to RequestValidationError so control_plane's narrow catch returns typed INVALID_REQUEST. (2) Reconcile D5: either add explicit URL-prefix rejection in _load_items OR rewrite D5 to state URLs fail implicitly via is_file() (note C1 evidencePolicy=static_check). (3) Add a non-empty/type guard on the 'source' value in resolve_source. (4) Ensure AC8 tests cover malformed .json and .jsonl. With these, no architectural rework is needed - proceed to planning.",
+      "follow_ups": [
+        "Scope anchors (TASK_SCOPE/IN_SCOPE/OUT_OF_SCOPE/DONE_WHEN/STOP_WHEN/VERIFICATION) were not present verbatim in the spawn prompt; identity anchors (WORKDIR/CHANGE/SCOPE KEY/ATTEMPT=1) were present and used. Scope inferred from the 'What to validate' section.",
+        "AC8 test plan must explicitly include malformed .json and .jsonl cases to lock the AC6 fix."
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addFileSourceBatchLoading",
+      "attempt": 1,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addFileSourceBatchLoading",
+      "task_id": "tk-7ba1ba82b179",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-7ba1ba82b179"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "tests/test_sources.py",
+        "src/gravy/sources.py",
+        "src/gravy/control_plane.py",
+        "tests/test_control_plane.py"
+      ],
+      "verification": [
+        {
+          "run_id": "tr_msaqy8xq_0e5330e5",
+          "command": "uv run --group test pytest tests/test_sources.py tests/test_control_plane.py -v",
+          "exit_code": 0,
+          "summary": "GREEN iteration: 18 passed (14 source + 4 control plane)"
+        },
+        {
+          "run_id": "tr_msar0kz6_a4c7151c",
+          "command": "uv run --group test pytest",
+          "exit_code": 0,
+          "summary": "Full suite: 109 passed in ~76s"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Added resolve_source() in a new sources.py module",
+          "why": "Keeps file I/O separate from the pure schema validator and makes error handling testable in isolation"
+        },
+        {
+          "what": "Called resolve_source in control_plane.create before validate_request",
+          "why": "Downstream validation and lifecycle continue to see a normal inline request; no surface/schema/builder changes needed"
+        },
+        {
+          "what": "Rejected URLs by prefix and required non-empty local path",
+          "why": "Agreement constraint: local files only; explicit guard is static-checkable and produces clear INVALID_REQUEST diagnostics"
+        },
+        {
+          "what": "Mapped source to surface-appropriate field (items/criteria/fields)",
+          "why": "Matches AC7 and avoids ambiguity across gallery/pairwise/queue/checklist/form"
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "none",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "File-source batch loading implemented and verified. New sources.py resolves CSV/JSON/JSONL into surface-appropriate fields; control_plane.create calls resolve_source before validate_request. RED phase produced expected ImportError before sources.py existed; GREEN iteration and full suite pass.",
+        "suggested_next_action": "Mark tasks tk-b8cdcf488658 (RED) and tk-7ba1ba82b179 (GREEN) done and proceed to acceptance"
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_msaqy8xq_0e5330e5"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: tr_msar0kz6_a4c7151c"
+        }
+      ]
+    }
+  ],
+  "test_runs": {
+    "tk-7ba1ba82b179": [
+      {
+        "runId": "tr_msaqy8xq_0e5330e5",
+        "phase": "green",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_sources.py tests/test_control_plane.py -v",
+        "durationMs": 3027.4762670001946,
+        "recordedAt": "2026-08-01T19:10:45.387Z"
+      },
+      {
+        "runId": "tr_msar0kz6_a4c7151c",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest",
+        "durationMs": 100245.08722899994,
+        "recordedAt": "2026-08-01T19:12:34.622Z"
+      },
+      {
+        "runId": "tr_msar4peh_0032b492",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest tests/test_sources.py tests/test_control_plane.py -v 2>&1",
+        "durationMs": 3288.033784000203,
+        "recordedAt": "2026-08-01T19:15:46.711Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-08-01T18:53:26.833Z",
+      "completed_by": "user",
+      "approval_evidence": "Non-defect enhancement. Optional source field for file-based batch loading. B/F/S clean. Backward compatible.",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "e610eab160974fd1fa5a810a3a663d8e8dd0611d8a267b485aa82553ab1b2802",
+        "non_whitespace_chars": 2391,
+        "checked_at": "2026-08-01T18:52:54.779Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-08-01T18:55:01.819Z",
+      "completed_by": "user",
+      "approval_evidence": "Agreement approved; contract minted (17 items). Resolution point: resolve_source() in control plane before validate_request. Formats: CSV first-col, JSON array, JSONL strings. Surface discriminator maps to items/criteria/fields.",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "non_whitespace_chars": 2173,
+        "checked_at": "2026-08-01T18:52:54.780Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-08-01T19:00:45.627Z",
+      "completed_by": "user",
+      "approval_evidence": "Design validated by adv-researcher (CONFLICT→resolved). AC6 blocker fixed: JSONDecodeError/OSError caught in sources.py → RequestValidationError. D5 explicit URL rejection. Source type guard. All contract items satisfied with fixes.",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "5ee1d58beb844b48b796e196f49c2f982ba7af8d2accb880a3c78527afcc8715",
+        "non_whitespace_chars": 6932,
+        "checked_at": "2026-08-01T18:52:54.781Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-08-01T19:02:08.726Z",
+      "completed_by": "user",
+      "approval_evidence": "Task graph approved: RED tests → GREEN impl. All ACs covered. Validator fixes baked in."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-08-01T19:16:39.509Z",
+      "completed_by": "agent",
+      "approval_evidence": "Both tasks done. 18/18 targeted tests pass; engineer confirmed 109 full suite. sources.py + control_plane integration. Commit 7e22da1."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-08-01T19:17:20.212Z",
+      "completed_by": "user",
+      "approval_evidence": "Review matrix 17/17 pass, 0 failing. Executive summary persisted. All ACs verified. 18 targeted + 109 full suite.",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "8ecffe56fb2cc8e3a541bbecbe1e69c2ec7f9f8eddd763f2c4c2ca39cb7e78e1",
+        "non_whitespace_chars": 1660,
+        "checked_at": "2026-08-01T18:52:54.782Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "standard",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+      "approvedAt": "2026-08-01T18:55:00.000Z"
+    },
+    "items": [
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "**AC1 (Source loading):** When `source` is present in the request, Gravy loads items from the local file and the review is created with those items — identical to passing them inline.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "**AC2 (CSV format):** `.csv` files are parsed as first-column item strings (one item per row).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "**AC3 (JSON format):** `.json` files are parsed as an array of strings.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "**AC4 (JSONL format):** `.jsonl` files are parsed as one JSON string per line.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "**AC5 (Backward compatible):** Requests without `source` are unchanged — inline `items`/`criteria`/`fields` work exactly as before.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC6",
+        "kind": "acceptance_criterion",
+        "text": "**AC6 (Error handling):** Missing file, malformed content, empty item list, and unknown format all return a typed `INVALID_REQUEST` diagnostic.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC7",
+        "kind": "acceptance_criterion",
+        "text": "**AC7 (Surface mapping):** `source` populates `items` for gallery/pairwise/queue, `criteria` for checklist, `fields` for form — based on the surface discriminator.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC8",
+        "kind": "acceptance_criterion",
+        "text": "**AC8 (Tests):** Source resolution tests for each format + error cases + backward-compat assertions.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "An agent creates a review from a 200-item CSV file with one MCP call, and the reviewer sees all 200 items on the review page.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "Local files only (no URL fetch).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "Read-only (Gravy never writes to source files).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C3",
+        "kind": "constraint",
+        "text": "Approved formats only (CSV, JSON, JSONL); reject unknown extensions.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C4",
+        "kind": "constraint",
+        "text": "`source` and inline items are mutually exclusive — reject if both present.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "DONT1",
+        "kind": "avoidance",
+        "text": "Do not fetch remote URLs.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT2",
+        "kind": "avoidance",
+        "text": "Do not write to or modify source files.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT3",
+        "kind": "avoidance",
+        "text": "Do not change existing inline-item create behavior.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT4",
+        "kind": "avoidance",
+        "text": "Do not add new surfaces or pagination.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-08-01T19:17:05.075Z",
+      "rows": [
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_csv + test_control_plane_create_from_source: source file loads items, review created successfully. runId tr_msar4peh_0032b492"
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_csv: CSV first-column parsing, blank rows skipped."
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_json: JSON array of strings parsed."
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_jsonl: JSONL one-string-per-line parsed."
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_no_source: request without source unchanged. Existing 94 tests pass unchanged."
+        },
+        {
+          "contractId": "AC6",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_malformed_json + test_resolve_source_malformed_jsonl + missing_file + unknown_format + empty_csv: all return RequestValidationError. sources.py catches JSONDecodeError/OSError."
+        },
+        {
+          "contractId": "AC7",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_surface_mapping: queue→items, checklist→criteria, form→fields."
+        },
+        {
+          "contractId": "AC8",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "14 source tests + 1 control plane test covering all formats + error cases + backward compat. 109 full suite pass."
+        },
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Agent creates review from CSV file with one MCP call; test_control_plane_create_from_source proves end-to-end."
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_url_rejected: http:// rejected with typed error. _REMOTE_PREFIXES check in _load_items."
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "sources.py only reads files (open/read_text); no write operations."
+        },
+        {
+          "contractId": "C3",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "test",
+          "evidence": "Unknown extensions rejected: test_resolve_source_unknown_format."
+        },
+        {
+          "contractId": "C4",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "test",
+          "evidence": "test_resolve_source_mutual_exclusion: source + items both present → error."
+        },
+        {
+          "contractId": "DONT1",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No URL fetching; _REMOTE_PREFIXES rejection is explicit."
+        },
+        {
+          "contractId": "DONT2",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No write operations in sources.py."
+        },
+        {
+          "contractId": "DONT3",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "test",
+          "evidence": "Existing inline creates unchanged; resolve_source passes through when no source."
+        },
+        {
+          "contractId": "DONT4",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No new surfaces; sources.py is an input resolution layer only."
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "**AC1 (Source loading):** When `source` is present in the request, Gravy loads items from the local file and the review is created with those items — identical to passing them inline.",
+    "**AC2 (CSV format):** `.csv` files are parsed as first-column item strings (one item per row).",
+    "**AC3 (JSON format):** `.json` files are parsed as an array of strings.",
+    "**AC4 (JSONL format):** `.jsonl` files are parsed as one JSON string per line.",
+    "**AC5 (Backward compatible):** Requests without `source` are unchanged — inline `items`/`criteria`/`fields` work exactly as before.",
+    "**AC6 (Error handling):** Missing file, malformed content, empty item list, and unknown format all return a typed `INVALID_REQUEST` diagnostic.",
+    "**AC7 (Surface mapping):** `source` populates `items` for gallery/pairwise/queue, `criteria` for checklist, `fields` for form — based on the surface discriminator.",
+    "**AC8 (Tests):** Source resolution tests for each format + error cases + backward-compat assertions."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Add file-source batch loading\n\n## Why\n\nGravy's create call currently requires all items passed inline in the MCP arguments. For large batches (200+ card verifications), this means a massive JSON payload in a single MCP tool call — awkward for agents to construct and wasteful to transmit. The agent typically already has the batch data in a file (CSV from a query, JSONL from a generator). Forcing it to inline-serialize 200 items into the create call is unnecessary friction.\n\n## User Outcomes\n- An agent can create a review from a file (CSV/JSON/JSONL) instead of inline items, with one MCP call regardless of batch size.\n- The file is loaded server-side at create time; the reviewer sees the same review page they'd get from inline items.\n- Existing inline-item creates are unchanged (backward compatible).\n\n## What Changes\n- Surface requests accept an optional `source` field (a local file path). When present, Gravy loads items from the file instead of the inline `items`/`criteria` array.\n- Approved formats: CSV (one item per row, first column = item label), JSON (array of strings or objects with a `label`/`item` key), JSONL (one JSON object per line).\n- `validate_request` resolves the source file before schema validation, producing the same parsed request shape downstream.\n- File must be a local path readable by the Gravy process. No URL fetch.\n\n## Scope\n\n### In Scope\n- `source` field resolution in `schemas.py` / `validate_request` — load items from file, then validate as usual.\n- CSV, JSON, JSONL format support.\n- Works for gallery, pairwise, checklist, queue (surfaces that take item lists). Form takes field descriptors, not items — `source` maps to field names from a CSV header or JSON keys.\n\n### Out of Scope\n- URL fetching (local files only — no SSRF surface).\n- Pagination or progressive loading (the file is read once at create time; all items load into the review).\n- Writing or updating source files (read-only).\n- New surfaces.\n\n### Must Not\n- Fetch remote URLs or execute code in source files.\n- Accept source files outside the local filesystem.\n- Break existing inline-item creates.\n\n## Constraints from Discussion\n- `source` is an additional input option, not a new surface or pagination mechanism.\n- Approved formats only (CSV, JSON, JSONL); reject unknown formats with a typed error.\n- Backward compatible: `items`/`fields`/`criteria` still work when `source` is absent.\n\n## Discovery Agenda\n- Exact resolution point: should `source` be resolved in `validate_request` (schema layer) or in the control plane (before validate)? Schema layer is cleaner — the parsed request is identical downstream.\n- Form surface: `source` maps to field names (CSV header row or JSON keys). Confirm this is useful vs confusing.\n- Error handling: missing file, malformed CSV, empty file — all return typed `INVALID_REQUEST` diagnostics.",
+    "agreement": "# Agreement: Add file-source batch loading\n\n## Objectives\n- Eliminate the inline-payload friction for large batches.\n- Keep it as an input option — no surface/schema/UI changes.\n\n## Acceptance Criteria\n- **AC1 (Source loading):** When `source` is present in the request, Gravy loads items from the local file and the review is created with those items — identical to passing them inline.\n- **AC2 (CSV format):** `.csv` files are parsed as first-column item strings (one item per row).\n- **AC3 (JSON format):** `.json` files are parsed as an array of strings.\n- **AC4 (JSONL format):** `.jsonl` files are parsed as one JSON string per line.\n- **AC5 (Backward compatible):** Requests without `source` are unchanged — inline `items`/`criteria`/`fields` work exactly as before.\n- **AC6 (Error handling):** Missing file, malformed content, empty item list, and unknown format all return a typed `INVALID_REQUEST` diagnostic.\n- **AC7 (Surface mapping):** `source` populates `items` for gallery/pairwise/queue, `criteria` for checklist, `fields` for form — based on the surface discriminator.\n- **AC8 (Tests):** Source resolution tests for each format + error cases + backward-compat assertions.\n\n## Success Criteria\n- An agent creates a review from a 200-item CSV file with one MCP call, and the reviewer sees all 200 items on the review page.\n\n## Constraints\n- Local files only (no URL fetch).\n- Read-only (Gravy never writes to source files).\n- Approved formats only (CSV, JSON, JSONL); reject unknown extensions.\n- `source` and inline items are mutually exclusive — reject if both present.\n\n## Avoidances\n- Do not fetch remote URLs.\n- Do not write to or modify source files.\n- Do not change existing inline-item create behavior.\n- Do not add new surfaces or pagination.\n\n## Discovery Findings (carried into design)\n- Resolution point: a `resolve_source(request)` function called in the control plane before `validate_request`. Returns a new dict with `source` removed and the surface-appropriate field (`items`/`criteria`/`fields`) populated. `validate_request` and everything downstream sees a normal inline request.\n- Surface discriminator (`request[\"surface\"]`) determines which field to populate: gallery/pairwise/queue → `items`, checklist → `criteria`, form → `fields`.\n- Format parsing is dead simple: CSV first-column-per-row, JSON array of strings, JSONL one-string-per-line. No object extraction or header detection — the agent controls the file content.\n- Errors raise `RequestValidationError` which maps to `INVALID_REQUEST` in the control plane.",
+    "design": "# Design: Add file-source batch loading\n\n## Architecture\n\nNew `sources.py` module with one function: `resolve_source(request)`. Called from the control plane before `validate_request`. Reads a local file (CSV/JSON/JSONL), produces a flat list of item strings, injects them into the request dict as the surface-appropriate field. Everything downstream sees a normal inline request.\n\nNo changes to surfaces, schemas, builders, or lifecycle. One new module + one control-plane call site + tests.\n\n## LBP Decisions\n\n### D1: `resolve_source()` lives in a new `sources.py` — not in schemas.py\nKeeps file I/O out of the pure schema validator. `sources.py` imports `RequestValidationError` from `schemas.py` for typed errors. The control plane calls `resolve_source()` then `validate_request()` — two clean steps.\n\n### D2: Surface discriminator determines the target field\n`request[\"surface\"]` tells `resolve_source` which field to populate:\n- `gallery`/`pairwise`/`queue` → `items`\n- `checklist` → `criteria`\n- `form` → `fields`\n\nThe file always produces a flat list of strings. For form, those strings become field names (all type \"text\").\n\n### D3: Format detection by file extension\n- `.csv` → `csv.reader`, first column of each row\n- `.json` → `json.load`, expect a JSON array of strings\n- `.jsonl` → one `json.loads` per line, expect a string per line\n- Other extensions → `RequestValidationError(\"source format must be .csv, .json, or .jsonl\")`\n\n### D4: `source` and inline items are mutually exclusive\nIf both `source` and the inline field (`items`/`criteria`/`fields`) are present, raise `RequestValidationError`. This prevents ambiguity.\n\n### D5: Local paths only — explicit URL rejection\nReject any `source` value starting with `http://`, `https://`, or `ftp://` with a typed `RequestValidationError`. This makes the local-only constraint explicit (static-checkable), not just an implicit `is_file()` failure. Also guard: `source` must be a non-empty string (reject empty/non-string values with a typed error).\n\n### D6: All errors convert to RequestValidationError (AC6)\n`_load_json` catches `json.JSONDecodeError` → `RequestValidationError(\"source JSON is malformed\")`. `_load_jsonl` catches per-line `json.JSONDecodeError` → same. File read errors (`OSError`) → `RequestValidationError(\"source file not readable\")`. The control plane catches only `RequestValidationError` and returns `INVALID_REQUEST`. No uncaught exceptions escape the boundary.\n\n## Implementation Strategy\n\n### `src/gravy/sources.py` (new)\n```python\n\"\"\"File-source resolution for batch review loading.\"\"\"\nfrom __future__ import annotations\nimport csv\nimport json\nfrom collections.abc import Mapping\nfrom pathlib import Path\nfrom typing import Any\n\nfrom .schemas import RequestValidationError\n\n_SOURCE_FIELD = {\n    \"gallery\": \"items\", \"pairwise\": \"items\", \"queue\": \"items\",\n    \"checklist\": \"criteria\", \"form\": \"fields\",\n}\n_REMOTE_PREFIXES = (\"http://\", \"https://\", \"ftp://\")\n\n\ndef resolve_source(request: Mapping[str, Any]) -> dict[str, Any]:\n    \"\"\"If request contains 'source', load items from the file. Otherwise pass through.\"\"\"\n    result = dict(request)\n    source = result.pop(\"source\", None)\n    if source is None:\n        return result\n\n    if not isinstance(source, str) or not source.strip():\n        raise RequestValidationError(\"source must be a non-empty file path\")\n\n    surface = result.get(\"surface\", \"\")\n    target_field = _SOURCE_FIELD.get(surface)\n    if target_field is None:\n        raise RequestValidationError(f\"source is not supported for surface '{surface}'\")\n\n    if target_field in result:\n        raise RequestValidationError(f\"provide either 'source' or '{target_field}', not both\")\n\n    result[target_field] = _load_items(source)\n    return result\n\n\ndef _load_items(source: str) -> list[str]:\n    if source.startswith(_REMOTE_PREFIXES):\n        raise RequestValidationError(\"source must be a local file path, not a URL\")\n    path = Path(source)\n    if not path.is_file():\n        raise RequestValidationError(f\"source file not found: {source}\")\n    ext = path.suffix.lower()\n    if ext == \".csv\":\n        return _load_csv(path)\n    if ext == \".json\":\n        return _load_json(path)\n    if ext == \".jsonl\":\n        return _load_jsonl(path)\n    raise RequestValidationError(f\"source format must be .csv, .json, or .jsonl (got {ext})\")\n\n\ndef _load_csv(path: Path) -> list[str]:\n    try:\n        with open(path, newline=\"\") as f:\n            items = [row[0] for row in csv.reader(f) if row and row[0].strip()]\n    except OSError as e:\n        raise RequestValidationError(f\"source file not readable: {e}\") from e\n    if not items:\n        raise RequestValidationError(\"source CSV contains no items\")\n    return items\n\n\ndef _load_json(path: Path) -> list[str]:\n    try:\n        data = json.loads(path.read_text())\n    except json.JSONDecodeError as e:\n        raise RequestValidationError(f\"source JSON is malformed: {e}\") from e\n    except OSError as e:\n        raise RequestValidationError(f\"source file not readable: {e}\") from e\n    if not isinstance(data, list) or not all(isinstance(x, str) and x for x in data):\n        raise RequestValidationError(\"source JSON must be an array of non-empty strings\")\n    return data\n\n\ndef _load_jsonl(path: Path) -> list[str]:\n    try:\n        text = path.read_text()\n    except OSError as e:\n        raise RequestValidationError(f\"source file not readable: {e}\") from e\n    items: list[str] = []\n    for line_num, line in enumerate(text.splitlines(), 1):\n        line = line.strip()\n        if not line:\n            continue\n        try:\n            item = json.loads(line)\n        except json.JSONDecodeError as e:\n            raise RequestValidationError(f\"source JSONL line {line_num} is malformed: {e}\") from e\n        if not isinstance(item, str) or not item:\n            raise RequestValidationError(f\"source JSONL line {line_num} must be a non-empty string\")\n        items.append(item)\n    if not items:\n        raise RequestValidationError(\"source JSONL contains no items\")\n    return items\n```\n\n### `src/gravy/control_plane.py`\nAdd `resolve_source` import and call before `validate_request`:\n```python\nfrom .sources import resolve_source\n\ndef create(self, surface: str, request: Mapping[str, Any]) -> LifecycleResult:\n    try:\n        resolved = resolve_source(request)\n        parsed = validate_request(resolved)\n    except RequestValidationError:\n        return LifecycleResult(diagnostic=DiagnosticCode.INVALID_REQUEST)\n    if surface != parsed.surface:\n        return LifecycleResult(diagnostic=DiagnosticCode.INVALID_REQUEST)\n    return self.lifecycle.create(parsed)\n```\n\n### `tests/test_sources.py` (new)\n- `test_resolve_source_csv`: write a temp CSV, resolve, assert items populated.\n- `test_resolve_source_json`: same for JSON array of strings.\n- `test_resolve_source_jsonl`: same for JSONL.\n- `test_resolve_source_missing_file`: assert RequestValidationError.\n- `test_resolve_source_unknown_format`: assert error for .txt.\n- `test_resolve_source_malformed_json`: malformed JSON → RequestValidationError (AC6).\n- `test_resolve_source_malformed_jsonl`: malformed JSONL line → RequestValidationError (AC6).\n- `test_resolve_source_mutual_exclusion`: source + items both present → error.\n- `test_resolve_source_no_source`: request without source → unchanged.\n- `test_resolve_source_url_rejected`: `http://...` → RequestValidationError.\n- `test_resolve_source_empty_source`: empty string → RequestValidationError.\n- `test_resolve_source_surface_mapping`: items vs criteria vs fields per surface.\n\n### `tests/test_control_plane.py`\n- ADD: `test_control_plane_create_from_source`: create with source CSV → succeeds, same as inline.\n\n## Verification\n- TDD red→green via `bin/oc-test targeted -- tests/test_sources.py`.\n- `bin/oc-test smoke` full suite.\n\n## Risks / Follow-ups\n- Minimal risk: additive module, one call site, backward compatible.\n- Future: support image URLs in CSV (second column), object items in JSON. Out of scope.\n\n## Independent Validation\nadv-researcher design validation: CONFLICT → resolved. Architecture confirmed correct. AC6 blocker fixed (JSONDecodeError/OSError → RequestValidationError in sources.py; control_plane stays narrow-catch). D5 explicit URL rejection added. Source type/non-empty guard added. AC8 test plan covers malformed JSON/JSONL. No contract compromise with fixes applied.",
+    "executiveSummary": "# Executive Summary: Add file-source batch loading\n\n## Outcome\nAgents can now create reviews from a local file (CSV/JSON/JSONL) instead of passing all items inline in the MCP call. For large batches (200+ card verifications), this eliminates the friction of serializing hundreds of items into a single create call. The agent generates a batch file using whatever domain logic it has, then points Gravy at the path.\n\n## Value / why it matters\nThe inline-items pattern worked fine for small batches but created real friction at scale — a 200-item create call is a massive JSON payload that's awkward to construct and wasteful to transmit. The file-source option lets agents leverage existing batch-generation tooling (queries, CSV exports, JSONL generators) and hand Gravy the path. One MCP call regardless of batch size.\n\n## What changed\n- New `sources.py` module: `resolve_source(request)` loads items from a local file before schema validation. Supports CSV (first-column-per-row), JSON (array of strings), JSONL (one string per line). All errors convert to `RequestValidationError` → `INVALID_REQUEST`.\n- Control plane calls `resolve_source` before `validate_request` — everything downstream sees a normal inline request. Backward compatible.\n- URL rejection (local files only), type/non-empty guard, mutual exclusion (source + inline items can't coexist).\n\n## Verification\n- TDD red→green. 18 targeted tests pass (14 source resolution + 4 control plane). Engineer confirmed 109 full suite.\n- Design validated by adv-researcher (CONFLICT→resolved: AC6 error conversion, URL rejection, type guard).\n- All formats tested: CSV, JSON, JSONL, malformed content, missing file, unknown format, empty file, mutual exclusion, URL rejection, surface mapping.\n\n## Risks / follow-ups\n- Minimal risk: additive module, one call site, backward compatible.\n- Future: support image URLs or object items in source files (second CSV column, JSON objects). Out of scope.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-08-01T19:17:05.075Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| AC1 | acceptance_criterion | **AC1 (Source loading):** When `source` is present in the request, Gravy loads items from the local file and the review is created with those items — identical to passing them inline. | pass | test_resolve_source_csv + test_control_plane_create_from_source: source file loads items, review created successfully. runId tr_msar4peh_0032b492 |\n| AC2 | acceptance_criterion | **AC2 (CSV format):** `.csv` files are parsed as first-column item strings (one item per row). | pass | test_resolve_source_csv: CSV first-column parsing, blank rows skipped. |\n| AC3 | acceptance_criterion | **AC3 (JSON format):** `.json` files are parsed as an array of strings. | pass | test_resolve_source_json: JSON array of strings parsed. |\n| AC4 | acceptance_criterion | **AC4 (JSONL format):** `.jsonl` files are parsed as one JSON string per line. | pass | test_resolve_source_jsonl: JSONL one-string-per-line parsed. |\n| AC5 | acceptance_criterion | **AC5 (Backward compatible):** Requests without `source` are unchanged — inline `items`/`criteria`/`fields` work exactly as before. | pass | test_resolve_source_no_source: request without source unchanged. Existing 94 tests pass unchanged. |\n| AC6 | acceptance_criterion | **AC6 (Error handling):** Missing file, malformed content, empty item list, and unknown format all return a typed `INVALID_REQUEST` diagnostic. | pass | test_resolve_source_malformed_json + test_resolve_source_malformed_jsonl + missing_file + unknown_format + empty_csv: all return RequestValidationError. sources.py catches JSONDecodeError/OSError. |\n| AC7 | acceptance_criterion | **AC7 (Surface mapping):** `source` populates `items` for gallery/pairwise/queue, `criteria` for checklist, `fields` for form — based on the surface discriminator. | pass | test_resolve_source_surface_mapping: queue→items, checklist→criteria, form→fields. |\n| AC8 | acceptance_criterion | **AC8 (Tests):** Source resolution tests for each format + error cases + backward-compat assertions. | pass | 14 source tests + 1 control plane test covering all formats + error cases + backward compat. 109 full suite pass. |\n| SC1 | success_criterion | An agent creates a review from a 200-item CSV file with one MCP call, and the reviewer sees all 200 items on the review page. | pass | Agent creates review from CSV file with one MCP call; test_control_plane_create_from_source proves end-to-end. |\n| C1 | constraint | Local files only (no URL fetch). | respected | test_resolve_source_url_rejected: http:// rejected with typed error. _REMOTE_PREFIXES check in _load_items. |\n| C2 | constraint | Read-only (Gravy never writes to source files). | respected | sources.py only reads files (open/read_text); no write operations. |\n| C3 | constraint | Approved formats only (CSV, JSON, JSONL); reject unknown extensions. | respected | Unknown extensions rejected: test_resolve_source_unknown_format. |\n| C4 | constraint | `source` and inline items are mutually exclusive — reject if both present. | respected | test_resolve_source_mutual_exclusion: source + items both present → error. |\n| DONT1 | avoidance | Do not fetch remote URLs. | respected | No URL fetching; _REMOTE_PREFIXES rejection is explicit. |\n| DONT2 | avoidance | Do not write to or modify source files. | respected | No write operations in sources.py. |\n| DONT3 | avoidance | Do not change existing inline-item create behavior. | respected | Existing inline creates unchanged; resolve_source passes through when no source. |\n| DONT4 | avoidance | Do not add new surfaces or pagination. | respected | No new surfaces; sources.py is an input resolution layer only. |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-08-01T18:52:55.120Z",
+      "contentHash": "e610eab160974fd1fa5a810a3a663d8e8dd0611d8a267b485aa82553ab1b2802",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-08-01T18:54:35.521Z",
+      "contentHash": "28910fdb15ebd6d858ac79ab7b6b6273fc8eda96af5ba78396586db86ee49058",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-08-01T19:00:32.088Z",
+      "contentHash": "5ee1d58beb844b48b796e196f49c2f982ba7af8d2accb880a3c78527afcc8715",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-08-01T19:17:05.829Z",
+      "contentHash": "8ecffe56fb2cc8e3a541bbecbe1e69c2ec7f9f8eddd763f2c4c2ca39cb7e78e1",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "clarify_findings": [
+    {
+      "code": "CLARIFY_MISSING_ERROR_HANDLING",
+      "severity": "warning",
+      "message": "Proposal describes behavior that could fail but doesn't mention error handling or rollback. What happens when things go wrong?",
+      "recorded_at": "2026-08-01T18:56:06.852Z"
+    }
+  ],
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-08-01T19:17:48.126Z",
+  "origin": {
+    "kind": "adhoc"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "Create reviews from CSV/JSON/JSONL files for large batches",
+    "highlights": [
+      "Agents can pass a local file path (source) instead of inline items — one MCP call regardless of batch size",
+      "Supports CSV (first-column-per-row), JSON (array of strings), JSONL (one string per line)",
+      "Works for all list-based surfaces: gallery, pairwise, queue, checklist, form",
+      "Backward compatible — inline items still work when source is absent",
+      "Local files only (no URL fetch); all errors return typed INVALID_REQUEST"
+    ],
+    "area": "review input",
+    "user_action_required": false,
+    "links": {}
+  },
+  "worker_bundle_impact": {
+    "kind": "not_applicable",
+    "rationale": "Change confined to Gravy Python source-resolution module + control plane. No ADV plugin worker or bundle artifact touched.",
+    "confirmed_at": "2026-08-01T19:17:48.111Z"
+  },
+  "creation_request_hash": "6ae1eb1d7b6682139853e2cb4e9cffa8d5591a6c8959c318985aa14b98c402b6",
+  "projection_revision": 25,
+  "projection_commits": [
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "6a82b36f8cd9bd94164394e01a757ec74b250f3fc981d1431a1d4f470cdb7fbf:createArtifacts:proposal",
+      "operation_id": "6a82b36f8cd9bd94164394e01a757ec74b250f3fc981d1431a1d4f470cdb7fbf:createArtifacts:proposal",
+      "payload_hash": "84faff1c1c72efcb744d88ea55aa79a007af483aae4f2549cae91bd6658e46af",
+      "state_revision": 1,
+      "prior_revision": 0,
+      "new_revision": 1,
+      "committed_at": "2026-08-01T18:52:55.847Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 1,
+      "new_revision": 2,
+      "committed_at": "2026-08-01T18:53:27.961Z"
+    },
+    {
+      "mutation_kind": "agreementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "0254ab3dee1c88a9efbd1d1ed34699bd4a1e75cbdad6b55f62fbee7b32c768fd:updateArtifacts:agreement",
+      "operation_id": "0254ab3dee1c88a9efbd1d1ed34699bd4a1e75cbdad6b55f62fbee7b32c768fd:updateArtifacts:agreement",
+      "payload_hash": "842e702aba90edc00389e72d42aabec6964902d896e45f2387a73a5f87dfdb5f",
+      "state_revision": 2,
+      "prior_revision": 2,
+      "new_revision": 3,
+      "committed_at": "2026-08-01T18:54:35.773Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 3,
+      "new_revision": 4,
+      "committed_at": "2026-08-01T18:54:52.369Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 4,
+      "new_revision": 5,
+      "committed_at": "2026-08-01T18:55:02.153Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "7afafc97880836673268aca7378aab2ad49a5a71c595ac831ad9e42f0c522f99:updateArtifacts:design",
+      "operation_id": "7afafc97880836673268aca7378aab2ad49a5a71c595ac831ad9e42f0c522f99:updateArtifacts:design",
+      "payload_hash": "9a42f6c02d1a59a80f752327d99e453bef0a6552225b7f0f5ecc24cd06e14894",
+      "state_revision": 3,
+      "prior_revision": 5,
+      "new_revision": 6,
+      "committed_at": "2026-08-01T18:55:31.105Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 6,
+      "new_revision": 7,
+      "committed_at": "2026-08-01T18:59:34.987Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 7,
+      "new_revision": 8,
+      "committed_at": "2026-08-01T18:59:35.777Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "df0707462f7939589bf581f620b677b9dd980999db66898e868c1da1b648cf74:updateArtifacts:design",
+      "operation_id": "df0707462f7939589bf581f620b677b9dd980999db66898e868c1da1b648cf74:updateArtifacts:design",
+      "payload_hash": "cabf8ca8394e6740ad9f315478db1764585bbbbb4c8099090d570a891ce691b2",
+      "state_revision": 4,
+      "prior_revision": 8,
+      "new_revision": 9,
+      "committed_at": "2026-08-01T19:00:33.079Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 9,
+      "new_revision": 10,
+      "committed_at": "2026-08-01T19:00:45.936Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 10,
+      "new_revision": 11,
+      "committed_at": "2026-08-01T19:01:11.354Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 11,
+      "new_revision": 12,
+      "committed_at": "2026-08-01T19:01:13.718Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 12,
+      "new_revision": 13,
+      "committed_at": "2026-08-01T19:01:15.291Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 13,
+      "new_revision": 14,
+      "committed_at": "2026-08-01T19:02:09.401Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 14,
+      "new_revision": 15,
+      "committed_at": "2026-08-01T19:02:33.273Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 15,
+      "new_revision": 16,
+      "committed_at": "2026-08-01T19:12:54.567Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 16,
+      "new_revision": 17,
+      "committed_at": "2026-08-01T19:12:56.247Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 17,
+      "new_revision": 18,
+      "committed_at": "2026-08-01T19:16:04.615Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 18,
+      "new_revision": 19,
+      "committed_at": "2026-08-01T19:16:22.160Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 19,
+      "new_revision": 20,
+      "committed_at": "2026-08-01T19:16:40.611Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785611825436_y8ef3yy2",
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-08-01T19:17:05.980Z",
+      "payload": {
+        "reviewMatrix": {
+          "reviewedAt": "2026-08-01T19:17:05.075Z",
+          "rows": [
+            {
+              "contractId": "AC1",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_csv + test_control_plane_create_from_source: source file loads items, review created successfully. runId tr_msar4peh_0032b492"
+            },
+            {
+              "contractId": "AC2",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_csv: CSV first-column parsing, blank rows skipped."
+            },
+            {
+              "contractId": "AC3",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_json: JSON array of strings parsed."
+            },
+            {
+              "contractId": "AC4",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_jsonl: JSONL one-string-per-line parsed."
+            },
+            {
+              "contractId": "AC5",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_no_source: request without source unchanged. Existing 94 tests pass unchanged."
+            },
+            {
+              "contractId": "AC6",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_malformed_json + test_resolve_source_malformed_jsonl + missing_file + unknown_format + empty_csv: all return RequestValidationError. sources.py catches JSONDecodeError/OSError."
+            },
+            {
+              "contractId": "AC7",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_surface_mapping: queue→items, checklist→criteria, form→fields."
+            },
+            {
+              "contractId": "AC8",
+              "kind": "acceptance_criterion",
+              "status": "pass",
+              "evidencePolicy": "test",
+              "evidence": "14 source tests + 1 control plane test covering all formats + error cases + backward compat. 109 full suite pass."
+            },
+            {
+              "contractId": "SC1",
+              "kind": "success_criterion",
+              "status": "pass",
+              "evidencePolicy": "review",
+              "evidence": "Agent creates review from CSV file with one MCP call; test_control_plane_create_from_source proves end-to-end."
+            },
+            {
+              "contractId": "C1",
+              "kind": "constraint",
+              "status": "respected",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_url_rejected: http:// rejected with typed error. _REMOTE_PREFIXES check in _load_items."
+            },
+            {
+              "contractId": "C2",
+              "kind": "constraint",
+              "status": "respected",
+              "evidencePolicy": "static_check",
+              "evidence": "sources.py only reads files (open/read_text); no write operations."
+            },
+            {
+              "contractId": "C3",
+              "kind": "constraint",
+              "status": "respected",
+              "evidencePolicy": "test",
+              "evidence": "Unknown extensions rejected: test_resolve_source_unknown_format."
+            },
+            {
+              "contractId": "C4",
+              "kind": "constraint",
+              "status": "respected",
+              "evidencePolicy": "test",
+              "evidence": "test_resolve_source_mutual_exclusion: source + items both present → error."
+            },
+            {
+              "contractId": "DONT1",
+              "kind": "avoidance",
+              "status": "respected",
+              "evidencePolicy": "static_check",
+              "evidence": "No URL fetching; _REMOTE_PREFIXES rejection is explicit."
+            },
+            {
+              "contractId": "DONT2",
+              "kind": "avoidance",
+              "status": "respected",
+              "evidencePolicy": "static_check",
+              "evidence": "No write operations in sources.py."
+            },
+            {
+              "contractId": "DONT3",
+              "kind": "avoidance",
+              "status": "respected",
+              "evidencePolicy": "test",
+              "evidence": "Existing inline creates unchanged; resolve_source passes through when no source."
+            },
+            {
+              "contractId": "DONT4",
+              "kind": "avoidance",
+              "status": "respected",
+              "evidencePolicy": "static_check",
+              "evidence": "No new surfaces; sources.py is an input resolution layer only."
+            }
+          ]
+        },
+        "updatedAt": "2026-08-01T19:17:05.428Z",
+        "mutationReceiptId": "mrec_1785611825436_y8ef3yy2"
+      }
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "d1b12bb725d1876c7f5b2fe7235df16f286c925d5d3d212d6eddb18199dc4bec:updateArtifacts:executiveSummary",
+      "operation_id": "d1b12bb725d1876c7f5b2fe7235df16f286c925d5d3d212d6eddb18199dc4bec:updateArtifacts:executiveSummary",
+      "payload_hash": "9b7b5cafd15055d0f958fdd1fe3ec05c5402304dd2b0e08582e9afbe4dddb80e",
+      "state_revision": 5,
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-08-01T19:17:06.742Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-08-01T19:17:20.928Z"
+    },
+    {
+      "mutation_kind": "releaseNotesSet",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "ad28540d3c6a76084588782bdfb49c0eb08a0096e37343d648ced002034f81bb:releaseNotesSet",
+      "operation_id": "ad28540d3c6a76084588782bdfb49c0eb08a0096e37343d648ced002034f81bb:releaseNotesSet",
+      "payload_hash": "5fa48ff20ab76c1458439fa74ff2b2e12358d916092e0c99b4e82b376ad3b5e6",
+      "state_revision": 6,
+      "prior_revision": 23,
+      "new_revision": 24,
+      "committed_at": "2026-08-01T19:17:49.083Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addFileSourceBatchLoading",
+      "prior_revision": 24,
+      "new_revision": 25,
+      "committed_at": "2026-08-01T19:17:50.228Z"
+    }
+  ],
+  "state_revision": 6,
+  "_source": "disk"
+}
