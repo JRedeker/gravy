@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # Canonical test entrypoint for Gravy.
 #
-# Always routes through `uv run pytest` so the project venv (with gradio + all
-# runtime deps) is used, not the ambient system python. Without this, bare
-# `python -m pytest` resolves to the system interpreter and the gradio-dependent
-# test modules (test_gradio_runtime, test_lifecycle, test_mcp_boundary,
-# test_mcp_entry) fail at collection with ModuleNotFoundError.
+# Always routes through `uv run --group test pytest` so the project venv (with
+# gradio + all runtime deps AND pytest/pytest-asyncio) is used, not the ambient
+# system python. The --group test flag auto-syncs the test dependency group,
+# eliminating the need for a manual `uv sync --group test` in fresh worktrees.
 #
 # Routes through oc-test-gate for host-level throttling when available.
 #
@@ -44,15 +43,15 @@ fi
 case "$tier" in
   smoke)
     [[ $# -eq 0 ]] || { printf 'bin/oc-test smoke takes no extra args.\n' >&2; exit 64; }
-    run_with_optional_gate smoke uv run pytest -q
+    run_with_optional_gate smoke uv run --group test pytest -q
     ;;
   targeted)
     [[ "${1:-}" != "--" ]] || shift
-    run_with_optional_gate targeted uv run pytest -q "$@"
+    run_with_optional_gate targeted uv run --group test pytest -q "$@"
     ;;
   full)
     [[ $# -eq 0 ]] || { printf 'bin/oc-test full takes no extra args.\n' >&2; exit 64; }
-    run_with_optional_gate full uv run pytest -q
+    run_with_optional_gate full uv run --group test pytest -q
     ;;
   *)
     printf 'Usage: bin/oc-test [smoke|targeted|full] [pytest args...]\n' >&2
