@@ -72,6 +72,7 @@ def test_mcp_boundary_routes_catalog_create_update_close(tmp_path: Path):
         "pairwise",
         "form",
         "checklist",
+        "queue",
     }
 
     created = boundary.handle(

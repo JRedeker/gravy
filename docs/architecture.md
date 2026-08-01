@@ -24,19 +24,20 @@ close(review_id) -> terminal lifecycle state
 
 ## Closed review catalog
 
-`catalog()` describes exactly four discriminated review surfaces, each with a
+`catalog()` describes exactly five discriminated review surfaces, each with a
 schema and example request:
 
 - `gallery` for selecting or ranking visual variants with notes;
 - `pairwise` for left/right/tie/skip decisions that resume from persisted
   decisions;
-- `form` for images or text, options, toggles, fields, and free text; and
-- `checklist` for explicit pass/fail criteria and per-criterion comments.
+- `form` for images or text, options, toggles, fields, and free text;
+- `checklist` for explicit pass/fail criteria and per-criterion comments; and
+- `queue` for assigning every item to one of a closed set of outcome buckets.
 
 `checklist` is independently discriminated and serialized even where it shares
-field primitives with a form. `annotation`, `queue`, `document`, and `preview`
-are catalog roadmap metadata only: they are deferred and unimplemented. There
-is no `custom` surface, generic renderer, or agent-supplied executable UI path.
+field primitives with a form. `annotation`, `document`, and `preview` are catalog
+roadmap metadata only: they are deferred and unimplemented. There is no
+`custom` surface, generic renderer, or agent-supplied executable UI path.
 
 ## Correctness boundaries
 

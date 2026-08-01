@@ -264,3 +264,34 @@ def test_no_decision_renders_blank_values(tmp_path: Path):
     assert controller.gallery_prior() is None
     assert controller.form_prior() == {}
     assert controller.checklist_prior("any") == (False, "")
+
+
+def test_queue_controller_persists_assignments(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request(
+        {"surface": "queue", "items": ["a", "b"], "options": ["accept", "reject"]}
+    )
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    result = controller.queue_submit({"a": "accept", "b": "reject"})
+
+    assert result == {"complete": True, "remaining": 0}
+    assert decisions(tmp_path) == [
+        {"surface": "queue", "assignments": {"a": "accept", "b": "reject"}}
+    ]
+
+
+def test_queue_prior_returns_latest(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    artifacts.create_namespace("review-one")
+    request = validate_request(
+        {"surface": "queue", "items": ["a", "b"], "options": ["accept", "reject"]}
+    )
+    controller = ReviewPageController("review-one", request, artifacts)
+
+    assert controller.queue_prior() == {}
+    controller.queue_submit({"a": "accept", "b": "reject"})
+    controller.queue_submit({"a": "reject", "b": "accept"})
+
+    assert controller.queue_prior() == {"a": "reject", "b": "accept"}

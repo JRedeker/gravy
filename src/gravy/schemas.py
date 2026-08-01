@@ -122,7 +122,17 @@ class ChecklistRequest:
         return {"surface": self.surface, "criteria": list(self.criteria)}
 
 
-ReviewRequest: TypeAlias = GalleryRequest | PairwiseRequest | FormRequest | ChecklistRequest
+@dataclass(frozen=True, slots=True)
+class QueueRequest:
+    surface: Literal["queue"]
+    items: tuple[str, ...]
+    options: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"surface": self.surface, "items": list(self.items), "options": list(self.options)}
+
+
+ReviewRequest: TypeAlias = GalleryRequest | PairwiseRequest | FormRequest | ChecklistRequest | QueueRequest
 
 
 def validate_request(request: Mapping[str, Any]) -> ReviewRequest:
@@ -146,4 +156,11 @@ def validate_request(request: Mapping[str, Any]) -> ReviewRequest:
     if surface == "checklist":
         _require_exact_keys(request, "criteria")
         return ChecklistRequest("checklist", _string_list(request, "criteria"))
-    raise RequestValidationError("surface must be gallery, pairwise, form, or checklist")
+    if surface == "queue":
+        _require_exact_keys(request, "items", "options")
+        items = _string_list(request, "items")
+        options = _string_list(request, "options")
+        if len(options) < 2:
+            raise RequestValidationError("queue options must have at least two entries")
+        return QueueRequest("queue", items, options)
+    raise RequestValidationError("surface must be gallery, pairwise, form, checklist, or queue")

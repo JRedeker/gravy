@@ -48,7 +48,7 @@ def plane(tmp_path: Path) -> GravyControlPlane:
 def test_control_plane_exposes_only_catalog_create_update_close(tmp_path: Path):
     service = plane(tmp_path)
 
-    assert service.catalog()["deferred"] == ("annotation", "queue", "document", "preview")
+    assert service.catalog()["deferred"] == ("annotation", "document", "preview")
     created = service.create("gallery", {"surface": "gallery", "items": ["first.png"]})
 
     assert created.record is not None

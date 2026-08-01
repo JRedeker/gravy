@@ -9,6 +9,7 @@ from gravy.surfaces.common import SurfaceValidationError
 from gravy.surfaces.form import FormSurface
 from gravy.surfaces.gallery import GallerySurface
 from gravy.surfaces.pairwise import PairwiseSurface
+from gravy.surfaces.queue import QueueSurface
 
 
 def store(tmp_path: Path) -> ArtifactStore:
@@ -209,3 +210,41 @@ def test_pairwise_forward_flow_unchanged_after_revision(tmp_path: Path):
     assert not surface.complete
     surface.choose("skip")
     assert surface.complete
+
+
+def test_queue_persists_item_bucket_assignments(tmp_path: Path):
+    surface = QueueSurface("review-one", ("a", "b", "c"), ("accept", "reject", "defer"), store(tmp_path))
+
+    result = surface.submit({"a": "accept", "b": "reject", "c": "defer"})
+
+    assert result.complete
+    assert result.remaining == 0
+    assert decisions(tmp_path) == [
+        {"surface": "queue", "assignments": {"a": "accept", "b": "reject", "c": "defer"}}
+    ]
+
+
+def test_queue_allows_revision_and_latest_wins(tmp_path: Path):
+    surface = QueueSurface("review-one", ("a", "b"), ("accept", "reject"), store(tmp_path))
+
+    surface.submit({"a": "accept", "b": "reject"})
+    revised = surface.submit({"a": "reject", "b": "accept"})
+
+    assert revised.complete
+    rows = decisions(tmp_path)
+    assert len(rows) == 2
+    assert surface.latest_decision()["assignments"] == {"a": "reject", "b": "accept"}
+
+
+def test_queue_rejects_missing_item(tmp_path: Path):
+    surface = QueueSurface("review-one", ("a", "b"), ("accept", "reject"), store(tmp_path))
+
+    with pytest.raises(SurfaceValidationError):
+        surface.submit({"a": "accept"})
+
+
+def test_queue_rejects_invalid_bucket(tmp_path: Path):
+    surface = QueueSurface("review-one", ("a",), ("accept", "reject"), store(tmp_path))
+
+    with pytest.raises(SurfaceValidationError):
+        surface.submit({"a": "maybe"})

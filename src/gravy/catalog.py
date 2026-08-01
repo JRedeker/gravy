@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 
-DEFERRED_SURFACES = ("annotation", "queue", "document", "preview")
+DEFERRED_SURFACES = ("annotation", "document", "preview")
 
 _SURFACES = (
     {
@@ -27,6 +27,11 @@ _SURFACES = (
         "surface": "checklist",
         "schema": {"surface": "checklist", "criteria": "non-empty string[]"},
         "example": {"surface": "checklist", "criteria": ["title is visible"]},
+    },
+    {
+        "surface": "queue",
+        "schema": {"surface": "queue", "items": "non-empty string[]", "options": "non-empty string[] (>=2)"},
+        "example": {"surface": "queue", "items": ["card-a", "card-b"], "options": ["accept", "reject", "defer"]},
     },
 )
 

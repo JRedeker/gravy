@@ -209,7 +209,7 @@ async def test_server_round_trips_catalog_create_close(tmp_path: Path) -> None:
             catalog = _tool_text(await session.call_tool("catalog", {}))
             assert catalog["ok"] is True
             surfaces = {item["surface"] for item in catalog["result"]["surfaces"]}
-            assert surfaces == {"gallery", "pairwise", "form", "checklist"}
+            assert surfaces == {"gallery", "pairwise", "form", "checklist", "queue"}
 
             created = _tool_text(
                 await session.call_tool(

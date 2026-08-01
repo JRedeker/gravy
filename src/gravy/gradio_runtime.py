@@ -20,6 +20,7 @@ from .schemas import (
     FormRequest,
     GalleryRequest,
     PairwiseRequest,
+    QueueRequest,
     ReviewRequest,
 )
 from .surfaces.checklist import ChecklistSurface
@@ -27,6 +28,7 @@ from .surfaces.common import SurfaceValidationError
 from .surfaces.form import FormSurface
 from .surfaces.gallery import GallerySurface
 from .surfaces.pairwise import PairwiseSurface
+from .surfaces.queue import QueueSurface
 
 GRADIO_QUEUE_MAX_SIZE = 20
 GRADIO_MAX_THREADS = 8
@@ -50,6 +52,8 @@ def _surface_for_request(
         )
     if isinstance(request, ChecklistRequest):
         return ChecklistSurface(review_id, request.criteria, artifacts)
+    if isinstance(request, QueueRequest):
+        return QueueSurface(review_id, request.items, request.options, artifacts)  # type: ignore[arg-type]
     raise ValueError(f"unsupported review request: {type(request).__name__}")
 
 
@@ -130,6 +134,17 @@ class ReviewPageController:
         if row is None:
             return (False, "")
         return (bool(row.get("passed")), str(row.get("comment") or ""))
+
+    def queue_submit(self, assignments: Mapping[str, Any]) -> dict[str, Any]:
+        progress = self._surface.submit(assignments)  # type: ignore[arg-type]
+        return {"complete": progress.complete, "remaining": progress.remaining}
+
+    def queue_prior(self) -> dict[str, Any]:
+        """Latest queue assignments for UI pre-population, or {} when undecided."""
+        row = self._surface.latest_decision()  # type: ignore[attr-defined]
+        if row is None:
+            return {}
+        return dict(row.get("assignments") or {})
 
     def _handle(self, fn, *args, **kwargs) -> dict[str, Any]:
         try:
@@ -342,11 +357,33 @@ def _build_checklist(
     return blocks
 
 
+def _build_queue(controller: ReviewPageController, request: QueueRequest) -> gr.Blocks:
+    radio_components: list[gr.components.Component] = []
+
+    with gr.Blocks(title="Gravy Queue Review") as blocks:
+        gr.Markdown("### Queue triage")
+        prior = controller.queue_prior()
+        for item in request.items:
+            gr.Markdown(f"**{item}**")
+            comp = gr.Radio(choices=list(request.options), label=item, value=prior.get(item))
+            radio_components.append(comp)
+
+        status = gr.Textbox(label="Status", interactive=False)
+
+        def submit(*values):
+            assignments = {item: value for item, value in zip(request.items, values)}
+            return controller._handle(controller.queue_submit, assignments)
+
+        gr.Button("Submit").click(submit, inputs=radio_components, outputs=[status])
+    return blocks
+
+
 _BUILDERS = {
     GalleryRequest: _build_gallery,
     PairwiseRequest: _build_pairwise,
     FormRequest: _build_form,
     ChecklistRequest: _build_checklist,
+    QueueRequest: _build_queue,
 }
 
 

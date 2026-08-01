@@ -14,10 +14,11 @@ active review when permitted, and close it.
 - **Form** — collect structured options, toggles, text, and image feedback.
 - **Checklist** — record an explicit pass/fail result and comment for each
   declared criterion.
+- **Queue** — assign every item to one of a closed set of outcome buckets.
 
-The catalog is closed: `gallery`, `pairwise`, `form`, and `checklist` are the
-only implemented surfaces. `annotation`, `queue`, `document`, and `preview`
-are deferred and unimplemented. Gravy does not accept custom renderers,
+The catalog is closed: `gallery`, `pairwise`, `form`, `checklist`, and `queue`
+are the only implemented surfaces. `annotation`, `document`, and `preview` are
+deferred and unimplemented. Gravy does not accept custom renderers,
 agent-provided executable UI code, or arbitrary generated applications.
 
 ## Operating model
