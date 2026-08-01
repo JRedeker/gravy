@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "change_id": "addQueueTriageSurface",
+  "title": "Add queue triage surface",
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "New queue surface for bulk triage into outcome buckets",
+    "highlights": [
+      "Agents can create a queue triage review with {surface: queue, items: [...], options: [...]} — one minimal create call",
+      "Reviewer assigns each item to an outcome bucket (accept/reject/defer or custom) in a single worklist view",
+      "Decision is a clean {item: bucket} mapping; supports revision and pre-population like all other surfaces",
+      "Catalog now covers 5 distinct decision shapes: gallery, pairwise, form, checklist, queue"
+    ],
+    "area": "review surfaces",
+    "user_action_required": false,
+    "links": {}
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "archived_at": "2026-08-01T17:09:38.518Z",
+  "capabilities": [],
+  "change_hash": "c47c873b44d1e67c0053eac132468384ceb6264c6e1cda1e682e2eea98134c43",
+  "change_id": "addQueueTriageSurface",
+  "completed_tasks": 2,
+  "created_at": "2026-07-31T23:21:06.912Z",
+  "current_gate": "release",
+  "last_activity_at": "2026-08-01T15:45:19.969Z",
+  "lifecycle_state": "open",
+  "status": "archived",
+  "summary_hash": "2f3d51ab5fb495207aaf56cd9a61f01b3cf5a5a2687083a56524fb4c80ae5035",
+  "task_count": 2,
+  "title": "Add queue triage surface",
+  "version": "1"
+}

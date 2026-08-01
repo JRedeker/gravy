@@ -1,0 +1,1072 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Sharper-Flow/Advance/trunk/plugin/schemas/change.schema.json",
+  "id": "addQueueTriageSurface",
+  "title": "Add queue triage surface",
+  "status": "archived",
+  "lifecycleState": "open",
+  "created_at": "2026-07-31T23:21:06.912Z",
+  "tasks": [
+    {
+      "id": "tk-fa463f18b931",
+      "title": "Write failing queue surface + schema tests (TDD RED phase)",
+      "type": "code",
+      "section": "Testing",
+      "status": "done",
+      "priority": 0,
+      "created_at": "2026-08-01T15:27:34.926Z",
+      "started_at": "2026-08-01T15:32:07.428Z",
+      "completed_at": "2026-08-01T15:43:28.534Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "RED phase: queue surface/schema tests written by adv-engineer. QueueSurface/QueueRequest didn't exist; existing catalog tests failed (4≠5 surfaces). Recorded via adv-engineer local pytest (RED collection failure).",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [
+        "AGENTS.md",
+        "README.md",
+        "docs/architecture.md",
+        "docs/operations.md",
+        "src/gravy/catalog.py",
+        "src/gravy/gradio_runtime.py",
+        "src/gravy/schemas.py",
+        "src/gravy/surfaces/__init__.py",
+        "src/gravy/surfaces/queue.py",
+        "tests/test_control_plane.py",
+        "tests/test_gradio_runtime.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_mcp_entry.py",
+        "tests/test_schemas.py",
+        "tests/test_surfaces.py"
+      ],
+      "checkpointSha": "96e0540cbb0a29a957a4322086fd282e1bdbcf6e",
+      "completedAt": "2026-08-01T15:43:28.534Z",
+      "assignedTo": "agent",
+      "contract_refs": {
+        "verifies": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC6",
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [
+        "AGENTS.md",
+        "README.md",
+        "docs/architecture.md",
+        "docs/operations.md",
+        "src/gravy/catalog.py",
+        "src/gravy/gradio_runtime.py",
+        "src/gravy/schemas.py",
+        "src/gravy/surfaces/__init__.py",
+        "src/gravy/surfaces/queue.py",
+        "tests/test_control_plane.py",
+        "tests/test_gradio_runtime.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_mcp_entry.py",
+        "tests/test_schemas.py",
+        "tests/test_surfaces.py"
+      ]
+    },
+    {
+      "id": "tk-ed0e8a3b1dff",
+      "title": "Implement queue surface + full integration (TDD GREEN phase)",
+      "type": "code",
+      "section": "Implementation",
+      "status": "done",
+      "priority": 1,
+      "created_at": "2026-08-01T15:27:35.577Z",
+      "completed_at": "2026-08-01T15:43:39.991Z",
+      "implementation_summary": "Task checkpoint completed",
+      "verification": "GREEN phase: 94/94 tests pass. QueueSurface + QueueRequest + catalog entry + _build_queue + controller methods + DEFERRED_SURFACES updated + 4 boundary docs. Independently verified by main agent. adv_run_test phase:verify runId tr_msajjgzh_70690921.",
+      "summary": "Task checkpoint completed",
+      "filesTouched": [],
+      "checkpointSha": "96e0540cbb0a29a957a4322086fd282e1bdbcf6e",
+      "completedAt": "2026-08-01T15:43:39.991Z",
+      "contract_refs": {
+        "implements": [
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6"
+        ],
+        "verifies": [
+          "AC7"
+        ]
+      },
+      "evidence_plan": {
+        "policy": "test",
+        "proof_target": "Automated red/green tests evidenced by adv_run_test",
+        "provenance": "new",
+        "stage": "stage-v2"
+      },
+      "evidence_policy": "test",
+      "metadata": {
+        "tdd_intent": "inline"
+      },
+      "touched_files": [],
+      "subagent_reports": [
+        {
+          "schema_version": "1.0",
+          "change_id": "addQueueTriageSurface",
+          "attempt": 1,
+          "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addQueueTriageSurface",
+          "task_id": "tk-ed0e8a3b1dff",
+          "scope": {
+            "kind": "task",
+            "task_id": "tk-ed0e8a3b1dff"
+          },
+          "agent": "adv-engineer",
+          "status": "complete",
+          "evidence_binding_version": "typed-v1",
+          "files_touched": [
+            "src/gravy/surfaces/queue.py",
+            "src/gravy/surfaces/__init__.py",
+            "src/gravy/schemas.py",
+            "src/gravy/catalog.py",
+            "src/gravy/gradio_runtime.py",
+            "tests/test_surfaces.py",
+            "tests/test_schemas.py",
+            "tests/test_gradio_runtime.py",
+            "tests/test_mcp_boundary.py",
+            "tests/test_control_plane.py",
+            "tests/test_mcp_entry.py",
+            "AGENTS.md",
+            "README.md",
+            "docs/architecture.md",
+            "docs/operations.md"
+          ],
+          "verification": [
+            {
+              "run_id": "local-pytest-targeted-addQueueTriageSurface",
+              "command": "uv run --group test pytest tests/test_surfaces.py tests/test_schemas.py tests/test_gradio_runtime.py tests/test_mcp_boundary.py -v",
+              "exit_code": 0,
+              "summary": "RED-phase targeted tests: 49 passed after implementation (new queue tests + updated existing tests)"
+            },
+            {
+              "run_id": "local-pytest-full-addQueueTriageSurface",
+              "command": "uv run --group test pytest",
+              "exit_code": 0,
+              "summary": "GREEN full suite: 94 passed in ~24s"
+            }
+          ],
+          "decisions": [
+            {
+              "what": "Updated two additional existing tests (test_control_plane.py, test_mcp_entry.py) beyond the RED-phase list to remove 'queue' from deferred expected sets and include it in supported surfaces",
+              "why": "Full-suite verification failed until those catalog assertions matched the new reality; they are part of the same surface rollout and safe to update."
+            },
+            {
+              "what": "Used frozenset membership validation in QueueSurface.submit",
+              "why": "Matches existing form/gallery pattern for closed-field whole-surface validation."
+            },
+            {
+              "what": "Implemented queue_prior returning {} when no decision exists",
+              "why": "Mirrors form_prior contract used by the builder for pre-population."
+            }
+          ],
+          "blockers": [],
+          "scope_drift": null,
+          "follow_ups": [],
+          "required_main_agent_actions": [],
+          "related_scan": "Fixed same catalog-deferred/surface-set assertions in test_control_plane.py and test_mcp_entry.py; full suite now green.",
+          "context_update_for_adv": {
+            "what_ads_needs_to_know": "Queue triage surface implemented and integrated across schemas, catalog, runtime, and docs. RED tests were written first; after implementation, targeted tests pass 49/49 and full suite passes 94/94. 'queue' removed from DEFERRED_SURFACES and all 4 boundary docs updated.",
+            "suggested_next_action": "Run a final diff review and proceed to acceptance/frontend-designer verification if needed."
+          },
+          "apply_context": {
+            "implementation_cycle_id": "ic-addQueueTriageSurface-green",
+            "implementation_provenance": {
+              "kind": "engineer_report",
+              "report_key": "queue-triage-surface-implementation"
+            }
+          },
+          "consumer_warnings": [
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: local-pytest-targeted-addQueueTriageSurface"
+            },
+            {
+              "kind": "verification_missing",
+              "message": "No durable adv_run_test evidence found for run_id: local-pytest-full-addQueueTriageSurface"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "subagent_reports": [
+    {
+      "schema_version": "1.0",
+      "change_id": "addQueueTriageSurface",
+      "attempt": 1,
+      "workdir_used": "/home/jon/dev/gravy",
+      "scope": {
+        "kind": "change",
+        "scope_key": "researcher:queue-surface-design-validation"
+      },
+      "agent": "adv-researcher",
+      "topic": "Independent design validation: queue triage surface",
+      "sources": [
+        {
+          "label": "src/gravy/surfaces/common.py (DecisionSurface base)",
+          "locator": "src/gravy/surfaces/common.py:26-78",
+          "summary": "DecisionSurface provides _append, latest_decision() (last row wins, returns None when undecided), _surface_decisions, decisions. Whole-surface pattern. Sufficient for QueueSurface."
+        },
+        {
+          "label": "src/gravy/surfaces/form.py (whole-surface single-decision reference)",
+          "locator": "src/gravy/surfaces/form.py:13-29",
+          "summary": "FormSurface validates set(values) != self._fields (frozenset) -> SurfaceValidationError; _append({surface, values}); complete=True. QueueSurface D2 mirrors this exactly."
+        },
+        {
+          "label": "src/gravy/surfaces/gallery.py (whole-surface reference)",
+          "locator": "src/gravy/surfaces/gallery.py:9-24",
+          "summary": "GallerySurface: set(ranking) == set(items) check, _append, complete=True. Confirms whole-surface revision pattern."
+        },
+        {
+          "label": "src/gravy/surfaces/checklist.py (keyed contrast)",
+          "locator": "src/gravy/surfaces/checklist.py:9-24",
+          "summary": "ChecklistSurface uses per-criterion append + latest_per_key. This is the pattern queue correctly AVOIDS (D1 chooses whole-surface, not keyed)."
+        },
+        {
+          "label": "src/gravy/schemas.py (validate_request + helpers)",
+          "locator": "src/gravy/schemas.py:71-149",
+          "summary": "_string_list, _require_exact_keys reused by all surfaces. FormField option type requires len(options)>=2 (lines 56-59) -> precedent for queue options>=2 gate. ReviewRequest union at line 125; error msg line 149."
+        },
+        {
+          "label": "src/gravy/catalog.py (closed catalog)",
+          "locator": "src/gravy/catalog.py:8-42",
+          "summary": "DEFERRED_SURFACES = ('annotation','queue','document','preview') at line 8. _SURFACES tuple lines 10-31. catalog() returns copies. Design omits removing 'queue' from DEFERRED_SURFACES -> internal contradiction."
+        },
+        {
+          "label": "src/gravy/gradio_runtime.py (_surface_for_request + _BUILDERS)",
+          "locator": "src/gravy/gradio_runtime.py:39-53,345-350",
+          "summary": "_surface_for_request isinstance dispatch; _BUILDERS dict {Request: builder}. QueueSurface(request.items, request.options, artifacts) call signature matches design __init__. Form option Radio at line 298."
+        },
+        {
+          "label": "tests/test_schemas.py (catalog-closed assertions)",
+          "locator": "tests/test_schemas.py:7-17",
+          "summary": "test_catalog_is_closed_to_the_four_supported_surfaces asserts 4-surface tuple; line 16 asserts deferred == ('annotation','queue','document','preview'). Adding queue breaks BOTH; design test plan omits updates."
+        },
+        {
+          "label": "tests/test_mcp_boundary.py (catalog surface set)",
+          "locator": "tests/test_mcp_boundary.py:64-75",
+          "summary": "Asserts catalog surface set == {gallery,pairwise,form,checklist}. Adding queue breaks this; not in design plan."
+        },
+        {
+          "label": "Boundary docs (AGENTS.md, README, architecture, operations)",
+          "locator": "AGENTS.md:15; README.md:19; docs/architecture.md:37-38; docs/operations.md:63",
+          "summary": "All four list 'queue' as deferred/unimplemented. Design's 6 integration points include zero doc updates -> staleness + AGENTS.md/code contradiction."
+        }
+      ],
+      "architecture_assessment": "QueueSurface D1-D3 correctly follows the gallery/form whole-surface single-decision pattern. DecisionSurface (common.py:26-78) provides every primitive needed: _append (append-only, artifacts.py opens 'a' mode), latest_decision() (last row wins, None when undecided), _surface_decisions (filters by surface). No new base-class capability required. D2 validation `set(assignments) != set(self._items)` is structurally identical to FormSurface's `set(values) != self._fields` (form.py:20-22): it catches missing keys AND extra keys in one check; duplicate keys are impossible in a Python dict so 'exactly once' is guaranteed by construction. The bucket-in-options check `any(b not in self._options ...)` correctly complements it. Schema approach reuses _string_list + _require_exact_keys identically to gallery/pairwise/checklist; the len(options)>=2 gate has precedent in FormField option type (schemas.py:56-59). Catalog entry shape and _BUILDERS/_surface_for_request registration match existing entries exactly. The CORE surface design is correct. The GAP: the design's '6 integration points' and 'Risks: None material' understate the real blast radius of promoting a deferred surface to real. queue appears in DEFERRED_SURFACES (catalog.py:8) and 4 boundary docs as deferred, and 3 tests assert the 4-surface closed catalog. These are not design errors but omissions in the integration plan that will cause red tests + stale/contradictory boundary docs if not addressed.",
+      "validation": {
+        "status": "caution",
+        "blockers": [],
+        "notes": "Surface design (D1-D3) is correct and contract-clean. Caution is for integration-plan completeness: design omits removing 'queue' from DEFERRED_SURFACES, updating 3 existing tests (test_schemas.py catalog test + deferred assertion, test_mcp_boundary.py catalog set), and updating 4 boundary docs (AGENTS.md, README.md, docs/architecture.md, docs/operations.md). Also: design references 'reflectPriorDecisionRevision' which is not a real symbol in src (no grep match); the actual mechanism is latest_decision()->prior accessor (gallery_prior/form_prior pattern). No blockers; all gaps are mechanical additions."
+      },
+      "architecture_judgement": {
+        "applicability": "applicable",
+        "confidence": "high",
+        "risk": "low",
+        "tradeoffs": [
+          "Whole-surface single-decision (D1) over per-item keyed append: simpler revision (latest_decision wins, matches AC3) but a re-triage resubmits ALL items — cannot revise a single item independently. Acceptable: AC3 explicitly wants gallery/form-style revision.",
+          "set-equality validation rejects extra keys too — stricter than AC2's literal 'missing item' wording; safer (no metadata smuggled alongside assignments) but callers cannot attach extra fields.",
+          "len(options)>=2 gate placed at schema layer not surface: matches FormField precedent; a 1-bucket request is rejected at create time, never reaching the surface.",
+          "queue stored nested under 'assignments' key (like form's 'values') rather than flat at row top-level: matches house style, keeps row schema extensible."
+        ],
+        "alternatives_considered": [
+          {
+            "option": "Per-item keyed surface (checklist-style latest_per_key, allow single-item revision)",
+            "disposition": "rejected",
+            "rationale": "Breaks the atomic-triage contract; AC3 explicitly requires gallery/form-style whole-surface revision. Adds complexity and a different completion model. Correctly avoided by D1."
+          },
+          {
+            "option": "Dropdown per item instead of Radio",
+            "disposition": "deferred",
+            "rationale": "No contract impact. Radio preferred for consistency with form option-field rendering (gradio_runtime.py:298). Either works; reviewer may choose."
+          },
+          {
+            "option": "Store {item:bucket} flat at row top-level instead of nested under 'assignments'",
+            "disposition": "rejected",
+            "rationale": "Inconsistent with form's nesting under 'values' and gallery's structured payload. Nesting matches house style."
+          },
+          {
+            "option": "Ranking/sorted output within buckets",
+            "disposition": "rejected",
+            "rationale": "Violates C3/DONT3 (no reordering/ranking). Correctly avoided."
+          }
+        ],
+        "recommendation": "Proceed with the design (D1-D3 are sound and contract-clean). Before the planning gate, expand the integration plan to additional mechanical updates: remove 'queue' from DEFERRED_SURFACES in catalog.py:8; update test_catalog_is_closed_to_the_four_supported_surfaces in test_schemas.py:7-17 to 5 surfaces; update deferred assertion test_schemas.py:16 to drop 'queue'; update test_mcp_boundary.py:70-75 catalog surface set to include 'queue'; update AGENTS.md:15, README.md:19, docs/architecture.md:37-38, docs/operations.md:63. Also fix the fictional 'reflectPriorDecisionRevision' reference; the real mechanism is latest_decision() via a queue_prior() accessor mirroring gallery_prior/form_prior."
+      },
+      "recommendation": "CONFIRM the surface design (D1-D3 correct, mirrors FormSurface, all AC1-AC7/SC1/C1-C3/DONT1-3 honored by the design itself). REQUIRED main-agent actions before planning: (1) catalog.py:8 remove 'queue' from DEFERRED_SURFACES or queue will be both real AND deferred; (2) test_schemas.py:7-17 rename+expand catalog-closed test to 5 surfaces; (3) test_schemas.py:16 drop 'queue' from deferred assertion; (4) test_mcp_boundary.py:70-75 add 'queue' to expected surface set; (5) AGENTS.md:15, README.md:19, docs/architecture.md:37-38, docs/operations.md:63 update boundary prose (queue no longer deferred). Minor: design's 'reflectPriorDecisionRevision' is not a real symbol; use latest_decision()->queue_prior() pattern. Minor style nit: store self._items as frozenset for the membership check (FormSurface stores frozenset) to avoid recomputing set() per submit.",
+      "follow_ups": [
+        "Packet provided WORKING DIRECTORY/CHANGE/SCOPE KEY/ATTEMPT/PHASE anchors but omitted explicit TASK_SCOPE/IN_SCOPE/OUT_OF_SCOPE/DONE_WHEN/STOP_WHEN/VERIFICATION blocks; scope inferred from 'What to validate' + 'Deliverable' sections.",
+        "Consider whether duplicate item strings in a request (allowed by _string_list, which does not dedupe) need handling — pre-existing pattern shared with gallery/form, not queue-specific, but worth a decision if it matters for triage semantics."
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "change_id": "addQueueTriageSurface",
+      "attempt": 1,
+      "workdir_used": "/home/jon/.local/share/opencode/worktree/1f21b847dbc72d468194b4fa5a2a72495e1d595a/change/addQueueTriageSurface",
+      "task_id": "tk-ed0e8a3b1dff",
+      "scope": {
+        "kind": "task",
+        "task_id": "tk-ed0e8a3b1dff"
+      },
+      "agent": "adv-engineer",
+      "status": "complete",
+      "evidence_binding_version": "typed-v1",
+      "files_touched": [
+        "src/gravy/surfaces/queue.py",
+        "src/gravy/surfaces/__init__.py",
+        "src/gravy/schemas.py",
+        "src/gravy/catalog.py",
+        "src/gravy/gradio_runtime.py",
+        "tests/test_surfaces.py",
+        "tests/test_schemas.py",
+        "tests/test_gradio_runtime.py",
+        "tests/test_mcp_boundary.py",
+        "tests/test_control_plane.py",
+        "tests/test_mcp_entry.py",
+        "AGENTS.md",
+        "README.md",
+        "docs/architecture.md",
+        "docs/operations.md"
+      ],
+      "verification": [
+        {
+          "run_id": "local-pytest-targeted-addQueueTriageSurface",
+          "command": "uv run --group test pytest tests/test_surfaces.py tests/test_schemas.py tests/test_gradio_runtime.py tests/test_mcp_boundary.py -v",
+          "exit_code": 0,
+          "summary": "RED-phase targeted tests: 49 passed after implementation (new queue tests + updated existing tests)"
+        },
+        {
+          "run_id": "local-pytest-full-addQueueTriageSurface",
+          "command": "uv run --group test pytest",
+          "exit_code": 0,
+          "summary": "GREEN full suite: 94 passed in ~24s"
+        }
+      ],
+      "decisions": [
+        {
+          "what": "Updated two additional existing tests (test_control_plane.py, test_mcp_entry.py) beyond the RED-phase list to remove 'queue' from deferred expected sets and include it in supported surfaces",
+          "why": "Full-suite verification failed until those catalog assertions matched the new reality; they are part of the same surface rollout and safe to update."
+        },
+        {
+          "what": "Used frozenset membership validation in QueueSurface.submit",
+          "why": "Matches existing form/gallery pattern for closed-field whole-surface validation."
+        },
+        {
+          "what": "Implemented queue_prior returning {} when no decision exists",
+          "why": "Mirrors form_prior contract used by the builder for pre-population."
+        }
+      ],
+      "blockers": [],
+      "scope_drift": null,
+      "follow_ups": [],
+      "required_main_agent_actions": [],
+      "related_scan": "Fixed same catalog-deferred/surface-set assertions in test_control_plane.py and test_mcp_entry.py; full suite now green.",
+      "context_update_for_adv": {
+        "what_ads_needs_to_know": "Queue triage surface implemented and integrated across schemas, catalog, runtime, and docs. RED tests were written first; after implementation, targeted tests pass 49/49 and full suite passes 94/94. 'queue' removed from DEFERRED_SURFACES and all 4 boundary docs updated.",
+        "suggested_next_action": "Run a final diff review and proceed to acceptance/frontend-designer verification if needed."
+      },
+      "apply_context": {
+        "implementation_cycle_id": "ic-addQueueTriageSurface-green",
+        "implementation_provenance": {
+          "kind": "engineer_report",
+          "report_key": "queue-triage-surface-implementation"
+        }
+      },
+      "consumer_warnings": [
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: local-pytest-targeted-addQueueTriageSurface"
+        },
+        {
+          "kind": "verification_missing",
+          "message": "No durable adv_run_test evidence found for run_id: local-pytest-full-addQueueTriageSurface"
+        }
+      ]
+    }
+  ],
+  "test_runs": {
+    "tk-ed0e8a3b1dff": [
+      {
+        "runId": "tr_msajjgzh_70690921",
+        "phase": "verify",
+        "exitCode": 0,
+        "classification": "passed",
+        "command": "uv run --group test pytest 2>&1",
+        "durationMs": 34234.35285100341,
+        "recordedAt": "2026-08-01T15:43:18.494Z"
+      }
+    ]
+  },
+  "deltas": {},
+  "wisdom": [],
+  "gates": {
+    "proposal": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:20:50.403Z",
+      "completed_by": "user",
+      "approval_evidence": "Non-defect new feature. Scope complete. B/F/S clean. Catalog expansion: queue only (annotation/document/preview skipped per minimalism).",
+      "artifact_evidence": {
+        "kind": "proposal",
+        "content_hash": "098c60cb5f96d92369d64a3304d8bf18dfa49f29885d26fdd03eaa700c9ab623",
+        "non_whitespace_chars": 2503,
+        "checked_at": "2026-07-31T23:21:07.299Z"
+      }
+    },
+    "discovery": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:22:27.996Z",
+      "completed_by": "user",
+      "approval_evidence": "Agreement approved; contract minted (14 items). 6 integration points mapped. Follows gallery/form pattern. No MCP boundary change.",
+      "artifact_evidence": {
+        "kind": "agreement",
+        "content_hash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "non_whitespace_chars": 1770,
+        "checked_at": "2026-07-31T23:21:07.300Z"
+      }
+    },
+    "design": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:27:16.974Z",
+      "completed_by": "user",
+      "approval_evidence": "Design validated by adv-researcher (CONCERN→resolved). D1-D3 CONFIRMED. 6 plan gaps applied: DEFERRED_SURFACES removal (blocking), 3 existing-test updates, 4 boundary-doc updates, frozenset style. No contract compromise.",
+      "artifact_evidence": {
+        "kind": "design",
+        "content_hash": "7d396a62c675c57869d55388e46928946e45c83c1c69340df6eb0c48cad8594d",
+        "non_whitespace_chars": 2352,
+        "checked_at": "2026-07-31T23:21:07.301Z"
+      }
+    },
+    "planning": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:31:34.100Z",
+      "completed_by": "user",
+      "approval_evidence": "Task graph approved: RED tests → GREEN impl. All ACs covered. 6 code files + 4 docs. Validator gaps baked in. Worktree auto-managed."
+    },
+    "execution": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:43:48.695Z",
+      "completed_by": "agent",
+      "approval_evidence": "Both tasks done. 94/94 tests pass. QueueSurface + full integration (schema, catalog, runtime, builder, docs). Commit 96e0540."
+    },
+    "acceptance": {
+      "status": "done",
+      "completed_at": "2026-08-01T15:45:19.969Z",
+      "completed_by": "user",
+      "approval_evidence": "Review matrix 14/14. Verification gap dispositioned (fixed, runId tr_msajjgzh_70690921). 94/94 tests pass.",
+      "started_at": "2026-08-01T15:44:25.029Z",
+      "artifact_evidence": {
+        "kind": "acceptance",
+        "content_hash": "5b8a7eec2682c9ab072e63c2146c44fc391f7265d332c051b0d362755f27f8cf",
+        "non_whitespace_chars": 1642,
+        "checked_at": "2026-07-31T23:21:07.303Z"
+      }
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "contract": {
+    "version": 1,
+    "rigor": "standard",
+    "source": {
+      "artifact": "agreement",
+      "contentHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+      "approvedAt": "2026-08-01T15:22:00.000Z"
+    },
+    "items": [
+      {
+        "id": "AC1",
+        "kind": "acceptance_criterion",
+        "text": "**AC1 (Queue triage):** Reviewer assigns each item to a bucket and submits; decision stores `{item: bucket}` for all items.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC2",
+        "kind": "acceptance_criterion",
+        "text": "**AC2 (Validation):** Submit rejects (SurfaceValidationError) if any item is missing or any bucket is not in the allowed options.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC3",
+        "kind": "acceptance_criterion",
+        "text": "**AC3 (Revision):** Resubmit appends a new row; `latest_decision()` is effective (consistent with gallery/form).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC4",
+        "kind": "acceptance_criterion",
+        "text": "**AC4 (Pre-population):** On re-open, prior assignments populate the selectors (consistent with reflectPriorDecisionRevision).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC5",
+        "kind": "acceptance_criterion",
+        "text": "**AC5 (Catalog):** Queue appears in the MCP catalog with schema + example.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC6",
+        "kind": "acceptance_criterion",
+        "text": "**AC6 (Append-only):** No row mutated/deleted; revision appends only.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "AC7",
+        "kind": "acceptance_criterion",
+        "text": "**AC7 (Tests):** Surface + runtime + schema validation tests.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "test",
+        "status": "approved"
+      },
+      {
+        "id": "SC1",
+        "kind": "success_criterion",
+        "text": "An agent creates a queue triage review with items + options and receives a clean {item: bucket} decision via one minimal create call.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "C1",
+        "kind": "constraint",
+        "text": "No changes to existing surfaces or schemas.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C2",
+        "kind": "constraint",
+        "text": "No per-item free-text notes (pure triage; use form for rich per-item feedback).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "C3",
+        "kind": "constraint",
+        "text": "No reordering within buckets (assignment, not ranking).",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "static_check",
+        "status": "approved"
+      },
+      {
+        "id": "DONT1",
+        "kind": "avoidance",
+        "text": "Do not mutate or delete existing decision rows.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT2",
+        "kind": "avoidance",
+        "text": "Do not change existing surfaces or their schemas.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      },
+      {
+        "id": "DONT3",
+        "kind": "avoidance",
+        "text": "Do not add reordering/ranking within buckets.",
+        "sourceArtifact": "agreement",
+        "sourceHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+        "verificationRequired": true,
+        "evidencePolicy": "review",
+        "status": "approved"
+      }
+    ],
+    "reviewMatrix": {
+      "reviewedAt": "2026-08-01T15:44:11.662Z",
+      "rows": [
+        {
+          "contractId": "AC1",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_queue_persists_item_bucket_assignments: submit {item:bucket} for all items; decision row has {surface:queue, assignments:{...}}; complete=True. 94/94 pass runId tr_msajjgzh_70690921"
+        },
+        {
+          "contractId": "AC2",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_queue_rejects_missing_item + test_queue_rejects_invalid_bucket: both raise SurfaceValidationError. 94/94 pass."
+        },
+        {
+          "contractId": "AC3",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_queue_allows_revision_and_latest_wins: submit twice; 2 rows; latest_decision() returns revised. 94/94 pass."
+        },
+        {
+          "contractId": "AC4",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "test_queue_prior_returns_latest: queue_prior() returns assignments from latest_decision; {} when undecided. _build_queue pre-populates Radio values from queue_prior(). 94/94 pass."
+        },
+        {
+          "contractId": "AC5",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "catalog.py: queue entry in _SURFACES with schema+example; removed from DEFERRED_SURFACES. test_mcp_boundary + test_schemas catalog tests pass with 5 surfaces."
+        },
+        {
+          "contractId": "AC6",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "static_check",
+          "evidence": "Only _append; ArtifactStore opens mode 'a'. No mutate/delete. 94/94 pass."
+        },
+        {
+          "contractId": "AC7",
+          "kind": "acceptance_criterion",
+          "status": "pass",
+          "evidencePolicy": "test",
+          "evidence": "Surface tests (4) + schema tests (3) + runtime tests (2) + existing catalog/mcp test updates. 94/94 full suite pass."
+        },
+        {
+          "contractId": "SC1",
+          "kind": "success_criterion",
+          "status": "pass",
+          "evidencePolicy": "review",
+          "evidence": "Agent creates queue review with items+options in one create call; receives clean {item:bucket} decision."
+        },
+        {
+          "contractId": "C1",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "Existing surfaces/schemas unchanged; queue is additive. 94/94 pass."
+        },
+        {
+          "contractId": "C2",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No per-item free-text notes; pure bucket assignment."
+        },
+        {
+          "contractId": "C3",
+          "kind": "constraint",
+          "status": "respected",
+          "evidencePolicy": "static_check",
+          "evidence": "No reordering/ranking within buckets; flat {item:bucket} mapping."
+        },
+        {
+          "contractId": "DONT1",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No mutation/deletion of decision rows."
+        },
+        {
+          "contractId": "DONT2",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "Existing surfaces and schemas unchanged."
+        },
+        {
+          "contractId": "DONT3",
+          "kind": "avoidance",
+          "status": "respected",
+          "evidencePolicy": "review",
+          "evidence": "No reordering within buckets."
+        }
+      ]
+    },
+    "amendments": []
+  },
+  "acceptanceCriteria": [
+    "**AC1 (Queue triage):** Reviewer assigns each item to a bucket and submits; decision stores `{item: bucket}` for all items.",
+    "**AC2 (Validation):** Submit rejects (SurfaceValidationError) if any item is missing or any bucket is not in the allowed options.",
+    "**AC3 (Revision):** Resubmit appends a new row; `latest_decision()` is effective (consistent with gallery/form).",
+    "**AC4 (Pre-population):** On re-open, prior assignments populate the selectors (consistent with reflectPriorDecisionRevision).",
+    "**AC5 (Catalog):** Queue appears in the MCP catalog with schema + example.",
+    "**AC6 (Append-only):** No row mutated/deleted; revision appends only.",
+    "**AC7 (Tests):** Surface + runtime + schema validation tests."
+  ],
+  "documents": {
+    "proposal": "# Proposal: Add queue triage surface\n\n## Why\n\nGravy's existing surfaces each capture a distinct decision shape (pick-one, compare-pairs, fill-fields, check-criteria), but none handles **bulk triage** — sorting a worklist of N items into outcome buckets (accept/reject/defer, keep/drop, priority-high/medium/low) in a single view. Today an agent that needs this would have to construct an awkward N-field form where each field is an option dropdown per item. That works mechanically but obscures intent and produces an undifferentiated `{field: value}` decision instead of a clean `{item: bucket}` triage result.\n\nA dedicated queue surface gives the agent a minimal, purpose-built tool: `{\"surface\": \"queue\", \"items\": [...], \"options\": [...]}` — one create call, one clear decision shape.\n\n## User Outcomes\n- A reviewer sees a worklist of items, each with a bucket selector, and assigns every item in one pass.\n- The reviewer can revise their triage (resubmit with changed assignments; latest wins).\n- The agent receives a clean `{item: bucket}` mapping as the decision.\n\n## What Changes\n- New `QueueSurface` (`surfaces/queue.py`): whole-surface single decision like gallery/form. Submit takes an `{item: bucket}` mapping; validates every item is in the request's items and every bucket is in the request's options. Appends one decision row.\n- New `QueueRequest` schema (`schemas.py`): `{\"surface\": \"queue\", \"items\": [...], \"options\": [...]}`. Extend `ReviewRequest` union + `validate_request`.\n- New `_build_queue` Gradio builder: render each item with a Radio/Dropdown for bucket selection; one Submit captures all. Pre-populates from prior decision (consistent with `reflectPriorDecisionRevision`).\n- Controller method `queue_submit` + `queue_prior`.\n- Registration in `_BUILDERS` + MCP catalog.\n- Revision semantics: resubmit appends a new row; `latest_decision()` is effective (consistent with gallery/form).\n\n## Scope\n\n### In Scope\n- `QueueSurface` + `QueueRequest` + `_build_queue` builder + controller methods + registration + tests.\n\n### Out of Scope\n- Annotation, document, preview surfaces (deferred — covered by existing surfaces or too complex).\n- Reordering items within buckets (pure bucket assignment, not ranked ordering).\n- Other existing surfaces.\n\n### Must Not\n- Mutate or delete existing decision rows (append-only).\n- Add per-item free-text notes (keep it pure triage; use form for rich per-item feedback).\n- Change existing surfaces or their schemas.\n\n## Constraints from Discussion\n- Minimal tool surface: agents set up reviews with simple, purpose-built options.\n- No new surfaces beyond queue (annotation/document/preview skipped).\n- Follow established patterns: schema dataclass → surface module → builder + `_BUILDERS` → controller → tests.\n\n## Discovery Agenda\n- Confirm MCP catalog (`mcp_entry.py`) surface allowlist needs extending for \"queue\".\n- Confirm `validate_request` error message update.",
+    "agreement": "# Agreement: Add queue triage surface\n\n## Objectives\n- Fill the bulk-triage gap with a purpose-built, minimal surface.\n- Follow established patterns exactly (no new architecture).\n\n## Acceptance Criteria\n- **AC1 (Queue triage):** Reviewer assigns each item to a bucket and submits; decision stores `{item: bucket}` for all items.\n- **AC2 (Validation):** Submit rejects (SurfaceValidationError) if any item is missing or any bucket is not in the allowed options.\n- **AC3 (Revision):** Resubmit appends a new row; `latest_decision()` is effective (consistent with gallery/form).\n- **AC4 (Pre-population):** On re-open, prior assignments populate the selectors (consistent with reflectPriorDecisionRevision).\n- **AC5 (Catalog):** Queue appears in the MCP catalog with schema + example.\n- **AC6 (Append-only):** No row mutated/deleted; revision appends only.\n- **AC7 (Tests):** Surface + runtime + schema validation tests.\n\n## Success Criteria\n- An agent creates a queue triage review with items + options and receives a clean {item: bucket} decision via one minimal create call.\n\n## Constraints\n- No changes to existing surfaces or schemas.\n- No per-item free-text notes (pure triage; use form for rich per-item feedback).\n- No reordering within buckets (assignment, not ranking).\n\n## Avoidances\n- Do not mutate or delete existing decision rows.\n- Do not change existing surfaces or their schemas.\n- Do not add reordering/ranking within buckets.\n\n## Discovery Findings (carried into design)\n- 6 integration points: schemas.py (QueueRequest + validate_request), surfaces/queue.py (QueueSurface), surfaces/__init__.py (export), gradio_runtime.py (import + _surface_for_request + queue_submit/queue_prior + _build_queue + _BUILDERS), catalog.py (entry), tests.\n- No MCP boundary change needed — validate_request is the surface gate.\n- QueueSurface follows the gallery/form pattern: whole-surface single decision, latest_decision() effective on revision.\n- UI: each item gets a Radio/Dropdown for bucket selection; one Submit captures all assignments as {item: bucket}.",
+    "design": "# Design: Add queue triage surface\n\n## Architecture\n\nNew surface following the gallery/form pattern (whole-surface single decision). Mechanical catalog expansion — no new architecture.\n\n## LBP Decisions\n\n### D1: QueueSurface = whole-surface single decision (like gallery/form)\nOne submit captures all `{item: bucket}` assignments. `latest_decision()` gives the effective assignment on revision. No per-item append (unlike checklist) — the whole triage is one atomic decision row.\n\n### D2: Validation — all items required, buckets must match options\nSubmit rejects if: (a) assignments keys ≠ set of request items, or (b) any bucket value not in the request's options. Matches form's \"all fields required\" strictness.\n\n### D3: UI — per-item Radio + single Submit\nEach item rendered with a `gr.Radio(choices=options)` for bucket selection. One Submit collects all selections into a dict and calls `queue_submit`. Pre-populates from `queue_prior()` which reads `latest_decision()[\"assignments\"]`.\n\n## Implementation Strategy (6 code points + 3 test updates + 4 doc updates)\n\n### `src/gravy/surfaces/queue.py` (new)\nQueueSurface(DecisionSurface): surface=\"queue\"; __init__ stores _items=frozenset(items), _options=frozenset(options); submit validates set(assignments)==_items and all buckets in _options; appends {surface, assignments}; returns complete.\n\n### `src/gravy/surfaces/__init__.py`\nExport QueueSurface.\n\n### `src/gravy/schemas.py`\nQueueRequest dataclass (surface/items/options); validate_request queue branch (_require_exact_keys + _string_list for both, options>=2); extend union; update error message to 5 surfaces.\n\n### `src/gravy/catalog.py`\nAdd queue entry to _SURFACES. CRITICAL: remove \"queue\" from DEFERRED_SURFACES (line 8).\n\n### `src/gravy/gradio_runtime.py`\nImport QueueSurface + QueueRequest; _surface_for_request branch; queue_submit + queue_prior controller methods; _build_queue builder; _BUILDERS registration.\n\n### Existing test updates\n- test_schemas.py: catalog-closed test 4→5 surfaces; remove queue from deferred assertion.\n- test_mcp_boundary.py: add queue to expected catalog surface set.\n\n### New tests\nSurface tests (revision, validation), runtime tests (controller, prior), schema tests (validation).\n\n### Boundary docs\nAGENTS.md, README.md, docs/architecture.md, docs/operations.md: add queue to supported catalog, remove from deferred.\n\n## Verification\nTDD red→green; bin/oc-test smoke full suite.\n\n## Risks\nNone material. Mechanical catalog expansion.\n\n## Independent Validation\nadv-researcher: CONCERN→resolved. Design logic CONFIRMED. 6 plan gaps applied (DEFERRED_SURFACES removal, 3 test updates, 4 doc updates, frozenset style). No contract compromise.",
+    "executiveSummary": "# Executive Summary: Add queue triage surface\n\n## Outcome\nGravy now has a 5th review surface: **queue** — purpose-built for bulk triage. An agent creates a review with `{\"surface\": \"queue\", \"items\": [...], \"options\": [...]}` and a reviewer sorts every item into an outcome bucket (accept/reject/defer, or any custom buckets) in a single view. The decision is a clean `{item: bucket}` mapping. Previously, bulk triage required constructing an awkward N-field form that obscured intent and produced undifferentiated decisions.\n\n## Value / why it matters\nTriage is one of the most common review tasks (sort candidates, filter submissions, prioritize work items). A dedicated surface gives the agent a minimal, one-call setup and gives the reviewer a clean worklist UI. The catalog now covers five distinct decision shapes: pick-one (gallery), compare-pairs (pairwise), fill-fields (form), check-criteria (checklist), triage-into-buckets (queue).\n\n## What changed\n- New `QueueSurface` (whole-surface single decision, like gallery/form) with frozenset item/bucket validation.\n- New `QueueRequest` schema with items + options (>=2 required).\n- Queue entry in MCP catalog; removed from DEFERRED_SURFACES.\n- `_build_queue` Gradio builder (per-item Radio + single Submit, pre-population on revision).\n- Controller `queue_submit` + `queue_prior` methods.\n- 4 boundary docs updated (AGENTS.md, README.md, architecture.md, operations.md).\n\n## Verification\n- TDD red→green. 94/94 tests pass (was 85; +9 new queue tests + existing catalog/schema/mcp tests updated).\n- Design validated by adv-researcher (CONCERN→resolved; 6 plan gaps applied).\n- Append-only invariant held; revision semantics consistent with all other surfaces.\n\n## Risks / follow-ups\n- None material. The three remaining deferred surfaces (annotation, document, preview) are intentionally skipped — covered by existing surfaces or too complex for the value.",
+    "acceptance": "# Acceptance\n\nReviewed at: 2026-08-01T15:44:11.662Z\n\n## Contract Review Matrix\n\n| ID | Kind | Requirement | Status | Evidence |\n|---|---|---|---|---|\n| AC1 | acceptance_criterion | **AC1 (Queue triage):** Reviewer assigns each item to a bucket and submits; decision stores `{item: bucket}` for all items. | pass | test_queue_persists_item_bucket_assignments: submit {item:bucket} for all items; decision row has {surface:queue, assignments:{...}}; complete=True. 94/94 pass runId tr_msajjgzh_70690921 |\n| AC2 | acceptance_criterion | **AC2 (Validation):** Submit rejects (SurfaceValidationError) if any item is missing or any bucket is not in the allowed options. | pass | test_queue_rejects_missing_item + test_queue_rejects_invalid_bucket: both raise SurfaceValidationError. 94/94 pass. |\n| AC3 | acceptance_criterion | **AC3 (Revision):** Resubmit appends a new row; `latest_decision()` is effective (consistent with gallery/form). | pass | test_queue_allows_revision_and_latest_wins: submit twice; 2 rows; latest_decision() returns revised. 94/94 pass. |\n| AC4 | acceptance_criterion | **AC4 (Pre-population):** On re-open, prior assignments populate the selectors (consistent with reflectPriorDecisionRevision). | pass | test_queue_prior_returns_latest: queue_prior() returns assignments from latest_decision; {} when undecided. _build_queue pre-populates Radio values from queue_prior(). 94/94 pass. |\n| AC5 | acceptance_criterion | **AC5 (Catalog):** Queue appears in the MCP catalog with schema + example. | pass | catalog.py: queue entry in _SURFACES with schema+example; removed from DEFERRED_SURFACES. test_mcp_boundary + test_schemas catalog tests pass with 5 surfaces. |\n| AC6 | acceptance_criterion | **AC6 (Append-only):** No row mutated/deleted; revision appends only. | pass | Only _append; ArtifactStore opens mode 'a'. No mutate/delete. 94/94 pass. |\n| AC7 | acceptance_criterion | **AC7 (Tests):** Surface + runtime + schema validation tests. | pass | Surface tests (4) + schema tests (3) + runtime tests (2) + existing catalog/mcp test updates. 94/94 full suite pass. |\n| SC1 | success_criterion | An agent creates a queue triage review with items + options and receives a clean {item: bucket} decision via one minimal create call. | pass | Agent creates queue review with items+options in one create call; receives clean {item:bucket} decision. |\n| C1 | constraint | No changes to existing surfaces or schemas. | respected | Existing surfaces/schemas unchanged; queue is additive. 94/94 pass. |\n| C2 | constraint | No per-item free-text notes (pure triage; use form for rich per-item feedback). | respected | No per-item free-text notes; pure bucket assignment. |\n| C3 | constraint | No reordering within buckets (assignment, not ranking). | respected | No reordering/ranking within buckets; flat {item:bucket} mapping. |\n| DONT1 | avoidance | Do not mutate or delete existing decision rows. | respected | No mutation/deletion of decision rows. |\n| DONT2 | avoidance | Do not change existing surfaces or their schemas. | respected | Existing surfaces and schemas unchanged. |\n| DONT3 | avoidance | Do not add reordering/ranking within buckets. | respected | No reordering within buckets. |\n\n"
+  },
+  "artifacts": {
+    "proposal": {
+      "updatedAt": "2026-07-31T23:21:07.342Z",
+      "contentHash": "098c60cb5f96d92369d64a3304d8bf18dfa49f29885d26fdd03eaa700c9ab623",
+      "source": "temporal",
+      "readable": false
+    },
+    "agreement": {
+      "updatedAt": "2026-08-01T15:22:06.956Z",
+      "contentHash": "dcf5af8544408400dd95a6b0a19340bfe59b3a1c60569e5d40f43a8d329fe5f3",
+      "source": "temporal",
+      "readable": false
+    },
+    "design": {
+      "updatedAt": "2026-08-01T15:27:07.035Z",
+      "contentHash": "7d396a62c675c57869d55388e46928946e45c83c1c69340df6eb0c48cad8594d",
+      "source": "temporal",
+      "readable": false
+    },
+    "executiveSummary": {
+      "updatedAt": "2026-08-01T15:44:11.705Z",
+      "contentHash": "5b8a7eec2682c9ab072e63c2146c44fc391f7265d332c051b0d362755f27f8cf",
+      "source": "temporal",
+      "readable": false
+    }
+  },
+  "clarify_findings": [
+    {
+      "code": "CLARIFY_MISSING_ERROR_HANDLING",
+      "severity": "warning",
+      "message": "Proposal describes behavior that could fail but doesn't mention error handling or rollback. What happens when things go wrong?",
+      "recorded_at": "2026-08-01T15:23:15.460Z"
+    }
+  ],
+  "reentry_history": [],
+  "same_project_dependencies": [],
+  "lastSignalAt": "2026-08-01T17:09:28.663Z",
+  "origin": {
+    "kind": "adhoc"
+  },
+  "adv_project_id": "1f21b847dbc72d468194b4fa5a2a72495e1d595a",
+  "worktree_auto_managed": true,
+  "verification_evidence_dispositions": [
+    {
+      "taskId": "tk-ed0e8a3b1dff",
+      "concernKey": "verification",
+      "disposition": "fixed",
+      "evidence": "Main agent independently ran adv_run_test phase:verify on tk-ed0e8a3b1dff: runId tr_msajjgzh_70690921, 94/94 tests pass (exit 0, 27.9s). The adv-engineer subagent could not invoke adv_run_test in its session; main agent recorded the evidence directly.",
+      "dispositionedAt": "2026-08-01T15:44:51.373Z"
+    }
+  ],
+  "release_notes": {
+    "audience": "external",
+    "category": "added",
+    "headline_external": "New queue surface for bulk triage into outcome buckets",
+    "highlights": [
+      "Agents can create a queue triage review with {surface: queue, items: [...], options: [...]} — one minimal create call",
+      "Reviewer assigns each item to an outcome bucket (accept/reject/defer or custom) in a single worklist view",
+      "Decision is a clean {item: bucket} mapping; supports revision and pre-population like all other surfaces",
+      "Catalog now covers 5 distinct decision shapes: gallery, pairwise, form, checklist, queue"
+    ],
+    "area": "review surfaces",
+    "user_action_required": false,
+    "links": {}
+  },
+  "worker_bundle_impact": {
+    "kind": "not_applicable",
+    "rationale": "Change confined to Gravy Python surface/schema/catalog/runtime modules. No ADV plugin worker or bundle artifact touched.",
+    "confirmed_at": "2026-08-01T17:09:28.663Z"
+  },
+  "creation_request_hash": "2b2db62d1e1c31748e6ca16e39c5cc9d4804c082b8a04d0d8c403e295e19283a",
+  "projection_revision": 28,
+  "projection_commits": [
+    {
+      "mutation_kind": "proposalUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "cf3d6f3fd5e052c70bbdeb430e3eaa8499cf2a13efec3d632d4d1808ae9aa22b:createArtifacts:proposal",
+      "operation_id": "cf3d6f3fd5e052c70bbdeb430e3eaa8499cf2a13efec3d632d4d1808ae9aa22b:createArtifacts:proposal",
+      "payload_hash": "eaaff198d3aa6cc22322162725f5be2d31e3e7ec2710be668aa8a34783ca9d19",
+      "state_revision": 1,
+      "prior_revision": 0,
+      "new_revision": 1,
+      "committed_at": "2026-07-31T23:21:07.929Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 1,
+      "new_revision": 2,
+      "committed_at": "2026-08-01T15:20:50.562Z"
+    },
+    {
+      "mutation_kind": "agreementUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "eed5941d25d3bbeedac98d6ece8bfcfb756037f636d6f89bfa801530795123d3:updateArtifacts:agreement",
+      "operation_id": "eed5941d25d3bbeedac98d6ece8bfcfb756037f636d6f89bfa801530795123d3:updateArtifacts:agreement",
+      "payload_hash": "e162829dc3ddd4af837be94811bc25c6834e8ff1dde6d23e666f74b56b846eaa",
+      "state_revision": 2,
+      "prior_revision": 2,
+      "new_revision": 3,
+      "committed_at": "2026-08-01T15:22:07.697Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 3,
+      "new_revision": 4,
+      "committed_at": "2026-08-01T15:22:18.913Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 4,
+      "new_revision": 5,
+      "committed_at": "2026-08-01T15:22:28.460Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "4e66f612bae72f4183596d185723bc472c416222ceb70d4248e858bd7d7a7494:updateArtifacts:design",
+      "operation_id": "4e66f612bae72f4183596d185723bc472c416222ceb70d4248e858bd7d7a7494:updateArtifacts:design",
+      "payload_hash": "be4fc1f216509784bf97ba4a47622136b60b0d24c06e84c2bee7ed6efbd30ab0",
+      "state_revision": 3,
+      "prior_revision": 5,
+      "new_revision": 6,
+      "committed_at": "2026-08-01T15:22:46.904Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 6,
+      "new_revision": 7,
+      "committed_at": "2026-08-01T15:26:14.615Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 7,
+      "new_revision": 8,
+      "committed_at": "2026-08-01T15:26:15.312Z"
+    },
+    {
+      "mutation_kind": "designUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "73ef3482676602cf6caf93fabc49d4f0bb6208fa89c2efc869d843035e1e5c0d:updateArtifacts:design",
+      "operation_id": "73ef3482676602cf6caf93fabc49d4f0bb6208fa89c2efc869d843035e1e5c0d:updateArtifacts:design",
+      "payload_hash": "315896247a55c44991956168e8a265d25567352dca1133fe49015eb39407bfc3",
+      "state_revision": 4,
+      "prior_revision": 8,
+      "new_revision": 9,
+      "committed_at": "2026-08-01T15:27:07.394Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 9,
+      "new_revision": 10,
+      "committed_at": "2026-08-01T15:27:17.459Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 10,
+      "new_revision": 11,
+      "committed_at": "2026-08-01T15:27:34.703Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 11,
+      "new_revision": 12,
+      "committed_at": "2026-08-01T15:27:35.413Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 12,
+      "new_revision": 13,
+      "committed_at": "2026-08-01T15:27:35.866Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 13,
+      "new_revision": 14,
+      "committed_at": "2026-08-01T15:31:34.661Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 14,
+      "new_revision": 15,
+      "committed_at": "2026-08-01T15:32:08.547Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 15,
+      "new_revision": 16,
+      "committed_at": "2026-08-01T15:41:16.907Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 16,
+      "new_revision": 17,
+      "committed_at": "2026-08-01T15:41:17.316Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 17,
+      "new_revision": 18,
+      "committed_at": "2026-08-01T15:43:28.839Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 18,
+      "new_revision": 19,
+      "committed_at": "2026-08-01T15:43:40.370Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 19,
+      "new_revision": 20,
+      "committed_at": "2026-08-01T15:43:48.889Z"
+    },
+    {
+      "mutation_kind": "executiveSummaryUpdated",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "525774a24177d45eb785c3d56b21f95fbb7d7bb5132532872c490dd115c1d94e:updateArtifacts:executiveSummary",
+      "operation_id": "525774a24177d45eb785c3d56b21f95fbb7d7bb5132532872c490dd115c1d94e:updateArtifacts:executiveSummary",
+      "payload_hash": "645ea12e46a2c2ee98008d6d809dc9f20f0fac1d4abe568fadc52252f092db45",
+      "state_revision": 5,
+      "prior_revision": 20,
+      "new_revision": 21,
+      "committed_at": "2026-08-01T15:44:12.347Z"
+    },
+    {
+      "mutation_kind": "contract_review_matrix_set",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785599051691_yj5nimia",
+      "prior_revision": 21,
+      "new_revision": 22,
+      "committed_at": "2026-08-01T15:44:13.480Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 22,
+      "new_revision": 23,
+      "committed_at": "2026-08-01T15:44:25.269Z"
+    },
+    {
+      "mutation_kind": "verification_evidence_disposition",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "mrec_1785599091380_ey5e4y39",
+      "prior_revision": 23,
+      "new_revision": 24,
+      "committed_at": "2026-08-01T15:44:51.810Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 24,
+      "new_revision": 25,
+      "committed_at": "2026-08-01T15:45:07.116Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 25,
+      "new_revision": 26,
+      "committed_at": "2026-08-01T15:45:20.232Z"
+    },
+    {
+      "mutation_kind": "releaseNotesSet",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "2f143b0654c4bc587675523811004c9455443fb7995e1e7726a22138f4d69ab5:releaseNotesSet",
+      "operation_id": "2f143b0654c4bc587675523811004c9455443fb7995e1e7726a22138f4d69ab5:releaseNotesSet",
+      "payload_hash": "1eeb8f645b3876f0fb4eb3855be3107c9bf003a24a576865a954e54b2aed89ff",
+      "state_revision": 6,
+      "prior_revision": 26,
+      "new_revision": 27,
+      "committed_at": "2026-08-01T17:09:28.963Z"
+    },
+    {
+      "mutation_kind": "temporal_dual_write_projection",
+      "authority_kind": "temporal",
+      "mutation_receipt_id": "addQueueTriageSurface",
+      "prior_revision": 27,
+      "new_revision": 28,
+      "committed_at": "2026-08-01T17:09:29.304Z"
+    }
+  ],
+  "state_revision": 6
+}
